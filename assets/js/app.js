@@ -569,8 +569,11 @@
     if (!C.ready && !C.loggedIn()) return true;      // آدرس تنظیم نشده: آفلاین
     if (C.loggedIn()) return true;
     if (onLogin) return false;
-    const back = encodeURIComponent(location.pathname.split("/").pop() + location.search);
-    location.replace("login.html?next=" + back);
+    // مسیر بازگشت را نسبت به ریشهٔ سایت بساز (صفحه‌های درس یک پوشه عمق دارند)
+    const m = location.pathname.match(/\/lessons\/([^/]+)\/([^/]*)$/);
+    const rel = m ? ("lessons/" + m[1] + "/" + (m[2] || "index.html")) : location.pathname.split("/").pop() || "index.html";
+    const back = encodeURIComponent(rel + location.search);
+    location.replace(loginHref() + "?next=" + back);
     return false;
   }
 

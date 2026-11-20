@@ -53,7 +53,9 @@
   }
 
   // اگر پیش‌تر وارد شده، مستقیم برود
-  if (DarsCloud.loggedIn()) location.replace(next);
+  if (DarsCloud.loggedIn()) {
+    location.replace(/^https?:/i.test(next) || next.startsWith("//") ? "index.html" : next);
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -66,7 +68,9 @@
         document.getElementById("password").value
       );
       try { localStorage.removeItem("darsyar9:v1"); } catch (e2) {}
-      location.replace(next.startsWith("http") ? "index.html" : next);
+      // فقط مسیرهای داخلی مجازند
+      const safe = /^https?:/i.test(next) || next.startsWith("//") ? "index.html" : next;
+      location.replace(safe);
     } catch (ex) {
       fail(ex.message || "ورود ناموفق بود.");
       go.disabled = false;
