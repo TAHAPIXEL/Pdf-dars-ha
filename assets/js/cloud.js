@@ -118,17 +118,36 @@
 
     pending() { return ls.get(KEY_QUEUE, []).length; },
 
+    _flushing: false,
+
     async flush() {
-      if (!this.loggedIn()) return;
+      if (!this.loggedIn() || this._flushing) return;
       const q = ls.get(KEY_QUEUE, []);
       if (!q.length) return;
+      this._flushing = true;
       try {
         await this._call("save", { ops: q });
-        ls.set(KEY_QUEUE, []);
+        // فقط همان عملیاتی را بردار که فرستادیم؛ تغییرهای تازه در صف می‌مانند
+        const rest = ls.get(KEY_QUEUE, []).slice(q.length);
+        ls.set(KEY_QUEUE, rest);
         global.dispatchEvent(new CustomEvent("dars:synced"));
+        this._mark(true);
       } catch (e) {
+        this._mark(false);
         if (e.status === 401) await this.logout();
+      } finally {
+        this._flushing = false;
       }
+    },
+
+    /** نمایش وضعیت همگام‌سازی در نوار بالا */
+    _mark(ok) {
+      try {
+        const dot = document.querySelector("[data-sync]");
+        if (!dot) return;
+        dot.setAttribute("data-state", ok ? "ok" : "off");
+        dot.title = ok ? "همگام با حساب همدل" : "در انتظار اتصال…";
+      } catch (e) { /* بی‌اهمیت */ }
     },
 
     /* ---------------- ذخیرهٔ فوری یک تغییر ---------------- */

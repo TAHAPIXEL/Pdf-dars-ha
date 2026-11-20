@@ -119,7 +119,17 @@
 
     const recent = document.getElementById("recent");
     recent.innerHTML = "";
-    const rows = (data && data.attempts) || [];
+    // اول تلاش‌های سرور؛ اگر نبود، از تاریخچهٔ محلی همین دستگاه
+    let rows = (data && data.attempts) || [];
+    if (!rows.length) {
+      rows = Object.keys(st.quizzes)
+        .map((k) => {
+          const q = st.quizzes[k];
+          const [subject, lessonId] = k.split(":");
+          return { subject, lesson_id: lessonId, pct: q.best, mode: "normal", created_at: q.at };
+        })
+        .sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+    }
     if (!rows.length) {
       recent.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim)">هنوز آزمونی نداده‌ای.</td></tr>';
     } else {

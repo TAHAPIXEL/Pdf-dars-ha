@@ -617,6 +617,7 @@
           global.dispatchEvent(new CustomEvent("dars:mode", { detail: m }));
         }
       }, el("span", { class: "ub-dot" }), el("span", { text: quick ? "سریع" : "کامل" })),
+      el("span", { class: "sync-dot", "data-sync": "", "data-state": "ok", title: "همگام با حساب همدل" }),
       el("button", {
         class: "ub-out", type: "button", text: "خروج",
         onclick: async () => { await C.logout(); location.href = rootHref() + "login.html"; }
