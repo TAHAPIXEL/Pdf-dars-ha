@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0e1117">
-<title>درس — پیام‌های آسمان</title>
-<meta name="description" content="پیام‌های آسمان پایه نهم">
+<title>درس — پیام‌های آسمانی</title>
+<meta name="description" content="پیام‌های آسمانی پایه نهم">
 <link rel="stylesheet" href="../../assets/css/app.css">
 </head>
-<body style="--accent:#8b5cf6;--accent-deep:#6d34e0;--accent-soft:rgba(139,92,246,0.14);--accent-glow:rgba(139,92,246,0.35)">
+<body style="--accent:#8b5cf6;--accent-deep:#7c3aed;--accent-soft:rgba(139,92,246,0.14);--accent-glow:rgba(139,92,246,0.35)">
 <header class="topbar">
   <div class="wrap">
     <a class="back-link" href="../../index.html" data-back="../../index.html">
@@ -47,7 +47,7 @@
 </main>
 <footer class="site-foot">
   <div class="wrap">
-    <span>پیام‌های آسمان · پیام‌های آسمان پایه نهم</span>
+    <span>پیام‌های آسمانی · پیام‌های آسمانی پایه نهم</span>
     <a href="../../index.html">صفحهٔ اصلی</a>
   </div>
 </footer>
@@ -65,7 +65,7 @@
   const idx = C.lessons.findIndex(l => l.id === id);
   const L = C.lessons[idx >= 0 ? idx : 0];
 
-  document.title = L.title + " — پیام‌های آسمان";
+  document.title = L.title + " — پیام‌های آسمانی";
   document.getElementById("ln").textContent = fa(L.n);
   document.getElementById("lp").textContent = "صفحهٔ " + L.page;
 
@@ -73,7 +73,7 @@
   sheet.innerHTML =
     '<h2>' + L.title + '</h2>' +
     '<div style="font-family:var(--f-ui);font-size:.84rem;color:var(--text-dim);margin-bottom:22px">' +
-      'پیام‌های آسمان · پایه نهم · صفحهٔ ' + L.page +
+      'پیام‌های آسمانی · پایه نهم · صفحهٔ ' + L.page +
     '</div>' + L.body;
 
   // ناوبری درس قبل/بعد
