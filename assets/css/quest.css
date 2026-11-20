@@ -278,3 +278,27 @@ body { -webkit-text-size-adjust: 100%; }
 /* اعداد و فرمول لاتین در متن فارسی */
 .lesson-body .tbl-wrap { max-width: 100%; }
 .lesson-body table { max-width: 100%; }
+
+/* ------------------ محافظ سرریز افقی ------------------ */
+/* متن‌های بلند لاتین/ریاضی و جدول‌های کتاب نباید صفحه را پهن‌تر از موبایل کنند */
+.lesson-body,
+.lesson-body p,
+.lesson-body li,
+.lesson-body div {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.lesson-body table { display: block; overflow-x: auto; max-width: 100%; }
+html, body { max-width: 100%; overflow-x: hidden; }
+
+/* عنوان‌های بلند فصل/درس در موبایل */
+@media (max-width: 480px) {
+  .lesson-body { font-size: 0.9rem; line-height: 2; }
+  .glass, .glass-strong { border-radius: 18px; }
+}
+
+/* نوار ناوبری: دکمهٔ کاربر در موبایل جمع‌وجور بماند */
+@media (max-width: 400px) {
+  .ub-wrap { gap: 4px; }
+  .ub-wrap a { padding-inline: 2px; }
+}
