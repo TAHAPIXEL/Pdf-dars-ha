@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1117">
+<title>ورود — درس‌یار نهم</title>
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body data-page="login">
+<div class="login-wrap">
+  <div class="login-card rise">
+    <h1>🎓 درس‌یار نهم</h1>
+    <p class="sub">با همان <b>شماره تلفن</b> و <b>رمز عبور</b> حساب «همدل» وارد شوید. ثبت‌نام جداگانه‌ای لازم نیست.</p>
+
+    <form id="loginForm" autocomplete="on">
+      <div class="field">
+        <label for="phone">شماره تلفن</label>
+        <input id="phone" name="phone" type="tel" inputmode="numeric" dir="ltr"
+               placeholder="09xxxxxxxxx" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">رمز عبور</label>
+        <input id="password" name="password" type="password" dir="ltr"
+               placeholder="••••" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary" type="submit" id="go">ورود به درس‌یار</button>
+      <div class="login-err" id="err" hidden></div>
+    </form>
+
+    <p class="login-note">
+      حساب همدل ندارید؟ از مدرسه بخواهید برای شما حساب بسازد.<br>
+      پیشرفت و نمره‌های آزمون شما روی پروندهٔ همدل ذخیره می‌شود و دبیرتان می‌تواند آن را ببیند.
+    </p>
+  </div>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/cloud.js"></script>
+<script>
+(function () {
+  const form = document.getElementById("loginForm");
+  const err = document.getElementById("err");
+  const go = document.getElementById("go");
+  const params = new URLSearchParams(location.search);
+  const next = params.get("next") || "index.html";
+
+  function fail(msg) {
+    err.hidden = false;
+    err.textContent = msg;
+  }
+
+  // اگر پیش‌تر وارد شده، مستقیم برود
+  if (DarsCloud.loggedIn()) location.replace(next);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    err.hidden = true;
+    go.disabled = true;
+    go.textContent = "در حال ورود…";
+    try {
+      const user = await DarsCloud.login(
+        document.getElementById("phone").value,
+        document.getElementById("password").value
+      );
+      try { localStorage.removeItem("darsyar9:v1"); } catch (e2) {}
+      location.replace(next.startsWith("http") ? "index.html" : next);
+    } catch (ex) {
+      fail(ex.message || "ورود ناموفق بود.");
+      go.disabled = false;
+      go.textContent = "ورود به درس‌یار";
+    }
+  });
+})();
+</script>
+</body>
+</html>

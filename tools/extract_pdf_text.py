@@ -199,3 +199,44 @@ def extract_struct(pdf_path: str) -> list[list[dict]]:
         return [page_lines(pg) for pg in doc]
     finally:
         doc.close()
+
+# ---------------------------------------------------------------------------
+# مسیر جایگزین: بازسازی با کلمه‌ها (برای صفحه‌هایی که ترتیب بلوک‌ها خراب است)
+# ---------------------------------------------------------------------------
+def page_words_rtl(page) -> str:
+    """صفحه را از روی جعبهٔ هر «کلمه» بازسازی می‌کند.
+
+    بعضی صفحه‌ها (داستان‌ها و شعرهای فارسی) بلوک‌هایشان ترتیب منطقی ندارد؛
+    ولی خودِ کلمه‌ها مختصات درست دارند. با گروه‌بندی کلمه‌ها در سطرهای
+    افقی و چیدن راست‌به‌چپ، متنِ خوانا بازمی‌گردد.
+    """
+    words = [w for w in page.get_text("words") if w[4].strip()]
+    if not words:
+        return ""
+    rows: dict[int, list] = {}
+    for w in words:
+        rows.setdefault(round(w[1] / 6) * 6, []).append(w)
+    out = []
+    for y in sorted(rows):
+        line = sorted(rows[y], key=lambda w: -w[2])
+        parts: list[str] = []
+        for w in line:
+            tok = w[4]
+            if tok == "\u200c":
+                continue
+            # «می ‌ شد» ← «می‌شد» (نیم‌فاصله به تک‌واژهٔ پیشین می‌چسبد)
+            if parts and (w[0] - line[0][2] < 0):   # فقط برای پیوند نیم‌فاصله
+                pass
+            if parts and tok in ("‌",) :
+                parts[-1] += "\u200c"
+                continue
+            parts.append(tok)
+        out.append(_join_zwnj(" ".join(parts)))
+    return "\n".join(out)
+
+
+def _join_zwnj(line: str) -> str:
+    """«مي ‌ شود» ← «مي‌شود»؛ «نقّاش ي» درست می‌ماند."""
+    line = re.sub(r"\s+\u200c\s*", "\u200c", line)
+    line = re.sub(r"\u200c\s+", "\u200c", line)
+    return re.sub(r"\s{2,}", " ", line).strip()

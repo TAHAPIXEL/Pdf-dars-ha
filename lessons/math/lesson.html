@@ -21,21 +21,43 @@
       <span data-xp>۰</span>
       <span class="lbl">XP</span>
     </div>
+    <div class="ub-wrap" data-userbar></div>
   </div>
 </header>
 
 <main>
   <article class="wrap section" style="padding-top:26px">
-    <div class="quiz" style="max-width:840px">
+    <div class="quiz" style="max-width:860px">
       <div class="quiz-top">
         <span class="quiz-count">درس <b id="ln">۱</b></span>
         <div class="spacer" style="flex:1"></div>
         <span class="hint" style="font-family:var(--f-ui);font-size:.8rem;color:var(--text-dim)" id="lp"></span>
       </div>
 
-      <div class="sheet rise" id="sheet"></div>
+      <div class="learn-tabs" role="tablist" aria-label="حالت یادگیری">
+        <button type="button" role="tab" id="tabQuick" aria-selected="true">⚡ یادگیری سریع</button>
+        <button type="button" role="tab" id="tabFull" aria-selected="false">📖 متن کامل</button>
+      </div>
 
-      <div class="quiz-actions" style="margin-top:18px">
+      <div id="quickPane">
+        <div class="quick-bar">
+          <span class="qb-t">فقط <b id="pn">۶</b> نکتهٔ کلیدی — همه از خودِ کتاب</span>
+          <div class="spacer" style="flex:1"></div>
+          <a class="btn btn-quiet" href="../../پایه-نهم/05-ریاضی-نهم.pdf" target="_blank" rel="noopener">PDF صفحه</a>
+        </div>
+        <div class="points rise" id="points"></div>
+        <div class="quiz-actions" style="margin-top:6px">
+          <button class="btn btn-primary" id="quickDone" type="button">نکته‌ها را یاد گرفتم ✓</button>
+          <div class="spacer"></div>
+          <a class="btn btn-ghost" id="quickNext" href="quiz.html">برو به آزمون ‹</a>
+        </div>
+      </div>
+
+      <div id="fullPane" hidden>
+        <div class="sheet rise" id="sheet"></div>
+      </div>
+
+      <div class="quiz-actions" style="margin-top:18px" id="fullActions" hidden>
         <a class="btn btn-ghost" href="index.html">مسیر درس</a>
         <a class="btn btn-quiet" href="../../پایه-نهم/05-ریاضی-نهم.pdf" target="_blank" rel="noopener">PDF کتاب</a>
         <div class="spacer"></div>
@@ -52,10 +74,13 @@
   </div>
 </footer>
 
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/math.js"></script>
 <script>
 (function () {
+  if (!Dars.requireLogin()) return;
   const { fa, Store, celebrate } = Dars;
   const C = window.CONTENT["math"];
   const KEY = "math";
@@ -69,6 +94,24 @@
   document.getElementById("ln").textContent = fa(L.n);
   document.getElementById("lp").textContent = "صفحهٔ " + L.page;
 
+  /* ---------- نکته‌های کلیدی ---------- */
+  const pts = L.points || [];
+  document.getElementById("pn").textContent = fa(pts.length);
+  const pointsBox = document.getElementById("points");
+  const words = ["یکم", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
+  pointsBox.append(Dars.el("h3", { text: "نکته‌های کلیدیِ «" + L.title + "»" }));
+  if (!pts.length) {
+    pointsBox.append(Dars.el("div", { class: "point" },
+      Dars.el("span", { class: "t", text: "برای این درس نکتهٔ جداگانه‌ای ثبت نشده؛ متن کامل را ببین." })));
+  }
+  pts.forEach((p, i) => {
+    pointsBox.append(Dars.el("div", { class: "point" },
+      Dars.el("span", { class: "n", text: fa(i + 1) }),
+      Dars.el("span", { class: "t", text: p })
+    ));
+  });
+
+  /* ---------- متن کامل ---------- */
   const sheet = document.getElementById("sheet");
   sheet.innerHTML =
     '<h2>' + L.title + '</h2>' +
@@ -79,7 +122,6 @@
   // ناوبری درس قبل/بعد
   const prev = C.lessons[idx - 1];
   const next = C.lessons[idx + 1];
-
   const nav = document.createElement("div");
   nav.style.cssText = "display:flex;gap:10px;margin-top:18px;flex-wrap:wrap";
   if (prev) {
@@ -99,38 +141,75 @@
   }
   sheet.after(nav);
 
-  // ثبت خوانده‌شدن
+  /* ---------- تعویض تب سریع / کامل ---------- */
+  const quickPane = document.getElementById("quickPane");
+  const fullPane = document.getElementById("fullPane");
+  const fullActions = document.getElementById("fullActions");
+  const tabQuick = document.getElementById("tabQuick");
+  const tabFull = document.getElementById("tabFull");
+
+  function show(mode) {
+    const q = mode !== "full";
+    tabQuick.setAttribute("aria-selected", q ? "true" : "false");
+    tabFull.setAttribute("aria-selected", q ? "false" : "true");
+    quickPane.hidden = !q;
+    fullPane.hidden = q;
+    fullActions.hidden = q;
+    Store.setMode(q ? "quick" : "normal");
+  }
+  tabQuick.addEventListener("click", () => show("quick"));
+  tabFull.addEventListener("click", () => show("full"));
+  if (Store.mode() === "quick") show("quick"); else show("full");
+
+  /* ---------- ثبت یادگیری ---------- */
   const doneBtn = document.getElementById("doneBtn");
   const nextBtn = document.getElementById("nextBtn");
+  const quickDone = document.getElementById("quickDone");
+  const quickNext = document.getElementById("quickNext");
 
-  if (C.quizzes[L.id] && C.quizzes[L.id].length) {
+  const hasQuiz = !!(C.quizzes[L.id] && C.quizzes[L.id].length);
+  if (hasQuiz) {
     nextBtn.href = "quiz.html?id=" + L.id;
+    quickNext.href = "quiz.html?id=" + L.id;
   } else if (next) {
     nextBtn.href = "lesson.html?id=" + next.id;
     nextBtn.textContent = "درس بعدی ‹";
+    quickNext.href = "lesson.html?id=" + next.id;
+    quickNext.textContent = "درس بعدی ‹";
   } else {
     nextBtn.href = "index.html";
     nextBtn.textContent = "پایان مسیر ‹";
+    quickNext.href = "index.html";
+    quickNext.textContent = "پایان مسیر ‹";
   }
 
-  if (Store.isLessonDone(KEY, L.id)) {
+  function paintDone() {
+    const done = Store.isLessonDone(KEY, L.id);
+    if (!done) return;
     doneBtn.textContent = "خوانده شده ✓";
     doneBtn.classList.remove("btn-primary");
     doneBtn.classList.add("btn-ghost");
     nextBtn.style.display = "";
+    quickDone.textContent = "یاد گرفتم ✓";
+    quickDone.disabled = true;
+    quickDone.classList.remove("btn-primary");
+    quickDone.classList.add("btn-ghost");
   }
+  paintDone();
 
   doneBtn.addEventListener("click", () => {
     Store.markLesson(KEY, L.id);
     Dars.paintStats();
-    doneBtn.textContent = "خوانده شده ✓";
-    doneBtn.classList.remove("btn-primary");
-    doneBtn.classList.add("btn-ghost");
-    nextBtn.style.display = "";
+    paintDone();
     celebrate(18);
   });
 
-  if (Store.isLessonDone(KEY, L.id)) nextBtn.style.display = "";
+  quickDone.addEventListener("click", () => {
+    Store.markQuickRead(KEY, L.id);
+    Dars.paintStats();
+    paintDone();
+    celebrate(14);
+  });
 })();
 </script>
 </body>

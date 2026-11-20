@@ -55,8 +55,39 @@ EN_START = {"english": {1: 9, 2: 23, 3: 48, 4: 63, 5: 85, 6: 97},
 # ورودی‌ها
 # ---------------------------------------------------------------------------
 def pages_of(key: str) -> list[str]:
+    """صفحه‌های متنِ استخراج‌شدهٔ هر کتاب (کتاب‌های انگلیسی مسیر جدا دارند)."""
+    if key in ("english", "english-workbook"):
+        path = os.path.join(M.TXT_DIR, key + ".json")
+        if os.path.exists(path):
+            return json.load(open(path, encoding="utf-8"))
     path = os.path.join(M.TXT_DIR, M.BOOKS[key] + ".json")
     return json.load(open(path, encoding="utf-8"))
+
+
+_ALT_CACHE: dict[str, list[str]] = {}
+
+
+def alt_pages_of(key: str) -> list[str]:
+    """بازسازیِ جایگزینِ صفحه‌ها از روی «کلمه»ها (متن‌های به‌هم‌ریخته)."""
+    if key in _ALT_CACHE:
+        return _ALT_CACHE[key]
+    if key in ("english", "english-workbook"):
+        _ALT_CACHE[key] = []
+        return []
+    import pymupdf
+    from extract_pdf_text import page_words_rtl
+    path = os.path.join(os.path.dirname(M.BOOKS[key]) or "", "")
+    pdf = os.path.join("پایه-نهم", M.BOOKS[key] + ".pdf")
+    if not os.path.exists(pdf):
+        _ALT_CACHE[key] = []
+        return []
+    doc = pymupdf.open(pdf)
+    try:
+        pages = [page_words_rtl(pg) for pg in doc]
+    finally:
+        doc.close()
+    _ALT_CACHE[key] = pages
+    return pages
 
 
 def flatten(cur: dict) -> list[dict]:
@@ -410,8 +441,12 @@ def quizzes_en(title: str, plain: str, limit: int = 4) -> list[dict]:
 # ---------------------------------------------------------------------------
 def body_with_pages(pages, a: int, b: int, offset: int,
                     head_title: str | None = None,
-                    max_chars: int = MAX_CHARS) -> str:
-    html = M.build_body(pages, a, b, max_chars=max_chars)
+                    max_chars: int = MAX_CHARS,
+                    eng: bool = False) -> str:
+    if eng:
+        html = M.build_body_en(pages, a, b, max_chars=max_chars)
+    else:
+        html = M.build_body(pages, a, b, max_chars=max_chars)
     if not html:
         return ""
     first, last = page_label(pages, a, offset), page_label(pages, b, offset)
@@ -442,26 +477,135 @@ def lede_of(key: str, lessons: list[dict]) -> str:
             f"از «{titles}» تا «{lessons[-1]['title']}».")
 
 
+def quizzes_en_loose(title: str, plain: str, limit: int = 2) -> list[dict]:
+    """مسیر دومِ انگلیسی: جمله‌های کوتاه‌تر را هم می‌پذیرد تا هیچ درسی بی‌آزمون نماند."""
+    sents = [x.strip() for x in re.split(r"(?<=[.?!])\s+", re.sub(r"\s+", " ", plain))
+             if 24 <= len(x.strip()) <= 220]
+    words = list(dict.fromkeys(
+        w for w in re.findall(r"[A-Za-z][A-Za-z'’-]{3,}", plain)
+        if w.lower() not in EN_STOP))
+    out, used = [], set()
+    for x in sents:
+        cand = [w for w in re.findall(r"[A-Za-z][A-Za-z'’-]{3,}", x)
+                if w.lower() not in EN_STOP and 3 <= len(w) <= 13]
+        if not cand:
+            continue
+        target = cand[len(cand) // 3]
+        if target.lower() in used:
+            continue
+        used.add(target.lower())
+        q = x.replace(target, "______", 1)
+        if "______" not in q:
+            continue
+        others = {z.lower() for z in re.findall(r"[A-Za-z]{3,}", x)}
+        wrong = [w for w in words if w.lower() != target.lower()
+                 and w.lower() not in others][:12]
+        if len(wrong) < 3:
+            continue
+        opts = [target, wrong[0], wrong[len(wrong) // 2], wrong[-1]]
+        rot = len(out) % 4
+        opts = opts[rot:] + opts[:rot]
+        out.append({
+            "q": "Complete the sentence from the book:<br>"
+                 f'<span style="opacity:.85">{q}</span>',
+            "opts": opts,
+            "a": opts.index(target),
+            "tag": title,
+            "why": f'The book says: "{x}"',
+        })
+        if len(out) >= limit:
+            break
+    return out
+
+
+def cloze_from_sentences(title: str, plain: str, limit: int = 2) -> list[dict]:
+    """واپسین چاره: یک عبارت از جملهٔ خودِ کتاب حذف و از گزینه‌های همان درس پر می‌شود."""
+    text = re.sub(r"\s+", " ", plain)
+    sents = [x.strip() for x in re.split(r"(?<=[.؟!])\s+", text)
+             if 40 <= len(x.strip()) <= 200]
+    phrases = [x.strip() for x in re.split(r"[،؛.؟!]", text)
+               if 6 <= len(x.strip()) <= 32 and len(x.split()) <= 5]
+    out, used = [], set()
+    for x in sents:
+        best = None
+        for ph in phrases:
+            if ph in x and ph not in used:
+                best = ph
+                break
+        if not best:
+            continue
+        used.add(best)
+        q = x.replace(best, "ــــــــ", 1)
+        pool = [z for z in phrases if z != best and z not in q]
+        if len(pool) < 3:
+            continue
+        wrong = [pool[0], pool[len(pool) // 2], pool[-1]]
+        opts = [best] + wrong
+        rot = len(out) % 4
+        opts = opts[rot:] + opts[:rot]
+        out.append({
+            "q": "جای خالی را با عبارت درست کتاب پر کنید:<br>"
+                 f'<span style="opacity:.85">{q}</span>',
+            "opts": opts,
+            "a": opts.index(best),
+            "tag": title,
+            "why": f"متن کتاب: «{x}»",
+        })
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _short_topic(t: str) -> str:
+    """سرتیترِ کوتاه و تمیز برای گزینه (بدون برچسب‌های چسبیدهٔ کتاب)."""
+    t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t)).strip()
+    t = re.sub(r"^[\d٠-٩۰-۹]+[ـ\-.\s]*", "", t)
+    t = re.sub(r"\s*[.،؛:]\s*$", "", t)
+    return t
+
+
 def topic_quizzes(title: str, body_html: str, other_titles: list[str],
                   limit: int = 2) -> list[dict]:
     """پرسش «موضوعِ این درس» از سرتیترهای خودِ همان درسِ کتاب.
 
-    صورت پرسش از نام درس، و گزینهٔ درست از سرتیترِ داخل همان درس گرفته
-    می‌شود؛ گزینه‌های نادرست، سرتیترهای درس‌های دیگرِ همان کتاب‌اند. همه
-    از خودِ PDF می‌آیند.
+    صورت پرسش از نام درس، گزینهٔ درست از سرتیترِ داخل همان درس، و گزینه‌های
+    نادرست از سرتیترهای درس‌های دیگرِ همان کتاب. همه از خود PDF می‌آیند و
+    هر چهار گزینه هم‌جنس‌اند.
     """
-    heads = [t for t in re.findall(r"<h3>(.*?)</h3>", body_html)
-             if t and len(t) > 6 and t != title]
-    heads = [h for h in heads if not re.match(r"^(فصل|درس)\s", h)]
-    if not heads:
-        return []
-    pool = [t for t in other_titles if t and t != title]
-    out = []
-    for i, h in enumerate(heads[:limit]):
-        if len(pool) < 3:
-            break
-        opts = [h, pool[i % len(pool)], pool[(i + 3) % len(pool)], pool[(i + 5) % len(pool)]]
-        rot = i % 4
+    def good(t):
+        t = _short_topic(t)
+        return t if 4 <= len(t) <= 60 and "..." not in t and "…" not in t else ""
+
+    heads = [good(t) for t in re.findall(r"<h3>(.*?)</h3>", body_html)]
+    heads = [h for h in heads if h and h != title
+             and not re.match(r"^(فصل|درس|جلسه|جلسۀ)\s", h)]
+    pool = [good(t) for t in other_titles if t and t != title]
+    pool = [x for x in pool if x]
+
+    out, seen, opts_all = [], set(), set()
+    for h in heads:
+        if h in seen:
+            continue
+        seen.add(h)
+        wrongs = [x for x in pool
+                  if x != h and x not in seen and x not in opts_all
+                  and 0.3 <= len(x) / max(1, len(h)) <= 3.0][:3]
+        if len(wrongs) < 3:
+            wrongs = [x for x in pool if x != h and x not in opts_all][:3]
+        if len(wrongs) < 3:
+            # واپسین چاره: جملهٔ کوتاهِ خودِ همان درس به‌جای گزینهٔ نادرست
+            for sent in re.split(r"(?<=[.؟!])\s+", re.sub(r"<[^>]+>", " ", body_html)):
+                sent = sent.strip()
+                if (12 <= len(sent) <= 55 and sent != h
+                        and sent not in wrongs and sent not in opts_all):
+                    wrongs.append(sent)
+                if len(wrongs) >= 3:
+                    break
+        if len(wrongs) < 3:
+            continue
+        opts = [h] + wrongs[:3]
+        opts_all.update(opts)
+        rot = len(out) % 4
         opts = opts[rot:] + opts[:rot]
         out.append({
             "q": f"کدام موضوع در درس «{title}» آمده است؟",
@@ -470,7 +614,134 @@ def topic_quizzes(title: str, body_html: str, other_titles: list[str],
             "tag": title,
             "why": f"سرتیتر «{h}» در همین درس از کتاب آمده است.",
         })
+        if len(out) >= limit:
+            break
     return out
+
+
+def _clean_point(t: str, title: str | None) -> str:
+    t = re.sub(r"<[^>]+>", " ", t)
+    t = re.sub(r"📖[^.]{0,60}", " ", t)
+    t = re.sub(r"از خود کتاب درسی", " ", t)
+    t = re.sub(r"همهٔ مطالب این درس‌نامه[^.]*\.", " ", t)
+    t = re.sub(r"بندبه‌بند[^.]{0,90}", " ", t)
+    t = re.sub(r"صفحه‌?(های|ٔ)?\s*[۰-۹]+(\s*تا\s*[۰-۹]+)?[^.]{0,40}کتاب گرفته شده است", " ", t)
+    if title:
+        t = t.replace(title, " ")
+    t = re.sub(r"\s+", " ", t).strip(" .،؛:«»…")
+    return t
+
+
+BROKEN = re.compile(
+    r"(مودر|کاربدر|بقیٔه|کاربدر|\d{2}\s*درجه\s*و\s*\d{2}\s*دقیقه)"
+)
+
+
+def _strip_footnotes(t: str) -> str:
+    """شمارهٔ پانویسِ چسبیدهٔ PDF را از واژه جدا می‌کند («نیرو2» ← «نیرو»)."""
+    return re.sub(r"(?<=[\u0600-\u06FF])[\d٠-٩۰-۹]{1,2}(?=\s|$)", "", t)
+
+
+VERB_END = re.compile(
+    r"(است|هست|هستند|نیست|نیستند|بود|بودند|بوده است|شد|شدند|شده است|"
+    r"می‌شود|می شود|می‌شوند|می شوند|شود|شوند|می‌کند|می کند|می‌کنند|می کنند|"
+    r"کرد|کردند|می‌دهد|می دهد|می‌دهند|دهد|دهند|دارد|دارند|داشت|داشتند|"
+    r"داریم|دارند|یافت|می‌یابد|می یابد|گرفت|می‌گیرد|می گیرد|"
+    r"می‌آید|می آید|آید|باشد|باشند|مانده است|گذاشته است|تشکیل می‌دهد|"
+    r"تشکیل می دهد|اعلام کرد|امضا کردند|مصرف می‌شود)\s*\.$"
+)
+
+
+def _sentences_from_html(body_html: str) -> list[str]:
+    """جمله‌های کاملِ متن درس، از خط‌های کتاب."""
+    plain = re.sub(r"<[^>]+>", "\n", body_html)
+    out: list[str] = []
+    for raw in plain.split("\n"):
+        ln = raw.strip()
+        if not ln:
+            continue
+        # خط‌های بلندی که چند جمله دارند را از هم جدا می‌کنیم
+        for piece in re.split(r"(?<=[.!])\s+", ln):
+            piece = piece.strip()
+            if piece:
+                out.append(piece)
+    return out
+
+
+def key_points(body_html: str, quizzes: list[dict], limit: int = 6,
+               title: str | None = None) -> list[str]:
+    """نکته‌های کلیدیِ درس برای «یادگیری سریع» — همه از خودِ کتاب.
+
+    هر نکته یک جملهٔ تمام‌شدهٔ کتاب است (یا پاسخ درستِ پرسش‌های همان درس).
+    جمله‌های نیمه‌کاره، پرسش‌ها و تمرین‌ها کنار گذاشته می‌شوند.
+    """
+    out, seen = [], set()
+    title_s = title or ""
+
+    def add(t: str, maxlen: int = 165) -> bool:
+        t = _strip_footnotes(_clean_point(t, title_s))
+        if not (24 <= len(t) <= maxlen):
+            return False
+        if "کتاب گرفته شده" in t or "درس‌نامه" in t:
+            return False
+        if not t.endswith("."):
+            t += "."
+        if t.endswith("؟") or t.endswith("!"):
+            return False
+        if re.search(r"(کنید|بنویسید|بیاورید|بیابید|پاسخ دهید|بحث کنید|جمع آوری)\s*\.$", t):
+            return False
+        if re.match(r"^[\d٠-٩۰-۹]+\s*[ـ\-.)]", t):
+            return False
+        if len(t.split()) < 6:
+            return False
+        if len([w for w in t.split() if len(w) > 3]) < 3:
+            return False
+        key = t[:30]
+        if key in seen:
+            return False
+        seen.add(key)
+        out.append(t)
+        return True
+
+    # ۱) جملهٔ کاملِ کتاب که با فعل تمام می‌شود (بهترین کیفیت)
+    for sent in _sentences_from_html(body_html):
+        if len(out) >= limit:
+            break
+        if VERB_END.search(sent) and 30 <= len(sent) <= 165:
+            add(sent)
+
+    # ۲) پاسخ درستِ پرسش = نکتهٔ آزمونی
+    for q in quizzes:
+        if len(out) >= limit:
+            break
+        try:
+            ans = q["opts"][q["a"]]
+        except (KeyError, IndexError, TypeError):
+            continue
+        add(ans, 130)
+
+    # ۳) عبارتِ کامل‌شدهٔ صورت پرسش
+    for q in quizzes:
+        if len(out) >= limit:
+            break
+        try:
+            ans = q["opts"][q["a"]]
+        except (KeyError, IndexError, TypeError):
+            continue
+        stem = re.sub(r"<[^>]+>", " ", q["q"])
+        stem = re.sub(r"جای خالی را با عبارت درست کتاب پر کنید:?", " ", stem)
+        stem = re.sub(r"Complete the sentence from the book:?", " ", stem)
+        stem = re.sub(r"ـــــ+", ans, stem)
+        stem = re.sub(r"[_]{3,}", ans, stem)
+        add(stem, 170)
+
+    # ۴) سرتیترهای درس
+    for h in re.findall(r"<h3>(.*?)</h3>", body_html):
+        if len(out) >= limit:
+            break
+        add(h, 80)
+
+    return out[:limit]
 
 
 def build_subject(key: str) -> dict:
@@ -527,10 +798,24 @@ def build_subject(key: str) -> dict:
         if end < start:
             end = start
 
-        body = body_with_pages(pages, start, end, off, head_title=it["title"])
-        if len(body) < 420:
-            body = body_with_pages(pages, start, min(end + 2, len(pages) - 1), off,
-                                   head_title=it["title"])
+        eng = key in ("english", "english-workbook")
+        body = body_with_pages(pages, start, end, off, head_title=it["title"], eng=eng)
+        # اگر درس کوتاه شد، صفحه‌ها را با روشِ کلمه‌محور بازسازی می‌کنیم
+        if len(body) < 700 and key not in ("english", "english-workbook"):
+            alt = alt_pages_of(key)
+            if alt:
+                nbody = body_with_pages(alt, start, end, off, head_title=it["title"])
+                if len(nbody) > len(body):
+                    body = nbody
+        # اگر درس کوتاه شد (صفحه‌های تصویری/شعری)، محدوده را جلو می‌بریم
+        grow = 2
+        while len(body) < 700 and grow <= 10:
+            nbody = body_with_pages(pages, start, min(end + grow, len(pages) - 1),
+                                    off, head_title=it["title"], eng=eng)
+            if len(nbody) <= len(body):
+                break
+            body = nbody
+            grow += 1
 
         lessons.append({"id": sid, "n": idx + 1, "title": it["title"],
                         "page": M.fa(page_label(pages, start, off)), "body": body})
@@ -539,17 +824,45 @@ def build_subject(key: str) -> dict:
             qs = quizzes_en(it["title"], plain_of(body), limit=4)
         else:
             qs = quizzes_from_text(it["title"], plain_of(body), limit=4)
+        all_titles = [x["title"] for x in items]
+        if len(qs) < 2 and eng:               # انگلیسی: مسیر آزادتر
+            extra = quizzes_en_loose(it["title"], plain_of(body), limit=2 - len(qs))
+            have = {q["q"] for q in qs}
+            qs = qs + [q for q in extra if q["q"] not in have]
         if len(qs) < 2:                       # کمکی: از تمرین‌های شماره‌دار کتاب
             extra = quizzes_from_prompts(it["title"], body, limit=4 - len(qs))
             have = {q["q"] for q in qs}
             qs = qs + [q for q in extra if q["q"] not in have]
+        if len(qs) < 2:                       # کمکی: جای‌خالی از جملهٔ خودِ درس
+            extra = cloze_from_sentences(it["title"], plain_of(body), limit=2 - len(qs))
+            have = {q["q"] for q in qs}
+            qs = qs + [q for q in extra if q["q"] not in have]
         if len(qs) < 2:                       # کمکی: موضوع‌های خودِ درس
-            all_titles = [x["title"] for x in items]
             extra = topic_quizzes(it["title"], body, all_titles, limit=2 - len(qs))
             have = {q["q"] for q in qs}
             qs = qs + [q for q in extra if q["q"] not in have]
+        if len(qs) < 2:                       # تضمین: پرسش از فهرست خود کتاب
+            while len(qs) < 2:
+                pool_t = [t for t in all_titles if t != it["title"]]
+                if len(pool_t) < 3:
+                    break
+                k = len(qs)
+                opts = [it["title"], pool_t[k % len(pool_t)],
+                        pool_t[(k + 4) % len(pool_t)], pool_t[(k + 8) % len(pool_t)]]
+                if len(set(opts)) < 4:
+                    break
+                rot = k % 4
+                opts = opts[rot:] + opts[:rot]
+                qs.append({
+                    "q": f"کدام یک از این درس‌ها، درس «{it['title']}» از کتاب است؟",
+                    "opts": opts,
+                    "a": opts.index(it["title"]),
+                    "tag": it["title"],
+                    "why": f"«{it['title']}» در فهرست خود کتاب آمده است.",
+                })
         if qs:
             quizzes[sid] = qs
+        lessons[-1]["points"] = key_points(body, qs, title=it["title"])
 
     return {
         "key": key, "name": info["name"], "full": info["full"], "icon": info["icon"],
@@ -594,7 +907,10 @@ def write_js(d: dict) -> str:
     for l in d["lessons"]:
         L.append(f'    {{ id: {js_str(l["id"])}, n: {l["n"]}, '
                  f'title: {js_str(l["title"])}, page: {js_str(l["page"])},')
-        L.append(f'      body: {js_tpl(l["body"])} }},')
+        pts = l.get("points") or []
+        arr = ", ".join(js_str(x) for x in pts)
+        L.append(f'      body: {js_tpl(l["body"])},')
+        L.append(f'      points: [{arr}] }},')
     L.append("  ],")
     L.append("")
     L.append("  quizzes: {")

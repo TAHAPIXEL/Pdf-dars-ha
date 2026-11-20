@@ -198,6 +198,7 @@
       <span data-streak>۰</span>
       <span class="lbl">روز پیوسته</span>
     </div>
+    <div class="ub-wrap" data-userbar></div>
   </div>
 </header>
 
@@ -260,10 +261,13 @@
   <div class="wrap">
     <span>درس‌یار نهم — ساخته‌شده بر پایهٔ کتاب‌های درسی پایه نهم</span>
     <a href="پایه-نهم/01-قرآن-نهم.pdf">کتاب‌های PDF</a>
+    <a href="teacher.html">پنل دبیر</a>
   </div>
 </footer>
 
+<script src="assets/js/config.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/cloud.js"></script>
 <script src="assets/data/quran.js"></script>
 <script src="assets/data/payam.js"></script>
 <script src="assets/data/farsi.js"></script>
@@ -276,6 +280,8 @@
 <script src="assets/data/english-workbook.js"></script>
 <script>
 (function () {
+  if (!Dars.requireLogin()) return;
+  Dars.paintUserBar();
   const { fa, el, Store } = Dars;
 
   // ترتیب نمایش درس‌ها

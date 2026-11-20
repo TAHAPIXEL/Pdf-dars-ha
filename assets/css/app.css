@@ -1119,3 +1119,136 @@ tbody tr:hover td { background: rgba(255,255,255,.022); }
   body::before { display: none; }
   .sheet, .qcard, .result { box-shadow: none; border-color: #ccc; background: #fff; color: #000; }
 }
+
+/* ============================================================
+   افزوده‌های درس‌یار — ورود، حالت یادگیری سریع، نکته‌ها، پنل دبیر
+   ============================================================ */
+
+/* ---------- نوار کاربر ---------- */
+.ub-wrap { display: flex; align-items: center; gap: 8px; }
+.ub-user { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 6px;
+  border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+.ub-av { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--f-ui); font-weight: 700; font-size: .78rem; color: #0b0f16;
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep)); }
+.ub-nm { font-family: var(--f-ui); font-size: .8rem; color: var(--text); max-width: 92px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ub-mode { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-family: var(--f-ui); font-size: .78rem; color: var(--text-dim);
+  background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  padding: 5px 10px; border-radius: 999px; transition: .18s; }
+.ub-mode:hover { color: var(--text); border-color: var(--accent); }
+.ub-mode .ub-dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; transition: .18s; }
+.ub-mode.on { color: var(--accent); border-color: var(--accent);
+  background: var(--accent-soft, rgba(108,140,255,.14)); }
+.ub-mode.on .ub-dot { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft, rgba(108,140,255,.18)); }
+.ub-out { cursor: pointer; font-family: var(--f-ui); font-size: .76rem; color: var(--text-dim);
+  background: none; border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; }
+.ub-out:hover { color: #f87171; border-color: rgba(248,113,113,.5); }
+.ub-login { font-family: var(--f-ui); font-size: .8rem; padding: 6px 14px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #0b0f16;
+  font-weight: 700; text-decoration: none; }
+@media (max-width: 640px) {
+  .ub-nm { display: none; }
+  .ub-user { padding: 4px; }
+}
+
+/* ---------- تب سریع / کامل ---------- */
+.learn-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); margin-bottom: 18px; }
+.learn-tabs button { cursor: pointer; border: 0; background: none; font-family: var(--f-ui);
+  font-size: .84rem; color: var(--text-dim); padding: 7px 16px; border-radius: 999px; transition: .18s; }
+.learn-tabs button[aria-selected="true"] { background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: #0b0f16; font-weight: 700; }
+
+/* ---------- کارت نکته‌های کلیدی ---------- */
+.points { display: grid; gap: 10px; margin: 4px 0 26px; }
+.points h3 { margin: 0 0 2px; font-family: var(--f-head, var(--f-ui)); font-size: 1rem; color: var(--accent); }
+.point { display: flex; gap: 11px; align-items: flex-start; padding: 13px 15px;
+  border-radius: 14px; background: rgba(255,255,255,.035); border: 1px solid var(--line);
+  line-height: 1.85; font-size: .95rem; }
+.point .n { flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%; display: grid;
+  place-items: center; font-family: var(--f-ui); font-size: .72rem; font-weight: 700;
+  color: #0b0f16; background: var(--accent); margin-top: 3px; }
+.point .t { color: var(--text); }
+
+/* خلاصهٔ حالت سریع */
+.quick-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 16px; border-radius: 14px; margin-bottom: 20px;
+  background: var(--accent-soft, rgba(108,140,255,.12)); border: 1px solid var(--accent); }
+.quick-bar .qb-t { font-family: var(--f-ui); font-size: .84rem; color: var(--text); }
+.quick-bar .qb-t b { color: var(--accent); }
+
+/* ---------- صفحهٔ ورود ---------- */
+.login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.login-card { width: min(430px, 100%); padding: 30px 26px; border-radius: 22px;
+  background: rgba(255,255,255,.035); border: 1px solid var(--line);
+  box-shadow: 0 26px 70px rgba(0,0,0,.45); }
+.login-card h1 { margin: 0 0 6px; font-family: var(--f-head, var(--f-ui)); font-size: 1.45rem; }
+.login-card .sub { margin: 0 0 22px; font-family: var(--f-ui); font-size: .86rem; color: var(--text-dim); line-height: 1.8; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-family: var(--f-ui); font-size: .8rem; color: var(--text-dim); margin-bottom: 6px; }
+.field input { width: 100%; box-sizing: border-box; padding: 13px 15px; border-radius: 13px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); color: var(--text);
+  font-family: var(--f-ui); font-size: 1rem; direction: ltr; text-align: left; }
+.field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft, rgba(108,140,255,.16)); }
+.login-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
+.login-err { margin-top: 12px; padding: 10px 13px; border-radius: 11px; font-family: var(--f-ui);
+  font-size: .84rem; color: #fca5a5; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); }
+.login-note { margin-top: 18px; font-family: var(--f-ui); font-size: .78rem; color: var(--text-dim);
+  line-height: 1.9; text-align: center; }
+.login-note a { color: var(--accent); }
+
+/* ---------- پنل دبیر ---------- */
+.teacher-table { width: 100%; border-collapse: collapse; font-family: var(--f-ui); font-size: .84rem; }
+.teacher-table th, .teacher-table td { padding: 10px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+.teacher-table th { color: var(--text-dim); font-weight: 600; font-size: .78rem; }
+.teacher-table tr:hover td { background: rgba(255,255,255,.03); }
+.pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .74rem; }
+.pill.ok { background: rgba(52,211,153,.14); color: #6ee7b7; }
+.pill.mid { background: rgba(251,191,36,.14); color: #fcd34d; }
+.pill.low { background: rgba(248,113,113,.14); color: #fca5a5; }
+.tbl-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); }
+
+/* ---------- نشان همگام‌سازی ---------- */
+.sync-dot { position: fixed; inset-inline-end: 14px; bottom: 14px; z-index: 60;
+  display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 999px;
+  font-family: var(--f-ui); font-size: .76rem; background: rgba(15,20,30,.9);
+  border: 1px solid var(--line); color: var(--text-dim); backdrop-filter: blur(8px); }
+.sync-dot i { width: 7px; height: 7px; border-radius: 50%; background: #64748b; }
+.sync-dot.on i { background: #34d399; }
+.sync-dot.off i { background: #fbbf24; }
+
+/* ================= کارنامه (progress.html) ================= */
+.stat-card {
+  flex: 1 1 120px; min-width: 110px; padding: 14px 16px; border-radius: 16px;
+  border: 1px solid var(--line); background: var(--card, rgba(255,255,255,.035));
+  display: flex; flex-direction: column; gap: 4px;
+}
+.stat-card .v { font-family: var(--f-ui); font-size: 1.3rem; font-weight: 800; color: var(--text); }
+.stat-card .l { font-family: var(--f-ui); font-size: .76rem; color: var(--text-dim); }
+@media (max-width: 520px) {
+  .stat-card { padding: 11px 13px; }
+  .stat-card .v { font-size: 1.08rem; }
+}
+#kpis { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.progress-list { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
+.progress-row {
+  display: grid; grid-template-columns: 7.5rem 1fr 3.2rem 3rem;
+  align-items: center; gap: 10px;
+  padding: 10px 13px; border-radius: 13px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.025);
+}
+.pr-name { font-family: var(--f-ui); font-size: .82rem; color: var(--text); white-space: nowrap; }
+.pr-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+.pr-bar i { display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-deep, var(--accent)));
+  transition: width .5s cubic-bezier(.2,.8,.2,1); }
+.pr-num { font-family: var(--f-ui); font-size: .76rem; color: var(--text-dim); text-align: left; }
+.pr-pct { font-family: var(--f-ui); font-size: .78rem; font-weight: 700; color: var(--accent); text-align: left; }
+@media (max-width: 560px) {
+  .progress-row { grid-template-columns: 5.6rem 1fr 2.9rem; gap: 8px; padding: 9px 10px; }
+  .pr-pct { display: none; }
+  .pr-name { font-size: .76rem; }
+}

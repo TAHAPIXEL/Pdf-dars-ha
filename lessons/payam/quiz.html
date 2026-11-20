@@ -21,6 +21,7 @@
       <span data-xp>۰</span>
       <span class="lbl">XP</span>
     </div>
+    <div class="ub-wrap" data-userbar></div>
   </div>
 </header>
 
@@ -42,10 +43,13 @@
   </div>
 </footer>
 
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/payam.js"></script>
 <script>
 (function () {
+  if (!Dars.requireLogin()) return;
   const { runQuiz } = Dars;
   const C = window.CONTENT["payam"];
   const KEY = "payam";
@@ -73,13 +77,24 @@
   document.title = title + " — پیام‌های آسمانی";
   document.getElementById("qtitle").textContent = title;
 
+  // آزمون اجباری نیست: مقصد دکمهٔ «رد کردن»
+  const lessonEntry = C.lessons.find(l => l.id === qid);
+  let nextHref = "index.html";
+  if (lessonEntry) {
+    const i = C.lessons.indexOf(lessonEntry);
+    const nx = C.lessons[i + 1];
+    nextHref = nx ? "lesson.html?id=" + nx.id : "index.html";
+  }
+
   runQuiz({
     host: document.getElementById("qz"),
     subject: KEY,
     id: qid,
     questions: questions,
     pass: 70,
-    backHref: "index.html"
+    backHref: "index.html",
+    nextHref: nextHref,
+    mode: Dars.Store.mode()
   });
 })();
 </script>

@@ -5,6 +5,9 @@ package.json
 
 # فایل‌های تست موقت
 test_*.js
+_t*.js
+supabase/.temp/
+.vercel/
 
 # سیستم
 .DS_Store

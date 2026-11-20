@@ -21,29 +21,18 @@
       <span data-xp>۰</span>
       <span class="lbl">XP</span>
     </div>
+    <div class="ub-wrap" data-userbar></div>
   </div>
 </header>
 
 <main>
-  <section class="hero wrap" style="padding-bottom:22px">
-    <div class="hero-grid">
-      <div>
-        <span class="eyebrow">🕋 مطالعهٔ پیوسته</span>
-        <h1>همهٔ درس‌نامه‌های عربی</h1>
-        <p class="lede">هر درس پشت سر هم، از اول تا آخر. برای مرور سریع پیش از آزمون.</p>
-        <div class="hero-stats">
-          <div class="s"><b>10</b><span>درس</span></div>
-          <div class="s"><b id="readPct">۰٪</b><span>خوانده‌شده</span></div>
-        </div>
-      </div>
-      <div class="hero-emblem">🕋</div>
+  <section class="wrap section" style="padding-top:26px">
+    <div class="sec-head">
+      <h1 style="font-size:1.4rem">همهٔ درس‌نامه‌های عربی</h1>
+      <div class="rule"></div>
+      <span class="hint">مطالعهٔ پیوستهٔ همهٔ درس‌ها</span>
     </div>
-  </section>
-
-  <section class="wrap section" style="padding-top:0">
-    <div class="sheet">
-      <div id="allBody"></div>
-    </div>
+    <div id="allwrap"></div>
   </section>
 </main>
 <footer class="site-foot">
@@ -53,41 +42,37 @@
   </div>
 </footer>
 
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/arabic.js"></script>
 <script>
 (function () {
-  const { fa, Store } = Dars;
+  if (!Dars.requireLogin()) return;
+  const { fa } = Dars;
   const C = window.CONTENT["arabic"];
-  const KEY = "arabic";
-  const host = document.getElementById("allBody");
-  const parts = [];
+  const host = document.getElementById("allwrap");
+  const mode = Dars.Store.mode();
 
-  C.lessons.forEach((L, i) => {
-    const done = Store.isLessonDone(KEY, L.id);
-    parts.push(
-      '<section id="' + L.id + '" style="padding-block:22px;border-bottom:1px solid var(--border)">' +
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">' +
-          '<span style="font-family:var(--f-ui);font-size:.72rem;font-weight:700;color:var(--accent)">درس ' + fa(L.n) + '</span>' +
-          '<span style="font-size:.72rem;color:var(--text-dim)">صفحهٔ ' + L.page + '</span>' +
-          (done ? '<span style="margin-inline-start:auto;font-size:.72rem;color:#34d399;font-weight:700">✓ خوانده‌شده</span>' : '') +
-        '</div>' +
-        '<h2 style="margin-bottom:14px">' + L.title + '</h2>' +
-        L.body +
-        '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">' +
-          '<a class="btn btn-ghost" href="lesson.html?id=' + L.id + '">صفحهٔ این درس</a>' +
-          (C.quizzes[L.id] && C.quizzes[L.id].length ? '<a class="btn btn-primary" href="quiz.html?id=' + L.id + '">آزمون</a>' : '') +
-        '</div>' +
-      '</section>'
-    );
+  C.lessons.forEach((L) => {
+    const card = document.createElement("article");
+    card.className = "sheet rise";
+    card.style.marginBottom = "22px";
+    const pts = (L.points || []).map((p) =>
+      '<div class="point"><span class="n">•</span><span class="t">' + p + "</span></div>").join("");
+    card.innerHTML =
+      '<h2>' + L.title + '</h2>' +
+      '<div style="font-family:var(--f-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:16px">' +
+        'درس ' + fa(L.n) + ' · صفحهٔ ' + L.page +
+      '</div>' +
+      (pts ? '<div class="points"><h3>نکته‌های کلیدی</h3>' + pts + "</div>" : "") +
+      '<div class="fullbody">' + L.body + "</div>";
+    host.append(card);
   });
 
-  host.innerHTML = parts.join("");
-
-  const ids = C.lessons.map(l => l.id);
-  const read = ids.filter(id => Store.isLessonDone(KEY, id)).length;
-  const pct = Math.round(read / ids.length * 100);
-  document.getElementById("readPct").textContent = fa(pct) + "٪";
+  if (mode === "quick") {
+    host.querySelectorAll(".fullbody").forEach((e) => (e.hidden = true));
+  }
 })();
 </script>
 </body>

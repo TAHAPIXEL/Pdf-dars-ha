@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1117">
+<title>وضعیت تحصیلی دانش‌آموزان — درس‌یار نهم</title>
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body style="--accent:#6366f1;--accent-deep:#4f46e5;--accent-soft:rgba(99,102,241,.14);--accent-glow:rgba(99,102,241,.35)">
+<header class="topbar">
+  <div class="wrap">
+    <a class="back-link" href="index.html"><span class="arrow">›</span><span>صفحهٔ اصلی</span></a>
+    <div class="spacer"></div>
+    <div class="ub-wrap" data-userbar></div>
+  </div>
+</header>
+
+<main>
+  <section class="wrap section" style="padding-top:26px">
+    <div class="sec-head">
+      <h1 style="font-size:1.5rem">وضعیت تحصیلی دانش‌آموزان</h1>
+      <div class="rule"></div>
+    </div>
+    <p style="font-family:var(--f-ui);font-size:.86rem;color:var(--text-dim);margin:0 0 20px">
+      پیشرفت درس‌خواندن و نمرهٔ آزمون‌های درس‌یار — به‌روز از دیتابیس همدل.
+    </p>
+
+    <div class="hero-stats" id="kpis" style="margin-bottom:22px"></div>
+
+    <div class="tbl-wrap">
+      <table class="teacher-table">
+        <thead>
+          <tr>
+            <th>دانش‌آموز</th>
+            <th>کلاس</th>
+            <th>درس‌های خوانده</th>
+            <th>آزمون‌ها</th>
+            <th>میانگین بهترین نمره</th>
+            <th>میانگین آزمون‌ها</th>
+            <th>آخرین فعالیت</th>
+          </tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="7">در حال دریافت…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/cloud.js"></script>
+<script>
+(function () {
+  const { el, fa } = Dars;
+  const body = document.getElementById("rows");
+  const kpis = document.getElementById("kpis");
+
+  if (!DarsCloud.loggedIn()) {
+    location.replace("login.html?next=" + encodeURIComponent("teacher.html"));
+    return;
+  }
+  Dars.paintUserBar();
+
+  if (!DarsCloud.isStaff()) {
+    body.innerHTML = '<tr><td colspan="7">این صفحه مخصوص دبیران و کادر مدرسه است.</td></tr>';
+    return;
+  }
+
+  function cls(v) {
+    if (v === null || v === undefined) return "low";
+    if (v >= 75) return "ok";
+    if (v >= 50) return "mid";
+    return "low";
+  }
+  function when(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    const days = Math.floor((Date.now() - d.getTime()) / 864e5);
+    if (days <= 0) return "امروز";
+    if (days === 1) return "دیروز";
+    if (days < 30) return fa(days) + " روز پیش";
+    return d.toLocaleDateString("fa-IR");
+  }
+
+  DarsCloud._call("teacher").then(({ rows }) => {
+    const list = rows || [];
+    const active = list.filter(r => r.lessons_read > 0 || r.quizzes_taken > 0);
+    const avg = active.length
+      ? Math.round(active.reduce((s, r) => s + (r.avg_best_pct || 0), 0) / active.length)
+      : 0;
+    kpis.innerHTML = "";
+    kpis.append(
+      el("div", { class: "s" }, el("b", { text: fa(list.length) }), el("span", { text: "دانش‌آموز" })),
+      el("div", { class: "s" }, el("b", { text: fa(active.length) }), el("span", { text: "فعال" })),
+      el("div", { class: "s" }, el("b", { text: fa(avg) + "٪" }), el("span", { text: "میانگین نمره" })),
+      el("div", { class: "s" }, el("b", { text: fa(list.reduce((s, r) => s + (r.lessons_read || 0), 0)) }), el("span", { text: "درس خوانده" }))
+    );
+
+    body.innerHTML = "";
+    if (!list.length) {
+      body.innerHTML = '<tr><td colspan="7">هنوز دانش‌آموزی در درس‌یار فعالیت نکرده است.</td></tr>';
+      return;
+    }
+    list.forEach((r) => {
+      const name = ((r.first_name || "") + " " + (r.last_name || "")).trim() || "دانش‌آموز";
+      body.append(el("tr", {},
+        el("td", { text: name }),
+        el("td", { text: (r.grade ? fa(r.grade) : "—") + (r.section ? " / " + fa(r.section) : "") }),
+        el("td", { text: fa(r.lessons_read || 0) }),
+        el("td", { text: fa(r.quizzes_taken || 0) }),
+        el("td", {}, el("span", { class: "pill " + cls(r.avg_best_pct), text: r.avg_best_pct === null ? "—" : fa(r.avg_best_pct) + "٪" })),
+        el("td", {}, el("span", { class: "pill " + cls(r.avg_attempt_pct), text: r.avg_attempt_pct === null ? "—" : fa(r.avg_attempt_pct) + "٪" })),
+        el("td", { text: when(r.last_active) })
+      ));
+    });
+  }).catch((e) => {
+    body.innerHTML = '<tr><td colspan="7">' + (e.message || "خطا در دریافت اطلاعات") + "</td></tr>";
+  });
+})();
+</script>
+</body>
+</html>

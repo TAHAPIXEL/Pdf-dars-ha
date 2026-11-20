@@ -99,12 +99,14 @@
     markLesson(subject, id) {
       const d = this._read();
       d.lessons[subject + ":" + id] = Date.now();
+      d.quick = d.quick || {};
       this._addXP(d, 10);
       this._touchStreak(d);
       this._write(d);
+      this._cloud({ subject, lessonId: id, read: true, xp: 10, mode: d.mode });
     },
     /** ثبت نتیجه آزمون */
-    saveQuiz(subject, id, pct, xp) {
+    saveQuiz(subject, id, pct, xp, extra) {
       const d = this._read();
       const k = subject + ":" + id;
       const prev = d.quizzes[k];
@@ -116,6 +118,73 @@
       };
       if (xp) this._addXP(d, xp);
       this._touchStreak(d);
+      this._write(d);
+      this._cloud(Object.assign({ subject, lessonId: id, pct, xp: xp || 0 }, extra || {}));
+    },
+
+    /** ارسال تغییر به ابر (اگر وارد شده باشد) */
+    _cloud(op) {
+      try {
+        if (global.DarsCloud && global.DarsCloud.loggedIn()) global.DarsCloud.push(op);
+      } catch (e) { /* آفلاین */ }
+    },
+
+    /* ---------------- حالت یادگیری سریع ---------------- */
+    mode() { return this._read().mode || "normal"; },
+    setMode(m) {
+      const d = this._read();
+      d.mode = m === "quick" ? "quick" : "normal";
+      this._write(d);
+      return d.mode;
+    },
+
+    /** خلاصهٔ درس را خوانده‌شده حساب می‌کند (حالت سریع) */
+    markQuickRead(subject, id) {
+      const d = this._read();
+      d.quick = d.quick || {};
+      d.quick[subject + ":" + id] = Date.now();
+      if (!d.lessons[subject + ":" + id]) {
+        d.lessons[subject + ":" + id] = Date.now();
+        this._addXP(d, 6);
+      }
+      this._touchStreak(d);
+      this._write(d);
+      this._cloud({ subject, lessonId: id, read: true, xp: 6, mode: "quick" });
+    },
+    isQuickRead(subject, id) { return !!(this._read().quick || {})[subject + ":" + id]; },
+
+    /** همگام‌سازی وضعیت محلی با داده‌های دیتابیس پس از ورود */
+    hydrate(progress, days) {
+      const d = this._read();
+      (progress || []).forEach((r) => {
+        const k = r.subject + ":" + r.lesson_id;
+        if (r.read) d.lessons[k] = new Date(r.read_at || Date.now()).getTime();
+        if (r.best_pct !== null && r.best_pct !== undefined) {
+          const prev = d.quizzes[k];
+          d.quizzes[k] = {
+            best: Math.max(prev ? prev.best : 0, r.best_pct),
+            last: r.last_pct === null || r.last_pct === undefined ? r.best_pct : r.last_pct,
+            at: new Date(r.updated_at || Date.now()).getTime(),
+            tries: r.tries || 1
+          };
+        }
+        if (r.mode === "quick") { d.quick = d.quick || {}; d.quick[k] = d.quick[k] || Date.now(); }
+      });
+      if (Array.isArray(days) && days.length) {
+        const set = new Set(days.map((x) => String(x.day).slice(0, 10)));
+        d.days = [...set];
+        let st = 0;
+        const day = new Date();
+        for (;;) {
+          const key = day.toISOString().slice(0, 10);
+          if (!set.has(key)) break;
+          st++;
+          day.setDate(day.getDate() - 1);
+        }
+        d.streak = Math.max(d.streak || 0, st);
+        d.lastDay = new Date().toISOString().slice(0, 10);
+      }
+      d.xp = Math.max(d.xp || 0, (progress || []).reduce((s, r) => s + (r.xp || 0), 0));
       this._write(d);
     },
     _addXP(d, n) { d.xp = (d.xp || 0) + n; },
@@ -130,6 +199,17 @@
     getQuiz(subject, id) { return this._read().quizzes[subject + ":" + id] || null; },
     xp() { return this._read().xp || 0; },
     streak() { return this._read().streak || 0; },
+    /** شمارنده‌های کارنامه */
+    stats() {
+      const d = this._read();
+      return {
+        xp: d.xp || 0,
+        streak: d.streak || 0,
+        lessons: d.lessons || {},
+        quizzes: d.quizzes || {},
+        quick: d.quick || {},
+      };
+    },
     /** درصد کل پیشرفت یک درس */
     subjectProgress(subject, lessonIds, quizIds) {
       const d = this._read();
@@ -311,7 +391,14 @@
       });
       nextBtn.style.display = "none";
 
+      const skipBtn = el("button", {
+        class: "btn btn-quiet", type: "button", text: "رد کردن آزمون",
+        title: "آزمون اجباری نیست؛ می‌توانی بعداً بدهی",
+        onclick: () => skip()
+      });
+
       const actions = el("div", { class: "quiz-actions" },
+        skipBtn,
         el("div", { class: "spacer" }),
         nextBtn
       );
@@ -366,13 +453,35 @@
       stage.append(card);
     }
 
+    /** آزمون اختیاری است: رد کردن بدون ثبت نمرهٔ نادرست */
+    function skip() {
+      Store._skipQuiz = true;
+      stage.innerHTML = "";
+      trackFill.style.width = "100%";
+      const backHref = cfg.backHref || "index.html";
+      const nextHref = cfg.nextHref || backHref;
+      const box = el("div", { class: "result rise" },
+        el("div", { class: "rbadge", text: "⏭" }),
+        el("h2", { text: "آزمون را رد کردی" }),
+        el("p", { class: "sub", text: "هیچ اشکالی ندارد. درس را خوانده‌ای و هر وقت خواستی می‌توانی آزمون بدهی — نمره‌ای ثبت نشد." }),
+        el("div", { class: "result-actions" },
+          el("a", { class: "btn btn-primary", href: nextHref, text: "درس بعدی ‹" }),
+          el("a", { class: "btn btn-ghost", href: backHref, text: "بازگشت به مسیر" })
+        )
+      );
+      stage.append(box);
+      paintStats();
+      if (typeof cfg.onSkip === "function") cfg.onSkip();
+    }
+
     function finish() {
       trackFill.style.width = "100%";
       const pct = Math.round((correct / order.length) * 100);
       const pass = cfg.pass || 70;
       const earnedXP = Math.round(correct * 4) + (pct >= pass ? 18 : 0);
 
-      Store.saveQuiz(cfg.subject, cfg.id, pct, earnedXP);
+      Store.saveQuiz(cfg.subject, cfg.id, pct, earnedXP,
+        { correct, total: order.length, mode: cfg.mode });
 
       try { if (pct >= pass) celebrate(52); } catch (e) { /* افکت نباید مانع نتیجه شود */ }
 
@@ -448,11 +557,98 @@
   }
 
   /* ----------------------------------------------------------
-     راه‌اندازی
+     ورود اجباری و نوار کاربر
      ---------------------------------------------------------- */
+
+  /** اگر کاربر وارد نشده باشد به صفحهٔ ورود می‌رود. */
+  function requireLogin(opts) {
+    const o = opts || {};
+    const C = global.DarsCloud;
+    const onLogin = /(^|\/)login\.html(\?|$)/.test(location.pathname + location.search);
+    if (!C) return true;                             // بدون لایهٔ ابر: آفلاین
+    if (!C.ready && !C.loggedIn()) return true;      // آدرس تنظیم نشده: آفلاین
+    if (C.loggedIn()) return true;
+    if (onLogin) return false;
+    const back = encodeURIComponent(location.pathname.split("/").pop() + location.search);
+    location.replace("login.html?next=" + back);
+    return false;
+  }
+
+  /** نوار بالای صفحه: نام دانش‌آموز، XP، استریک، حالت یادگیری، خروج */
+  function paintUserBar() {
+    const C = global.DarsCloud;
+    if (!C || !C.ready) return;
+    const host = document.querySelector("[data-userbar]");
+    if (!host) return;
+    host.innerHTML = "";
+    const u = C.user();
+    if (!u) {
+      host.append(el("a", { class: "ub-login", href: loginHref(), text: "ورود" }));
+      return;
+    }
+    const initial = (u.firstName || u.lastName || "د").trim().slice(0, 1);
+    const quick = Store.mode() === "quick";
+
+    host.append(
+      el("a", {
+        class: "ub-user",
+        href: rootHref() + "progress.html",
+        title: "کارنامه و پیشرفت من",
+      },
+        el("span", { class: "ub-av", text: initial }),
+        el("span", { class: "ub-nm", text: (u.firstName || "دانش‌آموز") })
+      ),
+      el("button", {
+        class: "ub-mode" + (quick ? " on" : ""),
+        type: "button",
+        title: "یادگیری سریع: فقط نکته‌های کلیدی",
+        onclick: () => {
+          const m = Store.setMode(Store.mode() === "quick" ? "normal" : "quick");
+          document.documentElement.setAttribute("data-mode", m);
+          paintUserBar();
+          global.dispatchEvent(new CustomEvent("dars:mode", { detail: m }));
+        }
+      }, el("span", { class: "ub-dot" }), el("span", { text: quick ? "سریع" : "کامل" })),
+      el("button", {
+        class: "ub-out", type: "button", text: "خروج",
+        onclick: async () => { await C.logout(); location.href = rootHref() + "login.html"; }
+      })
+    );
+  }
+
+  /** مسیر ریشهٔ سایت از عمق صفحهٔ جاری */
+  function rootHref() {
+    const depth = location.pathname.includes("/lessons/") ? "../../" : "";
+    return depth;
+  }
+  function loginHref() {
+    const depth = location.pathname.includes("/lessons/") ? "../../" : "";
+    return depth + "login.html";
+  }
+
   function boot() {
     paintStats();
     wireNav();
+    const C = global.DarsCloud;
+    if (C && C.ready) {
+      const m = Store.mode();
+      document.documentElement.setAttribute("data-mode", m);
+      paintUserBar();
+      global.addEventListener("dars:mode", () => paintStats());
+      // بازیابی نشست و کشیدن پیشرفت از دیتابیس
+      if (C.loggedIn()) {
+        C.restore().then((data) => {
+          if (data && data.progress) {
+            Store.hydrate(data.progress, data.days);
+            paintStats();
+            paintUserBar();
+            global.dispatchEvent(new CustomEvent("dars:ready"));
+          } else {
+            C.flush();
+          }
+        });
+      }
+    }
   }
 
   if (document.readyState === "loading") {
@@ -467,6 +663,6 @@
   global.Dars = {
     fa, faWords, shuffle, rnd, el,
     Store, celebrate, buildPath, runQuiz,
-    paintStats, boot
+    paintStats, boot, requireLogin, paintUserBar, rootHref
   };
 })(window);

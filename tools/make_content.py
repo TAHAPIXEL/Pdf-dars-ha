@@ -89,6 +89,45 @@ STOP_HEAD = re.compile(
 SENT_END = (".", "!", "؟", "?", "؛")
 
 
+def is_reversed_line(line: str) -> bool:
+    """خطی که کلمه‌هایش برعکس چیده شده‌اند («یاپ قمرآنی» ← «پای قرآن»)."""
+    if not re.search(r"[\u0600-\u06FF]", line):
+        return False                     # متن انگلیسی معکوس نیست
+    words = [w for w in line.split() if len(w) > 2]
+    if len(words) < 2:
+        return False
+    hits = 0
+    for w in words:
+        for cand in (w[::-1], "".join(reversed(list(w)))):
+            if cand in REV_WORDS or cand.rstrip("ٔ") in REV_WORDS:
+                hits += 1
+                break
+    persian = sum(bool(re.search(r"[ا-ی]", w)) for w in words)
+    if persian == 0:
+        return True
+    return hits >= max(2, len(words) // 2)
+
+
+REV_WORDS = {"پای", "قرآن", "قرآنی", "درس", "اول", "دوم", "سوم", "چهارم", "پنجم",
+             "ششم", "هفتم", "هشتم", "نهم", "دهم", "جلسه", "جلسۀ", "فصل", "کتاب",
+             "خدا", "خداوند", "سوره", "آیه", "آیات", "ترجمه", "گروه", "خواندن"}
+
+
+def collapse_repeats(text: str) -> str:
+    """هر عبارتِ پشت‌سرهم تکرارشده را به یک بار کاهش می‌دهد.
+
+    «درس سوم درس سوم» / «یاپ قمرآنی یاپ قمرآنی» ← یک بار.
+    """
+    t = re.sub(r"\s+", " ", text).strip()
+    for _ in range(6):
+        new = re.sub(r"^(\S+(?:\s+\S+){0,3}?)(?:\s+\1)+", r"\1", t)
+        new = re.sub(r"(\S+(?:\s+\S+){0,3}?)(?:\s+\1)+$", r"\1", new)
+        if new == t:
+            break
+        t = new
+    return t
+
+
 def is_junk(line: str) -> bool:
     """خطِ بی‌معنای برجای‌مانده از چیدمان PDF.
 
@@ -141,6 +180,36 @@ def looks_garbled(line: str) -> bool:
     return weird / max(1, len(letters)) > 0.06
 
 
+MATH_JUNK = re.compile(
+    r"^[\s\d\u0660-\u0669\u06f0-\u06f9+\-*/=<>()\[\]{}.^_|\u00d7\u00f7\u2212\u22c5"
+    r"\u221a\u03c0\uf8eb\uf8ec\uf8ed\uf8ee\uf8ef\uf8f0\uf8f1\uf8f2\uf8f3\uf8f4\uf8f5"
+    r"\uf8f6\uf8f7\uf8f8\uf8f9\uf8fa\uf8fb\uf8fc\uf8fd\uf8fe\uf8ff,;:.]{1,6}$"
+)
+
+
+def is_formula_fragment(line: str) -> bool:
+    """تکهٔ نیمه‌کارهٔ فرمولِ ریاضی که در PDF از هم پاشیده است.
+
+    در کتاب ریاضی، فرمول‌ها به تک‌حرف‌ها و نیم‌های کمانک شکسته می‌شوند
+    («m»، «a»، «»). این تکه‌ها بدون تصویرِ اصلی معنا ندارند.
+    """
+    t = line.strip()
+    if not t:
+        return True
+    if ord(t[0]) >= 0xF8E0 and ord(t[0]) <= 0xF8FF:     # کمانک‌های ریاضی
+        return True
+    if MATH_JUNK.match(t):
+        return True
+    # خطِ تک/دوحرفیِ لاتین یا ریاضی (a، m، =1و…)
+    if len(t) <= 2 and not re.search(r"[\u0600-\u06FF]", t):
+        return True
+    # خطی که تقریباً همه‌اش رقم و نماد است (دنبالهٔ محاسبه‌های PDF)
+    letters = sum(1 for ch in t if ch.isalpha() or "\u0600" <= ch <= "\u06FF")
+    if len(t) >= 8 and letters / len(t) < 0.18 and re.search(r"[=\u00d7*/+\-]", t):
+        return True
+    return False
+
+
 def is_prose(line: str) -> bool:
     t = line.strip()
     if len(t) < 28:
@@ -185,6 +254,67 @@ def split_paragraphs(text: str) -> list[str]:
     return blocks
 
 
+SHADDA = "\u0651"
+SUKUN = "\u0652"
+
+
+def fix_arabic_marks(text: str) -> str:
+    """اعرابِ عربی که در PDF پیش از حرفِ پایه ذخیره شده‌اند را سر جایشان می‌برد.
+
+    PDF کتاب عربی، نشانه‌ها را پیش از حرف می‌دهد («َأنـا» به‌جای «أَنا») و
+    کشیده (تطویل) را هم چاپ می‌کند. نتیجه بدون این اصلاح ناخوانا است.
+    """
+    if not re.search(r"[\u0600-\u06FF]", text):
+        return text
+    import unicodedata as _ud
+    out: list[str] = []
+    pending: list[str] = []
+    for ch in text:
+        if _ud.combining(ch):
+            pending.append(ch)
+        elif pending and ch.isalpha():
+            out.append(ch)
+            out.extend(pending)
+            pending = []
+        else:
+            if pending:
+                out.extend(pending)
+                pending = []
+            out.append(ch)
+    if pending:
+        out.extend(pending)
+    res = "".join(out).replace("\u0640", "")
+    # شَدّه باید بی‌درنگ پس از حرف باشد و حرکت‌ها پس از آن
+    res = re.sub(r"([\u0621-\u064A])([\u064B-\u0650\u0652])(\u0651)",
+                 r"\1\3\2", res)
+    # حرکت‌ها دور از حرف نیستند ولی ترتیبشان باید یکدست شود
+    res = re.sub(r"\s+([\u064B-\u0652])", r"\1", res)
+    return res
+
+
+PREFIX_JOIN = ("مي", "می", "نمي", "نمی")
+SUFFIX_JOIN = ("هایی", "هاي", "های", "ها", "ترین", "ترين", "تر", "اند", "ايم", "اید", "ات", "اش", "ام")
+
+
+def _join_affixes(text: str) -> str:
+    """پسوندهای جداشدهٔ فارسی را با نیم‌فاصله به واژه می‌چسباند."""
+    words = text.split(" ")
+    out: list[str] = []
+    for w in words:
+        if out and w in SUFFIX_JOIN and len(out[-1]) >= 2:
+            prev = out[-1]
+            if all("\u0600" <= ch <= "\u06FF" for ch in prev[-1]):
+                out[-1] = prev + "\u200c" + w
+                continue
+        out.append(w)
+    text = " ".join(out)
+    # پیشوندهای فعلی: «مي شود» ← «مي‌شود»
+    for pre in PREFIX_JOIN:
+        text = re.sub(r"(?<![\u0600-\u06FF])" + pre + r" ([\u0600-\u06FF]{2,})",
+                      lambda m: m.group(0).replace(" ", "\u200c"), text)
+    return text
+
+
 def polish(text: str) -> str:
     """اصلاح آسیب‌های رایجِ استخراج.
 
@@ -193,20 +323,26 @@ def polish(text: str) -> str:
       دارد. قاعده: دنبالهٔ دو رقمی که رقم دومش صفر است و در بافت فارسی آمده
       (نه اعشار، نه سال میلادی) برعکس می‌شود.
     """
+    if not re.search(r"[\u0600-\u06FF]", text):
+        return text                      # متن انگلیسی دست‌کاری نمی‌شود
+
     text = re.sub(r"س\s*اورل[^\n]{0,16}", "", text)
+    # سرتیترهایی که در PDF معکوس ذخیره شده‌اند: «ردس سوم» → «درس سوم»
+    text = re.sub(r"ر\s*د\s*س", "درس", text)
+    text = re.sub(r"ف\s*ص\s*ل", "فصل", text)
+    for bad, good in (("رد صراط", "در صراط"), ("رد ", "در "),
+                      ("ازر دختر غور", "از درخت غرور"), ("تمخسر", "تمسخر"),
+                      ("س دورمدس", "درس"), ("دورمدس", "درس"),
+                      ("همٔهٔ", "همهٔ")):
+        text = text.replace(bad, good)
 
-    def flip(m):
-        d = m.group(0)
-        if re.fullmatch(r"\d{2}0", d) and d[0] != "0":
-            return ("۰" + "۰" * 0) or d
-        return d
+    text = fix_arabic_marks(text)
 
-    # فقط الگوی «XY» که Y صفر است و X صفر نیست → ۱۰ می‌شود، یعنی «۱۰» یا «۲۰»…
+    # «مي شد» ← «می‌شد» و «كتاب هاي» ← «كتاب‌های» (پیوند پسوندها)
+    text = _join_affixes(text)
+
+    # رقم‌های دوجهته که وارونه شده‌اند: «01» در PDF ← «۱۰» در کتاب
     to_fa = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
-    # «X0» با X≠0 → «X۰»
-    text = re.sub(r"(?<![\d۰-۹.])([1-9])0(?![\d۰-۹])",
-                  lambda m: m.group(1).translate(to_fa) + "۰", text)
-    # «0X» با X≠0 → «X۰»  (مثلِ 01 که در کتاب ۱۰ است)
     text = re.sub(r"(?<![\d۰-۹.])([1-9])0(?![\d۰-۹])",
                   lambda m: m.group(1).translate(to_fa) + "۰", text)
     text = re.sub(r"(?<![\d۰-۹.])0([1-9])(?![\d۰-۹])",
@@ -240,11 +376,12 @@ def build_body(pages: list[str], first: int, last: int,
             line = polish(clean(raw_line))
             if not line:
                 continue
-            if looks_garbled(line) or is_junk(line):
+            if (looks_garbled(line) or is_junk(line) or is_reversed_line(line)
+                    or is_formula_fragment(line)):
                 continue
             if is_heading(line):
                 if blocks and blocks[-1][0] == "h":
-                    blocks[-1] = ("h", blocks[-1][1] + " " + line)
+                    blocks[-1] = ("h", collapse_repeats(blocks[-1][1] + " " + line))
                 else:
                     blocks.append(("h", line))
             elif is_prose(line):
@@ -263,7 +400,8 @@ def build_body(pages: list[str], first: int, last: int,
             if merged and merged[-1][0] == "p":
                 merged[-1] = ("p", merged[-1][1] + " " + txt)
                 continue
-        if merged and merged[-1] == (kind, txt):
+        txt = collapse_repeats(txt)
+        if merged and merged[-1][0] == kind and merged[-1][1].strip() == txt.strip():
             continue
         merged.append((kind, txt))
 
@@ -369,3 +507,72 @@ def find_heading_page(pages: list[str], title: str, start: int = 0) -> int | Non
         if _match_subseq(body, chars):
             return i
     return None
+
+
+def build_body_en(pages: list[str], first: int, last: int,
+                  max_chars: int = 3200,
+                  head_title: str | None = None) -> str:
+    """درس‌نامهٔ کتاب‌های انگلیسی (Prospect / Workbook).
+
+    این کتاب‌ها گفتگو، تمرین و برچسب‌های کوتاه دارند و قاعده‌های متنِ فارسی
+    (خطِ بلند = بند) روی آن‌ها جواب نمی‌دهد. اینجا هر خطِ خوانا می‌ماند و
+    فقط چیدمانِ تکراری و سرصفحه/پاصفحه پاک می‌شود.
+    """
+    lines: list[str] = []
+    for pno in range(first, last + 1):
+        if pno >= len(pages):
+            break
+        for raw in pages[pno].split("\n"):
+            ln = clean(raw)
+            if not ln or looks_garbled(ln):
+                continue
+            if re.fullmatch(r"[\d٠-٩۰-۹\s]+", ln):           # شمارهٔ صفحه
+                continue
+            if re.fullmatch(r"[A-Za-z'’.\-\s]{1,3}", ln):     # «A» و تکه‌های تک‌حرفی
+                continue
+            if len(ln) < 3 and not ln.isalnum():
+                continue
+            ln = collapse_repeats(ln)                         # «Lesson 2: Travel Lesson 2: Travel»
+            if lines and lines[-1] == ln:                     # تکرار ستون دوم
+                continue
+            # صفحهٔ عنوانِ خود درس: نام درس دوبار در صفحهٔ سایت می‌آید
+            if head_title:
+                low = ln.lower()
+                tt = head_title.lower()
+                if (low == tt or low == "lesson" or low == tt.replace(" and ", " & ")
+                        or re.fullmatch(r"lesson\s*\d+\s*[:\-]?\s*" + re.escape(tt), low)):
+                    continue
+            lines.append(ln)
+
+    # سرصفحه‌های تکراری («Lesson 2: Travel») فقط بار اول می‌آیند
+    seen_head: dict[str, int] = {}
+    kept: list[str] = []
+    for ln in lines:
+        low = ln.lower()
+        if len(ln) < 40 and low in seen_head:
+            seen_head[low] += 1
+            if seen_head[low] > 1:
+                continue
+        else:
+            seen_head[low] = 0
+        kept.append(ln)
+
+    out: list[str] = []
+    total = 0
+    for ln in kept:
+        if total + len(ln) > max_chars and out:
+            break
+        out.append(ln)
+        total += len(ln) + 1
+
+    # هر خط جدا می‌ماند: گفتگو و تمرین کتاب ساختار سطری دارند
+    html = []
+    for ln in out:
+        words = len(ln.split())
+        if (words <= 5 and len(ln) <= 42
+                and not ln.endswith((".", "?", "!", ":", "…"))
+                and not re.match(r"^[A-Z][a-z]+:", ln)):
+            html.append(f"<h3>{esc(ln)}</h3>")
+        else:
+            html.append(f"<p>{esc(ln)}</p>")
+    return "\n".join(html)

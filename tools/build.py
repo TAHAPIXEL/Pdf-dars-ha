@@ -50,6 +50,7 @@ TOPBAR = """<header class="topbar">
       <span data-xp>۰</span>
       <span class="lbl">XP</span>
     </div>
+    <div class="ub-wrap" data-userbar></div>
   </div>
 </header>
 """
@@ -133,10 +134,13 @@ PATH_TPL = BASE_HEAD + TOPBAR + """
   </section>
 </main>
 """ + FOOT + """
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/{key}.js"></script>
 <script>
 (function () {{
+  if (!Dars.requireLogin()) return;
   const {{ fa, buildPath, Store }} = Dars;
   const C = window.CONTENT["{key}"];
 
@@ -178,20 +182,91 @@ PATH_TPL = BASE_HEAD + TOPBAR + """
 </html>
 """
 
+# ---------------- صفحه همهٔ درس‌نامه‌ها ----------------
+ALL_TPL = BASE_HEAD + TOPBAR + """
+<main>
+  <section class="wrap section" style="padding-top:26px">
+    <div class="sec-head">
+      <h1 style="font-size:1.4rem">همهٔ درس‌نامه‌های {name}</h1>
+      <div class="rule"></div>
+      <span class="hint">مطالعهٔ پیوستهٔ همهٔ درس‌ها</span>
+    </div>
+    <div id="allwrap"></div>
+  </section>
+</main>
+""" + FOOT + """
+<script src="../../assets/js/config.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
+<script src="../../assets/data/{key}.js"></script>
+<script>
+(function () {{
+  if (!Dars.requireLogin()) return;
+  const {{ fa }} = Dars;
+  const C = window.CONTENT["{key}"];
+  const host = document.getElementById("allwrap");
+  const mode = Dars.Store.mode();
+
+  C.lessons.forEach((L) => {{
+    const card = document.createElement("article");
+    card.className = "sheet rise";
+    card.style.marginBottom = "22px";
+    const pts = (L.points || []).map((p) =>
+      '<div class="point"><span class="n">•</span><span class="t">' + p + "</span></div>").join("");
+    card.innerHTML =
+      '<h2>' + L.title + '</h2>' +
+      '<div style="font-family:var(--f-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:16px">' +
+        'درس ' + fa(L.n) + ' · صفحهٔ ' + L.page +
+      '</div>' +
+      (pts ? '<div class="points"><h3>نکته‌های کلیدی</h3>' + pts + "</div>" : "") +
+      '<div class="fullbody">' + L.body + "</div>";
+    host.append(card);
+  }});
+
+  if (mode === "quick") {{
+    host.querySelectorAll(".fullbody").forEach((e) => (e.hidden = true));
+  }}
+}})();
+</script>
+</body>
+</html>
+"""
+
 # ---------------- صفحه درس ----------------
 LESSON_TPL = BASE_HEAD + TOPBAR + """
 <main>
   <article class="wrap section" style="padding-top:26px">
-    <div class="quiz" style="max-width:840px">
+    <div class="quiz" style="max-width:860px">
       <div class="quiz-top">
         <span class="quiz-count">درس <b id="ln">۱</b></span>
         <div class="spacer" style="flex:1"></div>
         <span class="hint" style="font-family:var(--f-ui);font-size:.8rem;color:var(--text-dim)" id="lp"></span>
       </div>
 
-      <div class="sheet rise" id="sheet"></div>
+      <div class="learn-tabs" role="tablist" aria-label="حالت یادگیری">
+        <button type="button" role="tab" id="tabQuick" aria-selected="true">⚡ یادگیری سریع</button>
+        <button type="button" role="tab" id="tabFull" aria-selected="false">📖 متن کامل</button>
+      </div>
 
-      <div class="quiz-actions" style="margin-top:18px">
+      <div id="quickPane">
+        <div class="quick-bar">
+          <span class="qb-t">فقط <b id="pn">۶</b> نکتهٔ کلیدی — همه از خودِ کتاب</span>
+          <div class="spacer" style="flex:1"></div>
+          <a class="btn btn-quiet" href="{pdfHref}" target="_blank" rel="noopener">PDF صفحه</a>
+        </div>
+        <div class="points rise" id="points"></div>
+        <div class="quiz-actions" style="margin-top:6px">
+          <button class="btn btn-primary" id="quickDone" type="button">نکته‌ها را یاد گرفتم ✓</button>
+          <div class="spacer"></div>
+          <a class="btn btn-ghost" id="quickNext" href="quiz.html">برو به آزمون ‹</a>
+        </div>
+      </div>
+
+      <div id="fullPane" hidden>
+        <div class="sheet rise" id="sheet"></div>
+      </div>
+
+      <div class="quiz-actions" style="margin-top:18px" id="fullActions" hidden>
         <a class="btn btn-ghost" href="index.html">مسیر درس</a>
         <a class="btn btn-quiet" href="{pdfHref}" target="_blank" rel="noopener">PDF کتاب</a>
         <div class="spacer"></div>
@@ -202,10 +277,13 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
   </article>
 </main>
 """ + FOOT + """
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/{key}.js"></script>
 <script>
 (function () {{
+  if (!Dars.requireLogin()) return;
   const {{ fa, Store, celebrate }} = Dars;
   const C = window.CONTENT["{key}"];
   const KEY = "{key}";
@@ -219,6 +297,24 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
   document.getElementById("ln").textContent = fa(L.n);
   document.getElementById("lp").textContent = "صفحهٔ " + L.page;
 
+  /* ---------- نکته‌های کلیدی ---------- */
+  const pts = L.points || [];
+  document.getElementById("pn").textContent = fa(pts.length);
+  const pointsBox = document.getElementById("points");
+  const words = ["یکم", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم"];
+  pointsBox.append(Dars.el("h3", {{ text: "نکته‌های کلیدیِ «" + L.title + "»" }}));
+  if (!pts.length) {{
+    pointsBox.append(Dars.el("div", {{ class: "point" }},
+      Dars.el("span", {{ class: "t", text: "برای این درس نکتهٔ جداگانه‌ای ثبت نشده؛ متن کامل را ببین." }})));
+  }}
+  pts.forEach((p, i) => {{
+    pointsBox.append(Dars.el("div", {{ class: "point" }},
+      Dars.el("span", {{ class: "n", text: fa(i + 1) }}),
+      Dars.el("span", {{ class: "t", text: p }})
+    ));
+  }});
+
+  /* ---------- متن کامل ---------- */
   const sheet = document.getElementById("sheet");
   sheet.innerHTML =
     '<h2>' + L.title + '</h2>' +
@@ -229,7 +325,6 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
   // ناوبری درس قبل/بعد
   const prev = C.lessons[idx - 1];
   const next = C.lessons[idx + 1];
-
   const nav = document.createElement("div");
   nav.style.cssText = "display:flex;gap:10px;margin-top:18px;flex-wrap:wrap";
   if (prev) {{
@@ -249,104 +344,75 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
   }}
   sheet.after(nav);
 
-  // ثبت خوانده‌شدن
+  /* ---------- تعویض تب سریع / کامل ---------- */
+  const quickPane = document.getElementById("quickPane");
+  const fullPane = document.getElementById("fullPane");
+  const fullActions = document.getElementById("fullActions");
+  const tabQuick = document.getElementById("tabQuick");
+  const tabFull = document.getElementById("tabFull");
+
+  function show(mode) {{
+    const q = mode !== "full";
+    tabQuick.setAttribute("aria-selected", q ? "true" : "false");
+    tabFull.setAttribute("aria-selected", q ? "false" : "true");
+    quickPane.hidden = !q;
+    fullPane.hidden = q;
+    fullActions.hidden = q;
+    Store.setMode(q ? "quick" : "normal");
+  }}
+  tabQuick.addEventListener("click", () => show("quick"));
+  tabFull.addEventListener("click", () => show("full"));
+  if (Store.mode() === "quick") show("quick"); else show("full");
+
+  /* ---------- ثبت یادگیری ---------- */
   const doneBtn = document.getElementById("doneBtn");
   const nextBtn = document.getElementById("nextBtn");
+  const quickDone = document.getElementById("quickDone");
+  const quickNext = document.getElementById("quickNext");
 
-  if (C.quizzes[L.id] && C.quizzes[L.id].length) {{
+  const hasQuiz = !!(C.quizzes[L.id] && C.quizzes[L.id].length);
+  if (hasQuiz) {{
     nextBtn.href = "quiz.html?id=" + L.id;
+    quickNext.href = "quiz.html?id=" + L.id;
   }} else if (next) {{
     nextBtn.href = "lesson.html?id=" + next.id;
     nextBtn.textContent = "درس بعدی ‹";
+    quickNext.href = "lesson.html?id=" + next.id;
+    quickNext.textContent = "درس بعدی ‹";
   }} else {{
     nextBtn.href = "index.html";
     nextBtn.textContent = "پایان مسیر ‹";
+    quickNext.href = "index.html";
+    quickNext.textContent = "پایان مسیر ‹";
   }}
 
-  if (Store.isLessonDone(KEY, L.id)) {{
+  function paintDone() {{
+    const done = Store.isLessonDone(KEY, L.id);
+    if (!done) return;
     doneBtn.textContent = "خوانده شده ✓";
     doneBtn.classList.remove("btn-primary");
     doneBtn.classList.add("btn-ghost");
     nextBtn.style.display = "";
+    quickDone.textContent = "یاد گرفتم ✓";
+    quickDone.disabled = true;
+    quickDone.classList.remove("btn-primary");
+    quickDone.classList.add("btn-ghost");
   }}
+  paintDone();
 
   doneBtn.addEventListener("click", () => {{
     Store.markLesson(KEY, L.id);
     Dars.paintStats();
-    doneBtn.textContent = "خوانده شده ✓";
-    doneBtn.classList.remove("btn-primary");
-    doneBtn.classList.add("btn-ghost");
-    nextBtn.style.display = "";
+    paintDone();
     celebrate(18);
   }});
 
-  if (Store.isLessonDone(KEY, L.id)) nextBtn.style.display = "";
-}})();
-</script>
-</body>
-</html>
-"""
-
-# ---------------- صفحه همهٔ درس‌نامه‌ها ----------------
-ALL_TPL = BASE_HEAD + TOPBAR + """
-<main>
-  <section class="hero wrap" style="padding-bottom:22px">
-    <div class="hero-grid">
-      <div>
-        <span class="eyebrow">{icon} مطالعهٔ پیوسته</span>
-        <h1>همهٔ درس‌نامه‌های {name}</h1>
-        <p class="lede">هر {unit} پشت سر هم، از اول تا آخر. برای مرور سریع پیش از آزمون.</p>
-        <div class="hero-stats">
-          <div class="s"><b>{nLessons}</b><span>درس</span></div>
-          <div class="s"><b id="readPct">۰٪</b><span>خوانده‌شده</span></div>
-        </div>
-      </div>
-      <div class="hero-emblem">{icon}</div>
-    </div>
-  </section>
-
-  <section class="wrap section" style="padding-top:0">
-    <div class="sheet">
-      <div id="allBody"></div>
-    </div>
-  </section>
-</main>
-""" + FOOT + """
-<script src="../../assets/js/app.js"></script>
-<script src="../../assets/data/{key}.js"></script>
-<script>
-(function () {{
-  const {{ fa, Store }} = Dars;
-  const C = window.CONTENT["{key}"];
-  const KEY = "{key}";
-  const host = document.getElementById("allBody");
-  const parts = [];
-
-  C.lessons.forEach((L, i) => {{
-    const done = Store.isLessonDone(KEY, L.id);
-    parts.push(
-      '<section id="' + L.id + '" style="padding-block:22px;border-bottom:1px solid var(--border)">' +
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">' +
-          '<span style="font-family:var(--f-ui);font-size:.72rem;font-weight:700;color:var(--accent)">درس ' + fa(L.n) + '</span>' +
-          '<span style="font-size:.72rem;color:var(--text-dim)">صفحهٔ ' + L.page + '</span>' +
-          (done ? '<span style="margin-inline-start:auto;font-size:.72rem;color:#34d399;font-weight:700">✓ خوانده‌شده</span>' : '') +
-        '</div>' +
-        '<h2 style="margin-bottom:14px">' + L.title + '</h2>' +
-        L.body +
-        '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">' +
-          '<a class="btn btn-ghost" href="lesson.html?id=' + L.id + '">صفحهٔ این درس</a>' +
-          (C.quizzes[L.id] && C.quizzes[L.id].length ? '<a class="btn btn-primary" href="quiz.html?id=' + L.id + '">آزمون</a>' : '') +
-        '</div>' +
-      '</section>'
-    );
+  quickDone.addEventListener("click", () => {{
+    Store.markQuickRead(KEY, L.id);
+    Dars.paintStats();
+    paintDone();
+    celebrate(14);
   }});
-
-  host.innerHTML = parts.join("");
-
-  const ids = C.lessons.map(l => l.id);
-  const read = ids.filter(id => Store.isLessonDone(KEY, id)).length;
-  const pct = Math.round(read / ids.length * 100);
-  document.getElementById("readPct").textContent = fa(pct) + "٪";
 }})();
 </script>
 </body>
@@ -367,10 +433,13 @@ QUIZ_TPL = BASE_HEAD + TOPBAR + """
   </section>
 </main>
 """ + FOOT + """
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/{key}.js"></script>
 <script>
 (function () {{
+  if (!Dars.requireLogin()) return;
   const {{ runQuiz }} = Dars;
   const C = window.CONTENT["{key}"];
   const KEY = "{key}";
@@ -398,13 +467,24 @@ QUIZ_TPL = BASE_HEAD + TOPBAR + """
   document.title = title + " — {name}";
   document.getElementById("qtitle").textContent = title;
 
+  // آزمون اجباری نیست: مقصد دکمهٔ «رد کردن»
+  const lessonEntry = C.lessons.find(l => l.id === qid);
+  let nextHref = "index.html";
+  if (lessonEntry) {{
+    const i = C.lessons.indexOf(lessonEntry);
+    const nx = C.lessons[i + 1];
+    nextHref = nx ? "lesson.html?id=" + nx.id : "index.html";
+  }}
+
   runQuiz({{
     host: document.getElementById("qz"),
     subject: KEY,
     id: qid,
     questions: questions,
     pass: 70,
-    backHref: "index.html"
+    backHref: "index.html",
+    nextHref: nextHref,
+    mode: Dars.Store.mode()
   }});
 }})();
 </script>

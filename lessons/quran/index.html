@@ -21,6 +21,7 @@
       <span data-xp>۰</span>
       <span class="lbl">XP</span>
     </div>
+    <div class="ub-wrap" data-userbar></div>
   </div>
 </header>
 
@@ -34,7 +35,7 @@
         <div class="hero-stats">
           <div class="s"><b>11</b><span>درس</span></div>
           <div class="s"><b>11</b><span>آزمون</span></div>
-          <div class="s"><b>27</b><span>پرسش</span></div>
+          <div class="s"><b>26</b><span>پرسش</span></div>
           <div class="s"><b>۰</b><span>صفحهٔ کتاب</span></div>
         </div>
       </div>
@@ -99,10 +100,13 @@
   </div>
 </footer>
 
+<script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
 <script src="../../assets/data/quran.js"></script>
 <script>
 (function () {
+  if (!Dars.requireLogin()) return;
   const { fa, buildPath, Store } = Dars;
   const C = window.CONTENT["quran"];
 
