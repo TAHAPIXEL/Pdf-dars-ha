@@ -1,0 +1,117 @@
+/* ============================================================
+   Abar — سیستم تایپوگرافی سه‌گانه
+   Low  : متن بدنه، گزینه‌ها، توضیح‌ها  (ارتفاع کم، خوانایی بالا در حجم زیاد)
+   Mid  : رابط کاربری، دکمه‌ها، برچسب‌ها، زیرتیتر
+   High : تیترهای نمایشی، نام درس، اعداد بزرگ، صفحه پایان
+   ============================================================ */
+
+/* ---------- Abar Low ---------- */
+@font-face {
+  font-family: "Abar Low";
+  src: url("../fonts/abar/AbarLow-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Low";
+  src: url("../fonts/abar/AbarLow-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Low";
+  src: url("../fonts/abar/AbarLow-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Low";
+  src: url("../fonts/abar/AbarLow-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Low";
+  src: url("../fonts/abar/AbarLow-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Abar Mid ---------- */
+@font-face {
+  font-family: "Abar Mid";
+  src: url("../fonts/abar/AbarMid-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Mid";
+  src: url("../fonts/abar/AbarMid-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Mid";
+  src: url("../fonts/abar/AbarMid-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Mid";
+  src: url("../fonts/abar/AbarMid-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar Mid";
+  src: url("../fonts/abar/AbarMid-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Abar High ---------- */
+@font-face {
+  font-family: "Abar High";
+  src: url("../fonts/abar/AbarHigh-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar High";
+  src: url("../fonts/abar/AbarHigh-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar High";
+  src: url("../fonts/abar/AbarHigh-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar High";
+  src: url("../fonts/abar/AbarHigh-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abar High";
+  src: url("../fonts/abar/AbarHigh-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}

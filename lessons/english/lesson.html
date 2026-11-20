@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1117">
+<title>درس — زبان انگلیسی</title>
+<meta name="description" content="زبان انگلیسی پایه نهم — Prospect 3">
+<link rel="stylesheet" href="../../assets/css/app.css">
+</head>
+<body style="--accent:#a855f7;--accent-deep:#9333ea;--accent-soft:rgba(168,85,247,0.14);--accent-glow:rgba(168,85,247,0.35)">
+<header class="topbar">
+  <div class="wrap">
+    <a class="back-link" href="../../index.html" data-back="../../index.html">
+      <span class="arrow">›</span>
+      <span>مسیر درس</span>
+    </a>
+    <div class="spacer"></div>
+    <div class="stat-chip accent">
+      <span class="ico">⚡</span>
+      <span data-xp>۰</span>
+      <span class="lbl">XP</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <article class="wrap section" style="padding-top:26px">
+    <div class="quiz" style="max-width:840px">
+      <div class="quiz-top">
+        <span class="quiz-count">درس <b id="ln">۱</b></span>
+        <div class="spacer" style="flex:1"></div>
+        <span class="hint" style="font-family:var(--f-ui);font-size:.8rem;color:var(--text-dim)" id="lp"></span>
+      </div>
+
+      <div class="sheet rise" id="sheet"></div>
+
+      <div class="quiz-actions" style="margin-top:18px">
+        <a class="btn btn-ghost" href="index.html">مسیر درس</a>
+        <a class="btn btn-quiet" href="../../پایه-نهم/09-زبان-انگلیسی-نهم.pdf" target="_blank" rel="noopener">PDF کتاب</a>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="doneBtn" type="button">خواندم ✓</button>
+        <a class="btn btn-primary" id="nextBtn" href="quiz.html" style="display:none">برو به آزمون ‹</a>
+      </div>
+    </div>
+  </article>
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <span>زبان انگلیسی · زبان انگلیسی پایه نهم — Prospect 3</span>
+    <a href="../../index.html">صفحهٔ اصلی</a>
+  </div>
+</footer>
+
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/data/english.js"></script>
+<script>
+(function () {
+  const { fa, Store, celebrate } = Dars;
+  const C = window.CONTENT["english"];
+  const KEY = "english";
+
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id") || C.lessons[0].id;
+  const idx = C.lessons.findIndex(l => l.id === id);
+  const L = C.lessons[idx >= 0 ? idx : 0];
+
+  document.title = L.title + " — زبان انگلیسی";
+  document.getElementById("ln").textContent = fa(L.n);
+  document.getElementById("lp").textContent = "صفحهٔ " + L.page;
+
+  const sheet = document.getElementById("sheet");
+  sheet.innerHTML =
+    '<h2>' + L.title + '</h2>' +
+    '<div style="font-family:var(--f-ui);font-size:.84rem;color:var(--text-dim);margin-bottom:22px">' +
+      'زبان انگلیسی · پایه نهم · صفحهٔ ' + L.page +
+    '</div>' + L.body;
+
+  // ناوبری درس قبل/بعد
+  const prev = C.lessons[idx - 1];
+  const next = C.lessons[idx + 1];
+
+  const nav = document.createElement("div");
+  nav.style.cssText = "display:flex;gap:10px;margin-top:18px;flex-wrap:wrap";
+  if (prev) {
+    const a = document.createElement("a");
+    a.className = "btn btn-ghost";
+    a.href = "lesson.html?id=" + prev.id;
+    a.textContent = "› " + prev.title;
+    nav.append(a);
+  }
+  if (next) {
+    const a = document.createElement("a");
+    a.className = "btn btn-ghost";
+    a.style.marginInlineStart = "auto";
+    a.href = "lesson.html?id=" + next.id;
+    a.textContent = next.title + " ‹";
+    nav.append(a);
+  }
+  sheet.after(nav);
+
+  // ثبت خوانده‌شدن
+  const doneBtn = document.getElementById("doneBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  if (C.quizzes[L.id] && C.quizzes[L.id].length) {
+    nextBtn.href = "quiz.html?id=" + L.id;
+  } else if (next) {
+    nextBtn.href = "lesson.html?id=" + next.id;
+    nextBtn.textContent = "درس بعدی ‹";
+  } else {
+    nextBtn.href = "index.html";
+    nextBtn.textContent = "پایان مسیر ‹";
+  }
+
+  if (Store.isLessonDone(KEY, L.id)) {
+    doneBtn.textContent = "خوانده شده ✓";
+    doneBtn.classList.remove("btn-primary");
+    doneBtn.classList.add("btn-ghost");
+    nextBtn.style.display = "";
+  }
+
+  doneBtn.addEventListener("click", () => {
+    Store.markLesson(KEY, L.id);
+    Dars.paintStats();
+    doneBtn.textContent = "خوانده شده ✓";
+    doneBtn.classList.remove("btn-primary");
+    doneBtn.classList.add("btn-ghost");
+    nextBtn.style.display = "";
+    celebrate(18);
+  });
+
+  if (Store.isLessonDone(KEY, L.id)) nextBtn.style.display = "";
+})();
+</script>
+</body>
+</html>

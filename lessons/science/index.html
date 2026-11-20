@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1117">
+<title>علوم تجربی — درسیار نهم</title>
+<meta name="description" content="علوم تجربی پایه نهم — درس‌نامه، آزمون و پیشرفت">
+<link rel="stylesheet" href="../../assets/css/app.css">
+</head>
+<body style="--accent:#22c55e;--accent-deep:#16a34a;--accent-soft:rgba(34,197,94,0.14);--accent-glow:rgba(34,197,94,0.35)">
+<header class="topbar">
+  <div class="wrap">
+    <a class="back-link" href="../../index.html" data-back="../../index.html">
+      <span class="arrow">›</span>
+      <span>صفحهٔ اصلی</span>
+    </a>
+    <div class="spacer"></div>
+    <div class="stat-chip accent">
+      <span class="ico">⚡</span>
+      <span data-xp>۰</span>
+      <span class="lbl">XP</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">🔬 پایه نهم</span>
+        <h1>علوم تجربی</h1>
+        <p class="lede">پانزده فصل از رفتار اتم‌ها تا دنیای گیاهان و جانوران؛ با آزمایش، جدول و نکته‌های آزمونی.</p>
+        <div class="hero-stats">
+          <div class="s"><b>15</b><span>درس</span></div>
+          <div class="s"><b>15</b><span>آزمون</span></div>
+          <div class="s"><b>90</b><span>پرسش</span></div>
+          <div class="s"><b>۰</b><span>صفحهٔ کتاب</span></div>
+        </div>
+      </div>
+      <div class="hero-emblem">🔬</div>
+    </div>
+
+    <div class="progress-band">
+      <div class="pb-head">
+        <span class="t">پیشرفت تو در این درس</span>
+        <span class="v" id="pbv">۰٪</span>
+      </div>
+      <div class="bar"><i id="pbf"></i></div>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="sec-head">
+      <h2>مسیر یادگیری</h2>
+      <div class="rule"></div>
+      <span class="hint">اول بخوان، بعد آزمون بده</span>
+    </div>
+    <div class="path" id="path"></div>
+  </section>
+
+  <section class="wrap section">
+    <div class="sec-head">
+      <h2>دسترسی سریع</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="cards">
+      <a class="card" href="all.html">
+        <div class="ic">📖</div>
+        <h3>همهٔ درس‌نامه‌ها</h3>
+        <p class="desc">یک صفحه برای خواندن همهٔ درس‌های این کتاب، پشت سر هم.</p>
+        <div class="foot"><span>مطالعهٔ پیوسته</span><span class="pill">بخوان</span></div>
+      </a>
+      <a class="card" href="quiz.html?all=1">
+        <div class="ic">🎯</div>
+        <h3>آزمون جامع</h3>
+        <p class="desc">پرسش‌های همهٔ فصل‌ها در یک آزمون تصادفی.</p>
+        <div class="foot"><span>همهٔ فصل‌ها</span><span class="pill">آزمون</span></div>
+      </a>
+      <a class="card" href="../../index.html">
+        <div class="ic">🏠</div>
+        <h3>بازگشت به صفحهٔ اصلی</h3>
+        <p class="desc">انتخاب درس دیگر از میان ده کتاب پایه نهم.</p>
+        <div class="foot"><span>صفحهٔ اصلی</span><span class="pill">همه</span></div>
+      </a>
+      <a class="card" href="../../پایه-نهم/06-علوم-تجربی-نهم.pdf">
+        <div class="ic">📕</div>
+        <h3>کتاب درسی PDF</h3>
+        <p class="desc">نسخهٔ کامل کتاب درسی برای مرور و چاپ.</p>
+        <div class="foot"><span>فایل PDF</span><span class="pill">دانلود</span></div>
+      </a>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <span>علوم تجربی · علوم تجربی پایه نهم</span>
+    <a href="../../index.html">صفحهٔ اصلی</a>
+  </div>
+</footer>
+
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/data/science.js"></script>
+<script>
+(function () {
+  const { fa, buildPath, Store } = Dars;
+  const C = window.CONTENT["science"];
+
+  const lessonIds = C.lessons.map(l => l.id);
+  const quizIds = Object.keys(C.quizzes || {});
+
+  // ساخت گام‌ها: هر درس → خواندن + آزمون
+  const steps = [];
+  C.lessons.forEach((l) => {
+    steps.push({
+      id: l.id, type: "lesson",
+      kicker: "درس " + fa(l.n),
+      title: l.title,
+      meta: ["صفحهٔ " + l.page, (C.quizzes[l.id] || []).length ? fa((C.quizzes[l.id] || []).length) + " پرسش" : ""],
+      href: "lesson.html?id=" + l.id
+    });
+    if (C.quizzes[l.id] && C.quizzes[l.id].length) {
+      steps.push({
+        id: l.id, type: "quiz",
+        kicker: "آزمون",
+        title: "آزمون " + l.title,
+        meta: [fa(C.quizzes[l.id].length) + " پرسش", "بدون محدودیت"],
+        href: "quiz.html?id=" + l.id
+      });
+    }
+  });
+
+  buildPath(document.getElementById("path"), { subject: "science", steps: steps });
+
+  // نوار پیشرفت
+  const pct = Store.subjectProgress("science", lessonIds, quizIds);
+  document.getElementById("pbv").textContent = fa(pct) + "٪";
+  requestAnimationFrame(() => {
+    document.getElementById("pbf").style.width = pct + "%";
+  });
+})();
+</script>
+</body>
+</html>
