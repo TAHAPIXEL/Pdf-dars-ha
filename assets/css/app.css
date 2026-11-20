@@ -380,9 +380,8 @@ p:last-child { margin-bottom: 0; }
    ۸. مسیر یادگیری (Learning Path)
    ------------------------------------------------------------ */
 .path {
-  display: grid;
-  gap: 12px;
-  counter-reset: step;
+  /* ظرف مسیر؛ خودِ .path-spine چیدمان مارپیچی را می‌سازد */
+  position: relative;
 }
 
 .node {
@@ -476,17 +475,7 @@ p:last-child { margin-bottom: 0; }
 /* حالت قفل‌نشده ولی باز */
 .node.open .badge { background: var(--accent-soft); border-color: var(--accent-glow); color: var(--accent); }
 
-/* خط اتصال عمودی */
-.path .node + .node::before {
-  content: "";
-  position: absolute;
-  top: -12px;
-  right: 43px;
-  width: 2px;
-  height: 12px;
-  background: var(--border);
-  border-radius: 2px;
-}
+/* خط اتصال مارپیچ در .path-spine::before ساخته می‌شود (پایین فایل) */
 
 /* ------------------------------------------------------------
    ۹. کارت‌ها
@@ -1090,7 +1079,6 @@ tbody tr:hover td { background: rgba(255,255,255,.022); }
   .node { grid-template-columns: auto 1fr; padding: 15px; }
   .node .go { display: none; }
   .node .badge { width: 44px; height: 44px; border-radius: 13px; font-size: 1rem; }
-  .path .node + .node::before { right: 37px; }
 
   .cards { grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 11px; }
   .card { padding: 17px 15px; min-height: 132px; gap: 7px; }
