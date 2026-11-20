@@ -11,18 +11,45 @@
 <body class="bg-ink text-snow antialiased bg-fabric">
 
 <header class="fixed top-0 inset-x-0 z-50 glass-strong">
-  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-3">
-    <a href="index.html" class="flex items-center gap-2 font-black text-lg shrink-0">
-      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-base">📚</span>
-      <span class="hidden sm:inline">درس‌یار</span>
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 h-16 flex items-center gap-2">
+
+    <a href="index.html" class="flex items-center gap-2 font-black text-base shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-base shrink-0">📚</span>
+      <span class="hidden xs:inline sm:inline">درس‌یار</span>
     </a>
-    <nav class="flex items-center gap-4 sm:gap-6 text-sm font-bold text-fog overflow-x-auto">
-      <a href="index.html" class="navlink shrink-0">خانه</a>
-      <a href="progress.html" class="navlink shrink-0" data-active="true">کارنامه</a>
-      <a href="leaderboard.html" class="navlink shrink-0">قهرمانان</a>
+
+    <!-- ناوبری دسکتاپ -->
+    <nav class="hidden md:flex items-center gap-5 lg:gap-6 text-sm font-bold text-fog ms-2">
+      <a href="index.html" class="navlink">خانه</a>
+      <a href="progress.html" class="navlink" data-active="true">کارنامه</a>
+      <a href="leaderboard.html" class="navlink">قهرمانان</a>
+      <a href="resources.html" class="navlink">کتاب‌ها</a>
     </nav>
-    <div class="flex-1"></div>
-    <div class="ub-wrap flex items-center gap-2 text-xs font-bold" data-userbar></div>
+
+    <div class="flex-1 min-w-0"></div>
+
+    <div class="ub-wrap flex items-center gap-1 sm:gap-2 text-xs font-bold shrink-0" data-userbar></div>
+
+    <!-- دکمهٔ منو: فقط موبایل -->
+    <button type="button" id="navToggle" aria-label="منو" aria-expanded="false" aria-controls="navDrawer"
+            class="md:hidden w-10 h-10 shrink-0 rounded-xl grid place-items-center border border-white/15 text-snow active:scale-95 transition">
+      <svg id="navIconOpen" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg id="navIconClose" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- کشوی موبایل -->
+  <div id="navDrawer" class="md:hidden hidden border-t border-white/10 bg-abyss/95 backdrop-blur-xl">
+    <nav class="px-3 py-3 grid gap-1 text-sm font-bold">
+      <a href="index.html" class="nav-row">🏠 <span>خانه</span></a>
+      <a href="progress.html" class="nav-row" data-on="true">📊 <span>کارنامهٔ من</span></a>
+      <a href="leaderboard.html" class="nav-row">🏆 <span>تابلوی قهرمانان</span></a>
+      <a href="resources.html" class="nav-row">📕 <span>کتاب‌های درسی</span></a>
+    </nav>
   </div>
 </header>
 
@@ -56,7 +83,7 @@
     </div>
 
     <!-- آمار -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8" id="kpis"></div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8" id="kpis"></div>
 
     <!-- پیشرفت هر کتاب -->
     <h2 class="text-lg font-black mb-4">پیشرفت به تفکیک کتاب</h2>
@@ -114,6 +141,7 @@
     document.getElementById("kpis").append(
       kpi(st.xp || 0, "امتیاز XP", "#facc15"),
       kpi(st.streak || 0, "روز پشت‌سرهم", "#fb923c"),
+      kpi(Object.keys(st.sections || {}).length, "مبحث خوانده", "#a78bfa"),
       kpi(Object.keys(st.lessons || {}).length, "درس خوانده", "#34d399"),
       kpi(Object.keys(st.quizzes || {}).length, "آزمون داده", "#22d3ee")
     );

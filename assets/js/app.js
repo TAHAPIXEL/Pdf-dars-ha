@@ -89,6 +89,8 @@
       }
       if (!this._mem.lessons) this._mem.lessons = {};
       if (!this._mem.quizzes) this._mem.quizzes = {};
+      if (!this._mem.sections) this._mem.sections = {};
+      if (!this._mem.secQuiz) this._mem.secQuiz = {};
       return this._mem;
     },
     _write(d) {
@@ -192,6 +194,56 @@
       d.xp = Math.max(d.xp || 0, (progress || []).reduce((s, r) => s + (r.xp || 0), 0));
       this._write(d);
     },
+    /* ---------------- مبحث‌ها ---------------- */
+    /** مبحث خوانده شد (۵ XP بار اول) */
+    markSection(subject, lessonId, secId) {
+      const d = this._read();
+      d.sections = d.sections || {};
+      const k = subject + ":" + lessonId + ":" + secId;
+      const first = !d.sections[k];
+      d.sections[k] = d.sections[k] || Date.now();
+      if (first) this._addXP(d, 5);
+      this._touchStreak(d);
+      this._write(d);
+      this._cloud({ subject, lessonId, read: true, xp: first ? 5 : 0, mode: d.mode, section: secId });
+      return first;
+    },
+    isSectionDone(subject, lessonId, secId) {
+      return !!(this._read().sections || {})[subject + ":" + lessonId + ":" + secId];
+    },
+    /** کوییز مبحث (۳ XP به‌ازای هر پاسخ درست، فقط بار اول) */
+    saveSectionQuiz(subject, lessonId, secId, pct, correct, total) {
+      const d = this._read();
+      d.secQuiz = d.secQuiz || {};
+      const k = subject + ":" + lessonId + ":" + secId;
+      const prev = d.secQuiz[k];
+      const xp = prev ? 0 : Math.max(1, Math.round(correct * 3));
+      d.secQuiz[k] = {
+        best: Math.max(prev ? prev.best : 0, pct),
+        last: pct,
+        correct, total,
+        at: Date.now(),
+        tries: (prev ? prev.tries : 0) + 1,
+      };
+      if (xp) this._addXP(d, xp);
+      this._touchStreak(d);
+      // مبحث با قبولی در کوییز، خوانده‌شده هم حساب می‌شود
+      d.sections = d.sections || {};
+      d.sections[k] = d.sections[k] || Date.now();
+      this._write(d);
+      this._cloud({ subject, lessonId, section: secId, pct, correct, total, xp, mode: d.mode });
+      return { xp, best: d.secQuiz[k].best };
+    },
+    getSectionQuiz(subject, lessonId, secId) {
+      return (this._read().secQuiz || {})[subject + ":" + lessonId + ":" + secId] || null;
+    },
+    /** چند مبحث از یک درس خوانده شده */
+    sectionsDone(subject, lessonId) {
+      const all = this._read().sections || {};
+      const pre = subject + ":" + lessonId + ":";
+      return Object.keys(all).filter((k) => k.startsWith(pre)).length;
+    },
+
     _addXP(d, n) { d.xp = (d.xp || 0) + n; },
     _touchStreak(d) {
       const today = new Date().toISOString().slice(0, 10);
@@ -213,6 +265,8 @@
         lessons: d.lessons || {},
         quizzes: d.quizzes || {},
         quick: d.quick || {},
+        sections: d.sections || {},
+        secQuiz: d.secQuiz || {},
       };
     },
     /** درصد کل پیشرفت یک درس */
@@ -374,6 +428,162 @@
     host.append(list);
   }
 
+
+
+  /* ----------------------------------------------------------
+     ناوبری موبایل — منوی کشویی
+     ---------------------------------------------------------- */
+  function wireNavDrawer() {
+    const btn = document.getElementById("navToggle");
+    const drawer = document.getElementById("navDrawer");
+    if (!btn || !drawer) return;
+
+    const openIcon = document.getElementById("navIconOpen");
+    const closeIcon = document.getElementById("navIconClose");
+
+    function setOpen(on) {
+      drawer.classList.toggle("hidden", !on);
+      btn.setAttribute("aria-expanded", String(on));
+      if (openIcon) openIcon.classList.toggle("hidden", on);
+      if (closeIcon) closeIcon.classList.toggle("hidden", !on);
+    }
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setOpen(drawer.classList.contains("hidden"));
+    });
+
+    // بستن با کلیک بیرون / Escape
+    document.addEventListener("click", (e) => {
+      if (drawer.classList.contains("hidden")) return;
+      if (!drawer.contains(e.target) && e.target !== btn) setOpen(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setOpen(false);
+    });
+    // بستن هنگام چرخش یا تغییر اندازه به دسکتاپ
+    global.addEventListener("resize", () => {
+      if (global.innerWidth >= 768) setOpen(false);
+    });
+  }
+
+
+  /* ----------------------------------------------------------
+     تقسیم درس به «مبحث»
+     ----------------------------------------------------------
+     بدنهٔ هر درس با <h3> به بخش‌ها شکسته می‌شود. هر بخش = یک مبحث
+     با متن و نکته‌های خودش، و در پایان هر مبحث یک کوییز کوتاه.
+     ---------------------------------------------------------- */
+
+  /** @returns {Array<{id,title,html,points}>} */
+  function sections(lesson) {
+    const body = String((lesson && lesson.body) || "");
+    const points = (lesson && lesson.points) || [];
+    const out = [];
+
+    // جعبهٔ «از خود کتاب درسی» و توضیح صفحه‌ها را از مبحث جدا می‌کنیم
+    const introRe = /^<div class="box note">[\s\S]*?<\/div>\s*(?=<h3|$)/i;
+    let rest = body.trim();
+    let intro = "";
+    const mi = introRe.exec(rest);
+    if (mi) { intro = mi[0]; rest = rest.slice(mi[0].length).trim(); }
+
+    // شکستن با h3
+    const parts = rest.split(/(?=<h3[^>]*>)/i).filter(Boolean);
+    const TITLE_RE = /^<h3[^>]*>([\s\S]*?)<\/h3>/i;
+
+    parts.forEach((chunk, i) => {
+      const m = TITLE_RE.exec(chunk);
+      let title = m ? m[1].replace(/<[^>]+>/g, "").trim() : "";
+      let html = m ? chunk.slice(m[0].length).trim() : chunk.trim();
+      if (i === 0 && intro) html = intro + html;
+
+      const fullTitle = title;
+      // عنوان‌های بلند (تیتر پاراگراف کتاب) را در مرزِ واژه کوتاه می‌کنیم
+      if (title.length > 58) {
+        let cut = title.slice(0, 56);
+        const sp = cut.lastIndexOf(" ");
+        if (sp > 30) cut = cut.slice(0, sp);
+        title = cut.replace(/[\s،,:؛.]+$/, "") + "…";
+      }
+      if (!title) title = "بخش " + fa(i + 1);
+
+      if (html.replace(/<[^>]+>/g, "").trim().length < 12) return; // بخش خالی
+      out.push({ id: lesson.id + "-s" + (out.length + 1), title, fullTitle, html, points: [] });
+    });
+
+    // اگر بدنه h3 نداشت، کل درس یک مبحث
+    if (!out.length) {
+      const text = rest.replace(/<[^>]+>/g, "").trim();
+      if (text.length >= 12) {
+        out.push({ id: lesson.id + "-s1", title: lesson.title, fullTitle: lesson.title, html: intro + rest, points: [] });
+      }
+    }
+
+    // ── ادغام مبحث‌های ریز ──
+    // در برخی کتاب‌ها (مثلاً ریاضی) تیترهای <h3> برچسبِ تمرین‌اند نه سرفصل؛
+    // مبحثی که کمتر از MIN_CHARS متن دارد به مبحث پیشین می‌چسبد تا
+    // دانش‌آموز به‌جای ۷ تکهٔ چندخطی، ۳ مبحث واقعی بخواند.
+    const MIN_CHARS = 150;
+    const textLen = (h) => h.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim().length;
+
+    if (out.length > 1) {
+      const merged = [];
+      out.forEach((sec, si) => {
+        if (!merged.length) { merged.push(sec); return; }
+        const prev = merged[merged.length - 1];
+        const tooSmall = textLen(sec.html) < MIN_CHARS || textLen(prev.html) < MIN_CHARS * 0.5;
+
+        // هر درس دست‌کم ۲ مبحث داشته باشد و هیچ مبحثی بدون متن نماند
+        if (tooSmall && (merged.length > 1 || si === out.length - 1)) {
+          prev.html +=
+            '<h4 class="mt-7 mb-2 text-sm font-black opacity-90">' + sec.title + "</h4>" + sec.html;
+          prev.points = prev.points.concat(sec.points);
+          prev.fullTitle = prev.fullTitle || prev.title;
+        } else {
+          merged.push(sec);
+        }
+      });
+      out.length = 0;
+      merged.forEach((s, i) => {
+        s.id = lesson.id + "-s" + (i + 1);
+        out.push(s);
+      });
+    }
+
+    // نکته‌ها را نوبتی بین مبحث‌ها پخش می‌کنیم (منبع: همان درس)
+    if (out.length && points.length) {
+      points.forEach((pt, i) => {
+        out[i % out.length].points.push(pt);
+      });
+    }
+
+    return out;
+  }
+
+  /** تعداد مبحث‌های یک درس، بدون ساخت کل ساختار */
+  function sectionCount(lesson) {
+    try { return sections(lesson).length; } catch (e) { return 1; }
+  }
+
+  /** فصل‌های یک کتاب از روی ساختار تولیدشده */
+  function chaptersOf(subject) {
+    const st = (global.DARS_STRUCTURE || {})[subject] || [];
+    const C = (global.CONTENT || {})[subject];
+    if (!C) return [];
+    return st.map((ch) => {
+      const items = ch.lessons
+        .map((n) => C.lessons[n - 1])
+        .filter(Boolean);
+      return {
+        name: ch.name,
+        icon: ch.icon || "📚",
+        lessons: items,
+        nLessons: items.length,
+        nSections: items.reduce((s, l) => s + sectionCount(l), 0),
+      };
+    }).filter((ch) => ch.lessons.length);
+  }
 
   /* ----------------------------------------------------------
      افکت‌های سبک: کانفتی و صدا (بدون فایل بیرونی)
@@ -627,11 +837,16 @@
     function finish() {
       trackFill.style.width = "100%";
       const pct = Math.round((correct / order.length) * 100);
+      const rawNomre = (correct / order.length) * 20;
+      const nomre = Math.round(rawNomre * 10) / 10;
+      const nomreTxt = Number.isInteger(nomre) ? String(nomre) : nomre.toFixed(1);
       const pass = cfg.pass || 70;
       const earnedXP = Math.round(correct * 4) + (pct >= pass ? 18 : 0);
 
-      Store.saveQuiz(cfg.subject, cfg.id, pct, earnedXP,
-        { correct, total: order.length, mode: cfg.mode });
+      if (cfg.save !== false) {
+        Store.saveQuiz(cfg.subject, cfg.id, pct, earnedXP,
+          { correct, total: order.length, mode: cfg.mode });
+      }
 
       try { if (pct >= pass) celebrate(52); } catch (e) { /* افکت نباید مانع نتیجه شود */ }
 
@@ -673,16 +888,19 @@
             )
           )
         ),
-        el("div", { class: "grid grid-cols-3 gap-2 sm:gap-3 mb-7 max-w-sm mx-auto" },
+        el("div", { class: "grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-7 max-w-lg mx-auto" },
+          el("div", { class: "rounded-2xl bg-xp/10 border border-xp/30 px-2 py-3" },
+            el("b", { class: "block text-lg font-black text-xp", text: fa(nomreTxt) + " از ۲۰" }),
+            el("span", { class: "text-[10px] text-xp/80", text: "نمره" })),
           el("div", { class: "rounded-2xl bg-mint/10 border border-mint/30 px-2 py-3" },
-            el("b", { class: "block text-lg font-black text-mint", text: fa(correct) }),
-            el("span", { class: "text-[10px] text-mint/80", text: "درست" })),
+            el("b", { class: "block text-lg font-black text-mint", text: fa(correct) + " از " + fa(order.length) }),
+            el("span", { class: "text-[10px] text-mint/80", text: "پاسخ درست" })),
           el("div", { class: "rounded-2xl bg-rosee/10 border border-rosee/30 px-2 py-3" },
             el("b", { class: "block text-lg font-black text-rosee", text: fa(order.length - correct) }),
             el("span", { class: "text-[10px] text-rosee/80", text: "نادرست" })),
-          el("div", { class: "rounded-2xl bg-xp/10 border border-xp/30 px-2 py-3" },
-            el("b", { class: "block text-lg font-black text-xp", text: "+" + fa(earnedXP) }),
-            el("span", { class: "text-[10px] text-xp/80", text: "XP" }))
+          el("div", { class: "rounded-2xl bg-white/5 border border-white/15 px-2 py-3" },
+            el("b", { class: "block text-lg font-black text-snow", text: "+" + fa(earnedXP) }),
+            el("span", { class: "text-[10px] text-fog", text: "XP" }))
         ),
         el("div", { class: "flex flex-wrap items-center justify-center gap-3" },
           el("button", {
@@ -696,7 +914,7 @@
       stage.append(result);
 
       paintStats();
-      if (typeof cfg.onDone === "function") cfg.onDone(pct);
+      if (typeof cfg.onDone === "function") cfg.onDone(pct, correct, order.length);
     }
 
     render();
@@ -823,6 +1041,7 @@
   function boot() {
     paintStats();
     wireNav();
+    wireNavDrawer();
     const C = global.DarsCloud;
     if (C && C.ready) {
       const m = Store.mode();
@@ -856,7 +1075,8 @@
      ---------------------------------------------------------- */
   global.Dars = {
     fa, faWords, shuffle, rnd, el,
-    Store, celebrate, buildPath, runQuiz, confetti, sfx,
+    wireNavDrawer, Store, celebrate, buildPath, runQuiz, confetti, sfx,
+    sections, sectionCount, chaptersOf,
     paintStats, boot, requireLogin, paintUserBar, rootHref
   };
 })(window);

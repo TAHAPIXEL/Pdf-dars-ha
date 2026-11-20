@@ -11,92 +11,305 @@
 </head>
 <body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#06b6d4;--accent-deep:#0891b2;--accent-soft:rgba(6,182,212,0.14);--accent-glow:rgba(6,182,212,0.35)">
 <header class="fixed top-0 inset-x-0 z-50 glass-strong">
-  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-2 sm:gap-3">
-    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0">
-      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink">📝</span>
-      <span>صفحهٔ اصلی</span>
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 h-16 flex items-center gap-2">
+
+    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0 min-w-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink shrink-0">📝</span>
+      <span class="truncate max-w-[7.5rem] sm:max-w-none">صفحهٔ اصلی</span>
     </a>
-    <div class="flex-1"></div>
-    <div class="ub-wrap flex items-center gap-1.5 sm:gap-2 text-xs font-bold" data-userbar></div>
+
+    <!-- ناوبری دسکتاپ -->
+    <nav class="hidden md:flex items-center gap-4 lg:gap-5 text-sm font-bold text-fog ms-3">
+      <a href="../../index.html" class="navlink">خانه</a>
+      <a href="index.html" class="navlink">فصل‌ها</a>
+      <a href="all.html" class="navlink">همهٔ درس‌نامه‌ها</a>
+      <a href="../../progress.html" class="navlink">کارنامه</a>
+      <a href="../../leaderboard.html" class="navlink">قهرمانان</a>
+    </nav>
+
+    <div class="flex-1 min-w-0"></div>
+
+    <div class="ub-wrap flex items-center gap-1 sm:gap-2 text-xs font-bold shrink-0" data-userbar></div>
+
+    <!-- دکمهٔ منو: فقط موبایل -->
+    <button type="button" id="navToggle" aria-label="منو" aria-expanded="false" aria-controls="navDrawer"
+            class="md:hidden w-10 h-10 shrink-0 rounded-xl grid place-items-center border border-white/15 text-snow active:scale-95 transition">
+      <svg id="navIconOpen" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg id="navIconClose" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- کشوی موبایل -->
+  <div id="navDrawer" class="md:hidden hidden border-t border-white/10 bg-abyss/95 backdrop-blur-xl">
+    <nav class="px-3 py-3 grid gap-1 text-sm font-bold">
+      <a href="../../index.html" class="nav-row">🏠 <span>صفحهٔ اصلی</span></a>
+      <a href="index.html" class="nav-row">🗂 <span>فصل‌های صفحهٔ اصلی</span></a>
+      <a href="all.html" class="nav-row">📖 <span>همهٔ درس‌نامه‌ها</span></a>
+      <a href="quiz.html?all=1" class="nav-row">🎯 <span>آزمون جامع</span></a>
+      <div class="my-1.5 h-px bg-white/10"></div>
+      <a href="../../progress.html" class="nav-row">📊 <span>کارنامهٔ من</span></a>
+      <a href="../../leaderboard.html" class="nav-row">🏆 <span>تابلوی قهرمانان</span></a>
+      <a href="../../resources.html" class="nav-row">📕 <span>کتاب‌های درسی</span></a>
+    </nav>
   </div>
 </header>
 <main class="pt-16">
 
-  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 py-7 sm:py-10">
 
     <!-- سرصفحهٔ کتاب -->
-    <div class="glass rounded-3xl p-5 sm:p-8 mb-8 relative overflow-hidden rv rv-in">
+    <div class="glass rounded-3xl p-5 sm:p-7 mb-6 relative overflow-hidden">
       <div class="absolute rounded-full pointer-events-none"
-           style="top:-80px;right:-80px;width:288px;height:288px;filter:blur(100px);background:rgba(6,182,212,0.14)"></div>
-      <div class="relative flex flex-wrap items-center gap-5">
-        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl grid place-items-center text-3xl sm:text-4xl shrink-0 -rotate-3"
+           style="top:-80px;right:-80px;width:260px;height:260px;filter:blur(100px);background:rgba(6,182,212,0.14)"></div>
+      <div class="relative flex items-start gap-4">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl grid place-items-center text-2xl sm:text-3xl shrink-0 -rotate-3"
              style="background:rgba(6,182,212,0.14);border:1px solid rgba(6,182,212,0.35)">📝</div>
         <div class="min-w-0 flex-1">
-          <div class="text-[11px] font-black mb-1" style="color:#06b6d4">پایه نهم</div>
-          <h1 class="text-2xl sm:text-3xl font-black mb-2">کتاب کار انگلیسی</h1>
-          <p class="text-fog text-xs sm:text-sm leading-7 max-w-xl">مستقیماً از کتاب درسی کتاب کار زبان انگلیسی پایه نهم — ۶ درس، از «Personality، Travel، Festivals and Ceremonies» تا «Health and Injuries».</p>
+          <div class="text-[11px] font-black mb-0.5" style="color:#06b6d4">پایه نهم</div>
+          <h1 class="text-xl sm:text-2xl font-black leading-snug mb-1.5">کتاب کار انگلیسی</h1>
+          <p class="text-fog text-xs sm:text-sm leading-6">مستقیماً از کتاب درسی کتاب کار زبان انگلیسی پایه نهم — ۶ درس، از «Personality، Travel، Festivals and Ceremonies» تا «Health and Injuries».</p>
         </div>
       </div>
 
-      <div class="relative mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
-          <div class="text-lg sm:text-xl font-black" style="color:#06b6d4">6</div>
-          <div class="text-[10px] sm:text-xs text-fog mt-0.5">درس</div>
+      <div class="relative mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-2 py-2.5 text-center">
+          <div class="text-base sm:text-lg font-black" style="color:#06b6d4">۶</div>
+          <div class="text-[10px] text-fog mt-0.5">فصل</div>
         </div>
-        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
-          <div class="text-lg sm:text-xl font-black" style="color:#06b6d4">6</div>
-          <div class="text-[10px] sm:text-xs text-fog mt-0.5">آزمون</div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-2 py-2.5 text-center">
+          <div class="text-base sm:text-lg font-black" style="color:#06b6d4">6</div>
+          <div class="text-[10px] text-fog mt-0.5">درس</div>
         </div>
-        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
-          <div class="text-lg sm:text-xl font-black" style="color:#06b6d4">24</div>
-          <div class="text-[10px] sm:text-xs text-fog mt-0.5">پرسش</div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-2 py-2.5 text-center">
+          <div class="text-base sm:text-lg font-black" style="color:#06b6d4">۱۱۲</div>
+          <div class="text-[10px] text-fog mt-0.5">مبحث</div>
         </div>
-        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
-          <div class="text-lg sm:text-xl font-black" style="color:#06b6d4">۰</div>
-          <div class="text-[10px] sm:text-xs text-fog mt-0.5">صفحهٔ کتاب</div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-2 py-2.5 text-center">
+          <div class="text-base sm:text-lg font-black" style="color:#06b6d4">24</div>
+          <div class="text-[10px] text-fog mt-0.5">پرسش</div>
         </div>
       </div>
 
-      <div class="relative mt-5">
-        <div class="flex items-center justify-between text-xs font-bold mb-2">
-          <span class="text-fog">پیشرفت تو</span>
+      <div class="relative mt-4">
+        <div class="flex items-center justify-between text-[11px] font-bold mb-1.5">
+          <span class="text-fog">پیشرفت کل کتاب</span>
           <span class="font-black" id="pbv" style="color:#06b6d4">۰٪</span>
         </div>
-        <div class="h-2.5 rounded-full bg-white/10 overflow-hidden">
+        <div class="h-2 rounded-full bg-white/10 overflow-hidden">
           <i class="block h-full rounded-full transition-all duration-700" id="pbf"
              style="width:0;background:linear-gradient(90deg,#06b6d4,#22d3ee)"></i>
         </div>
       </div>
     </div>
 
-    <!-- مسیر یادگیری -->
-    <div class="mb-6 text-center">
-      <h2 class="text-xl sm:text-2xl font-black mb-2">مسیر یادگیری</h2>
-      <p class="text-fog text-xs sm:text-sm">اول بخوان، بعد آزمون بده — آزمون اختیاری است</p>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg sm:text-xl font-black">فصل‌ها</h2>
+      <a href="all.html" class="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-white/15 text-fog hover:text-snow transition-colors">📖 همهٔ درس‌نامه‌ها</a>
     </div>
 
-    <div id="path"></div>
-
-    <!-- دسترسی سریع -->
-    <div class="mt-14 grid sm:grid-cols-3 gap-3 sm:gap-4">
-      <a href="all.html" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
-        <div class="text-3xl mb-3">📖</div>
-        <h3 class="font-black mb-1.5">همهٔ درس‌نامه‌ها</h3>
-        <p class="text-fog text-xs leading-6">یک صفحه برای خواندن همهٔ درس‌های این کتاب، پشت سر هم.</p>
-        <div class="mt-3 text-xs font-bold" style="color:#06b6d4">بخوان ←</div>
-      </a>
-      <a href="quiz.html?all=1" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
-        <div class="text-3xl mb-3">🎯</div>
-        <h3 class="font-black mb-1.5">آزمون جامع</h3>
-        <p class="text-fog text-xs leading-6">پرسش‌های همهٔ فصل‌ها در یک آزمون تصادفی.</p>
-        <div class="mt-3 text-xs font-bold" style="color:#06b6d4">شروع ←</div>
-      </a>
-      <a href="../../index.html" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
-        <div class="text-3xl mb-3">🏠</div>
-        <h3 class="font-black mb-1.5">درس دیگر</h3>
-        <p class="text-fog text-xs leading-6">بازگشت به صفحهٔ اصلی و انتخاب یکی از ده کتاب.</p>
-        <div class="mt-3 text-xs font-bold" style="color:#06b6d4">صفحهٔ اصلی ←</div>
-      </a>
-    </div>
+    <div id="chapters" class="space-y-3"></div>
   </div>
 </main>
+</main>
+<footer class="border-t border-line/50 py-8 px-4 text-center text-fog text-xs mt-16">
+  <p>کتاب کار انگلیسی · کتاب کار زبان انگلیسی پایه نهم</p>
+  <a href="../../index.html" class="text-violet font-bold mt-2 inline-block">صفحهٔ اصلی</a>
+</footer>
+
+<script src="../../assets/js/config.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
+<script src="../../assets/data/_structure.js"></script>
+<script src="../../assets/data/english-workbook.js"></script>
+<script>
+(function () {
+  if (!Dars.requireLogin()) return;
+  const { fa, Store, sections, chaptersOf } = Dars;
+  const C = window.CONTENT["english-workbook"];
+  const ACC = "#06b6d4";
+  const CHS = chaptersOf("english-workbook");
+  const host = document.getElementById("chapters");
+
+  if (!CHS.length) {
+    host.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-fog text-sm">فصلی ثبت نشده است.</div>';
+    return;
+  }
+
+  // --- کارت فصل ---
+  function chapterCard(ch, ci) {
+    const doneLessons = ch.lessons.filter(l => Store.isLessonDone("english-workbook", l.id)).length;
+    const pct = ch.nLessons ? Math.round(doneLessons / ch.nLessons * 100) : 0;
+
+    const wrap = document.createElement("section");
+    wrap.className = "glass rounded-3xl overflow-hidden";
+
+    const head = document.createElement("button");
+    head.type = "button";
+    head.className = "w-full text-start px-4 sm:px-5 py-4 flex items-center gap-3 active:bg-white/5 transition-colors";
+    head.setAttribute("aria-expanded", ci === 0 ? "true" : "false");
+    head.innerHTML =
+      '<span class="w-11 h-11 rounded-2xl grid place-items-center text-xl shrink-0 -rotate-3" ' +
+        'style="background:' + ACC + '1f;border:1px solid ' + ACC + '4d">' + ch.icon + '</span>' +
+      '<span class="min-w-0 flex-1">' +
+        '<span class="block font-black text-sm sm:text-base leading-6">' + ch.name + '</span>' +
+        '<span class="block text-[11px] text-fog mt-0.5">' +
+          fa(ch.nLessons) + ' درس · ' + fa(ch.nSections) + ' مبحث' +
+        '</span>' +
+        '<span class="mt-2 block h-1.5 rounded-full bg-white/10 overflow-hidden">' +
+          '<i class="block h-full rounded-full transition-all duration-500" ' +
+            'style="width:' + pct + '%;background:' + ACC + '"></i>' +
+        '</span>' +
+      '</span>' +
+      '<span class="shrink-0 text-fog text-xs font-black tabular-nums">' + fa(pct) + '٪</span>' +
+      '<span class="chev shrink-0 text-fog transition-transform duration-200" style="transform:rotate(' +
+        (ci === 0 ? "90deg" : "0deg") + ')">‹</span>';
+
+    const body = document.createElement("div");
+    body.className = "px-3 sm:px-4 pb-4 space-y-2" + (ci === 0 ? "" : " hidden");
+
+    // --- کارت درس ---
+    ch.lessons.forEach((L, li) => {
+      const secs = sections(L);
+      const sdone = secs.filter(s => Store.isSectionDone("english-workbook", L.id, s.id)).length;
+      const qz = Store.getQuiz("english-workbook", L.id);
+      const lpct = secs.length ? Math.round(sdone / secs.length * 100) : 0;
+
+      const lesson = document.createElement("div");
+      lesson.className = "rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden";
+
+      const lhead = document.createElement("button");
+      lhead.type = "button";
+      lhead.className = "w-full text-start px-3.5 py-3 flex items-center gap-3 active:bg-white/5 transition-colors";
+      lhead.setAttribute("aria-expanded", "false");
+      lhead.innerHTML =
+        '<span class="w-8 h-8 rounded-xl grid place-items-center text-[11px] font-black shrink-0" ' +
+          'style="background:' + ACC + '1f;color:' + ACC + '">' + fa(li + 1) + '</span>' +
+        '<span class="min-w-0 flex-1">' +
+          '<span class="block text-[13px] font-black leading-6">' + L.title + '</span>' +
+          '<span class="block text-[10px] text-fog mt-0.5">' +
+            fa(secs.length) + ' مبحث · ' + fa(sdone) + ' خوانده' +
+            (qz ? ' · آزمون ' + fa(qz.best) + '٪' : '') +
+          '</span>' +
+        '</span>' +
+        '<span class="shrink-0 text-[10px] font-black tabular-nums ' +
+          (lpct === 100 ? 'text-mint' : 'text-fog') + '">' + fa(lpct) + '٪</span>' +
+        '<span class="chev shrink-0 text-fog text-[10px] transition-transform duration-200">‹</span>';
+
+      const lbody = document.createElement("div");
+      lbody.className = "px-3 pb-3 hidden";
+
+      // --- مسیر مبحث‌ها ---
+      const pathWrap = document.createElement("div");
+      pathWrap.className = "relative ps-5";
+
+      // خط عمودی مسیر
+      const spine = document.createElement("i");
+      spine.className = "absolute top-2 bottom-2 start-[9px] w-0.5 rounded-full";
+      spine.style.background = "linear-gradient(180deg," + ACC + "66,transparent)";
+      pathWrap.append(spine);
+
+      secs.forEach((sec, si) => {
+        const done = Store.isSectionDone("english-workbook", L.id, sec.id);
+        const sq = Store.getSectionQuiz("english-workbook", L.id, sec.id);
+        const isNext = !done && si === secs.findIndex(x => !Store.isSectionDone("english-workbook", L.id, x.id));
+
+        const node = document.createElement("a");
+        node.href = "section.html?l=" + encodeURIComponent(L.id) + "&s=" + encodeURIComponent(sec.id);
+        node.className = "relative flex items-center gap-2.5 rounded-xl px-2 py-2 mb-1.5 " +
+          "hover:bg-white/5 active:bg-white/10 transition-colors";
+        node.innerHTML =
+          '<span class="absolute start-[-14px] w-3.5 h-3.5 rounded-full shrink-0 grid place-items-center ' +
+            (done ? "bg-mint" : isNext ? "animate-pulse-ring" : "bg-panel2 border border-white/20") + '" ' +
+            'style="' + (done ? "" : isNext ? "background:" + ACC : "") + '">' +
+            (done ? '<span class="text-[8px] text-ink font-black">✓</span>' : '') +
+          '</span>' +
+          '<span class="min-w-0 flex-1">' +
+            '<span class="block text-[12px] leading-6 ' +
+              (done ? "text-mint font-bold" : isNext ? "text-snow font-black" : "text-fog") + '">' +
+              sec.title +
+            '</span>' +
+            (sq ? '<span class="block text-[10px] text-fog/80 mt-0.5">کوییز: ' +
+              fa(sq.best) + '٪ · ' + fa(sq.correct) + ' از ' + fa(sq.total) + ' درست</span>' : '') +
+          '</span>' +
+          '<span class="shrink-0 text-fog/60 text-[10px]">‹</span>';
+        pathWrap.append(node);
+      });
+
+      // --- آزمون پایان درس ---
+      const hasQ = ((C.quizzes || {})[L.id] || []).length > 0;
+      let exam = null;
+      if (hasQ) {
+        exam = document.createElement("a");
+        exam.href = "quiz.html?id=" + encodeURIComponent(L.id);
+        exam.className = "mt-3 flex items-center gap-3 rounded-xl px-3 py-2.5 border transition-colors " +
+          (qz ? "border-mint/40 bg-mint/10" : "border-white/15 bg-white/5 hover:bg-white/10");
+        exam.innerHTML =
+          '<span class="text-lg shrink-0">' + (qz ? "🏆" : "🎯") + '</span>' +
+          '<span class="min-w-0 flex-1">' +
+            '<span class="block text-[12px] font-black">' +
+              (qz ? "آزمون پایان درس — بهترین نمره" : "آزمون پایان درس") + '</span>' +
+            '<span class="block text-[10px] text-fog mt-0.5">' +
+              (qz ? fa(qz.best) + '٪ · ' + fa(qz.tries) + ' بار شرکت' :
+                    fa(((C.quizzes || {})[L.id] || []).length) + ' پرسش') +
+            '</span>' +
+          '</span>' +
+          '<span class="shrink-0 text-xs ' + (qz ? "text-mint" : "text-fog") + '">‹</span>';
+      }
+
+      lbody.append(pathWrap);
+      if (exam) lbody.append(exam);
+
+      lhead.addEventListener("click", () => {
+        const open = lbody.classList.toggle("hidden");
+        lhead.setAttribute("aria-expanded", String(!open));
+        const ch2 = lhead.querySelector(".chev");
+        if (ch2) ch2.style.transform = open ? "rotate(0deg)" : "rotate(-90deg)";
+      });
+
+      lesson.append(lhead, lbody);
+      body.append(lesson);
+    });
+
+    // آزمون کل فصل
+    const totalQ = ch.lessons.reduce((s, l) => s + (((C.quizzes || {})[l.id]) || []).length, 0);
+    if (totalQ) {
+      const a = document.createElement("a");
+      a.href = "quiz.html?ch=" + ci;
+      a.className = "mt-1 flex items-center gap-3 rounded-2xl px-3.5 py-3 border-2 border-dashed border-white/20 hover:border-white/35 transition-colors";
+      a.innerHTML =
+        '<span class="text-xl shrink-0">🏁</span>' +
+        '<span class="min-w-0 flex-1">' +
+          '<span class="block text-[12px] font-black">آزمون فصل — ' + ch.name + '</span>' +
+          '<span class="block text-[10px] text-fog mt-0.5">' + fa(totalQ) + ' پرسش از همهٔ درس‌های این فصل</span>' +
+        '</span>' +
+        '<span class="shrink-0 text-fog text-xs">‹</span>';
+      body.append(a);
+    }
+
+    head.addEventListener("click", () => {
+      const hidden = body.classList.toggle("hidden");
+      head.setAttribute("aria-expanded", String(!hidden));
+      const ch2 = head.querySelector(".chev");
+      if (ch2) ch2.style.transform = hidden ? "rotate(0deg)" : "rotate(-90deg)";
+    });
+
+    wrap.append(head, body);
+    return wrap;
+  }
+
+  CHS.forEach((ch, i) => host.append(chapterCard(ch, i)));
+
+  // نوار پیشرفت کل کتاب = درس خوانده / کل درس
+  const allLessons = CHS.reduce((a, c) => a.concat(c.lessons), []);
+  const done = allLessons.filter(l => Store.isLessonDone("english-workbook", l.id)).length;
+  const pct = allLessons.length ? Math.round(done / allLessons.length * 100) : 0;
+  document.getElementById("pbv").textContent = fa(pct) + "٪";
+  requestAnimationFrame(() => { document.getElementById("pbf").style.width = pct + "%"; });
+})();
+</script>
+</body>
+</html>

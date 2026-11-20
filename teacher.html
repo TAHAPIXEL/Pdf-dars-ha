@@ -10,17 +10,45 @@
 </head>
 <body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#6366f1;--accent-deep:#4f46e5;--accent-soft:rgba(99,102,241,.14);--accent-glow:rgba(99,102,241,.35)">
 <header class="fixed top-0 inset-x-0 z-50 glass-strong">
-  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-3">
-    <a href="index.html" class="flex items-center gap-2 font-black text-lg shrink-0">
-      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-base">📚</span>
-      <span class="hidden sm:inline">درس‌یار</span>
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 h-16 flex items-center gap-2">
+
+    <a href="index.html" class="flex items-center gap-2 font-black text-base shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-base shrink-0">📚</span>
+      <span class="hidden xs:inline sm:inline">درس‌یار</span>
     </a>
-    <nav class="flex items-center gap-4 sm:gap-6 text-sm font-bold text-fog">
+
+    <!-- ناوبری دسکتاپ -->
+    <nav class="hidden md:flex items-center gap-5 lg:gap-6 text-sm font-bold text-fog ms-2">
       <a href="index.html" class="navlink">خانه</a>
-      <a href="teacher.html" class="navlink" data-active="true">پنل دبیر</a>
+      <a href="progress.html" class="navlink">کارنامه</a>
+      <a href="leaderboard.html" class="navlink">قهرمانان</a>
+      <a href="resources.html" class="navlink">کتاب‌ها</a>
     </nav>
-    <div class="flex-1"></div>
-    <div class="ub-wrap flex items-center gap-2 text-xs font-bold" data-userbar></div>
+
+    <div class="flex-1 min-w-0"></div>
+
+    <div class="ub-wrap flex items-center gap-1 sm:gap-2 text-xs font-bold shrink-0" data-userbar></div>
+
+    <!-- دکمهٔ منو: فقط موبایل -->
+    <button type="button" id="navToggle" aria-label="منو" aria-expanded="false" aria-controls="navDrawer"
+            class="md:hidden w-10 h-10 shrink-0 rounded-xl grid place-items-center border border-white/15 text-snow active:scale-95 transition">
+      <svg id="navIconOpen" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg id="navIconClose" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- کشوی موبایل -->
+  <div id="navDrawer" class="md:hidden hidden border-t border-white/10 bg-abyss/95 backdrop-blur-xl">
+    <nav class="px-3 py-3 grid gap-1 text-sm font-bold">
+      <a href="index.html" class="nav-row">🏠 <span>خانه</span></a>
+      <a href="progress.html" class="nav-row">📊 <span>کارنامهٔ من</span></a>
+      <a href="leaderboard.html" class="nav-row">🏆 <span>تابلوی قهرمانان</span></a>
+      <a href="resources.html" class="nav-row">📕 <span>کتاب‌های درسی</span></a>
+    </nav>
   </div>
 </header>
 
@@ -42,11 +70,11 @@
             <th>درس‌های خوانده</th>
             <th>آزمون‌ها</th>
             <th>میانگین بهترین نمره</th>
-            <th>میانگین آزمون‌ها</th>
+            <th>نمره (از ۲۰)</th>
             <th>آخرین فعالیت</th>
           </tr>
         </thead>
-        <tbody id="rows"><tr><td colspan="7">در حال دریافت…</td></tr></tbody>
+        <tbody id="rows"><tr><td colspan="8">در حال دریافت…</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -68,7 +96,7 @@
   Dars.paintUserBar();
 
   if (!DarsCloud.isStaff()) {
-    body.innerHTML = '<tr><td colspan="7">این صفحه مخصوص دبیران و کادر مدرسه است.</td></tr>';
+    body.innerHTML = '<tr><td colspan="8">این صفحه مخصوص دبیران و کادر مدرسه است.</td></tr>';
     return;
   }
 
@@ -104,7 +132,7 @@
 
     body.innerHTML = "";
     if (!list.length) {
-      body.innerHTML = '<tr><td colspan="7">هنوز دانش‌آموزی در درس‌یار فعالیت نکرده است.</td></tr>';
+      body.innerHTML = '<tr><td colspan="8">هنوز دانش‌آموزی در درس‌یار فعالیت نکرده است.</td></tr>';
       return;
     }
     list.forEach((r) => {
@@ -115,12 +143,18 @@
         el("td", { text: fa(r.lessons_read || 0) }),
         el("td", { text: fa(r.quizzes_taken || 0) }),
         el("td", {}, el("span", { class: "pill " + cls(r.avg_best_pct), text: r.avg_best_pct === null ? "—" : fa(r.avg_best_pct) + "٪" })),
-        el("td", {}, el("span", { class: "pill " + cls(r.avg_attempt_pct), text: r.avg_attempt_pct === null ? "—" : fa(r.avg_attempt_pct) + "٪" })),
+        el("td", {}, (() => {
+          const p = r.avg_best_pct;
+          if (p === null || p === undefined) return document.createTextNode("—");
+          const n = Math.round((Number(p) / 100) * 20 * 10) / 10;
+          const t = Number.isInteger(n) ? String(n) : n.toFixed(1);
+          return el("b", { class: "tabular-nums text-sm font-black text-snow", text: fa(t) + " از ۲۰" });
+        })()),
         el("td", { text: when(r.last_active) })
       ));
     });
   }).catch((e) => {
-    body.innerHTML = '<tr><td colspan="7">' + (e.message || "خطا در دریافت اطلاعات") + "</td></tr>";
+    body.innerHTML = '<tr><td colspan="8">' + (e.message || "خطا در دریافت اطلاعات") + "</td></tr>";
   });
 })();
 </script>

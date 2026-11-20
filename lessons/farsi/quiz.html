@@ -11,13 +11,50 @@
 </head>
 <body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#f59e0b;--accent-deep:#d97706;--accent-soft:rgba(245,158,11,0.14);--accent-glow:rgba(245,158,11,0.35)">
 <header class="fixed top-0 inset-x-0 z-50 glass-strong">
-  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-2 sm:gap-3">
-    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0">
-      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink">📚</span>
-      <span>مسیر درس</span>
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 h-16 flex items-center gap-2">
+
+    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0 min-w-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink shrink-0">📚</span>
+      <span class="truncate max-w-[7.5rem] sm:max-w-none">مسیر درس</span>
     </a>
-    <div class="flex-1"></div>
-    <div class="ub-wrap flex items-center gap-1.5 sm:gap-2 text-xs font-bold" data-userbar></div>
+
+    <!-- ناوبری دسکتاپ -->
+    <nav class="hidden md:flex items-center gap-4 lg:gap-5 text-sm font-bold text-fog ms-3">
+      <a href="../../index.html" class="navlink">خانه</a>
+      <a href="index.html" class="navlink">فصل‌ها</a>
+      <a href="all.html" class="navlink">همهٔ درس‌نامه‌ها</a>
+      <a href="../../progress.html" class="navlink">کارنامه</a>
+      <a href="../../leaderboard.html" class="navlink">قهرمانان</a>
+    </nav>
+
+    <div class="flex-1 min-w-0"></div>
+
+    <div class="ub-wrap flex items-center gap-1 sm:gap-2 text-xs font-bold shrink-0" data-userbar></div>
+
+    <!-- دکمهٔ منو: فقط موبایل -->
+    <button type="button" id="navToggle" aria-label="منو" aria-expanded="false" aria-controls="navDrawer"
+            class="md:hidden w-10 h-10 shrink-0 rounded-xl grid place-items-center border border-white/15 text-snow active:scale-95 transition">
+      <svg id="navIconOpen" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg id="navIconClose" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- کشوی موبایل -->
+  <div id="navDrawer" class="md:hidden hidden border-t border-white/10 bg-abyss/95 backdrop-blur-xl">
+    <nav class="px-3 py-3 grid gap-1 text-sm font-bold">
+      <a href="../../index.html" class="nav-row">🏠 <span>صفحهٔ اصلی</span></a>
+      <a href="index.html" class="nav-row">🗂 <span>فصل‌های مسیر درس</span></a>
+      <a href="all.html" class="nav-row">📖 <span>همهٔ درس‌نامه‌ها</span></a>
+      <a href="quiz.html?all=1" class="nav-row">🎯 <span>آزمون جامع</span></a>
+      <div class="my-1.5 h-px bg-white/10"></div>
+      <a href="../../progress.html" class="nav-row">📊 <span>کارنامهٔ من</span></a>
+      <a href="../../leaderboard.html" class="nav-row">🏆 <span>تابلوی قهرمانان</span></a>
+      <a href="../../resources.html" class="nav-row">📕 <span>کتاب‌های درسی</span></a>
+    </nav>
   </div>
 </header>
 <main class="pt-16">
@@ -55,7 +92,22 @@
   let title = "آزمون";
   let qid = null;
 
-  if (params.get("all") === "1") {
+  if (params.get("ch") !== null) {
+    // آزمون فصل: پرسش‌های همهٔ درس‌های این فصل
+    const chs = (window.DARS_STRUCTURE || {})[KEY] || [];
+    const ci = parseInt(params.get("ch"), 10) || 0;
+    const ch = chs[ci];
+    if (ch) {
+      const qs2 = [];
+      ch.lessons.forEach((n) => {
+        const lid2 = "l" + (n < 10 ? "0" : "") + n;
+        qs2.push(...((C.quizzes || {})[lid2] || []));
+      });
+      questions = Dars.shuffle(qs2);
+      title = "آزمون فصل — " + ch.name;
+      qid = "ch:" + ci;
+    }
+  } else if (params.get("all") === "1") {
     // آزمون جامع: از همهٔ فصل‌ها سهم می‌گیریم
     const all = [];
     Object.keys(C.quizzes).forEach((k) => all.push(...C.quizzes[k]));

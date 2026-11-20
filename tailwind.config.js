@@ -3,6 +3,7 @@ module.exports = {
   content: ["./*.html", "./lessons/**/*.html", "./assets/js/*.js"],
   theme: {
     extend: {
+      screens: { xs: "380px" },
       colors: {
         ink: "#05080f", abyss: "#0a1020", panel: "#0d1526", panel2: "#111b32",
         line: "#22304e", fog: "#93a2c0", snow: "#eef2fb",

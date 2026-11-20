@@ -234,7 +234,12 @@ async function save(req) {
     if (op.subject === "__mode") continue;
     const subject = op.subject.slice(0, 40);
     const lessonId = op.lessonId.slice(0, 40);
-    const key = subject + ":" + lessonId;
+    const sectionId = typeof op.section === "string" ? op.section.slice(0, 40) : null;
+    const kind = sectionId ? "section" : "lesson";
+    // در جدول، آزمون سطح درس با «-» ذخیره می‌شود (NULL در کلید اصلی مجاز نیست)
+    const sectionKey = sectionId || "-";
+    // کلید ادغام شامل مبحث است تا خواندن هر مبحث، رکورد جدا بگیرد
+    const key = subject + ":" + lessonId + ":" + sectionKey;
     const read = op.read === true;
     const pct = Number.isFinite(op.pct)
       ? Math.max(0, Math.min(100, Math.round(op.pct)))
@@ -251,6 +256,7 @@ async function save(req) {
           encodeURIComponent(subject) +
           "&lesson_id=eq." +
           encodeURIComponent(lessonId) +
+          "&section_id=eq." + encodeURIComponent(sectionKey) +
           "&select=*",
         true,
       );
@@ -259,6 +265,8 @@ async function save(req) {
         user_id: v.id,
         subject,
         lesson_id: lessonId,
+        section_id: sectionKey,
+        kind,
         read: !!prev?.read,
         read_at: prev?.read_at ?? null,
         best_pct: prev?.best_pct ?? null,
@@ -289,10 +297,13 @@ async function save(req) {
 
     if (pct !== undefined) {
       attempts.push({
-        id: v.id + ":" + subject + ":" + lessonId + ":" + Date.now() + ":" + attempts.length,
+        id: v.id + ":" + subject + ":" + lessonId + ":" + (sectionId || "-") + ":" +
+          Date.now() + ":" + attempts.length,
         user_id: v.id,
         subject,
         lesson_id: lessonId,
+        section_id: sectionId,
+        kind,
         pct,
         correct: Number.isFinite(op.correct) ? Math.round(op.correct) : null,
         total: Number.isFinite(op.total) ? Math.round(op.total) : null,
@@ -304,7 +315,7 @@ async function save(req) {
 
   const list = [...rows.values()];
   if (list.length) {
-    const r = await upsertRows("darsyar_progress", list, "user_id,subject,lesson_id");
+    const r = await upsertRows("darsyar_progress", list, "user_id,subject,lesson_id,section_id");
     if (r.error) return json({ error: r.error }, 500);
   }
   if (attempts.length) {
@@ -391,7 +402,7 @@ async function teacher(req) {
 
   const attempts = await selectRows(
     "darsyar_attempts",
-    "select=user_id,subject,lesson_id,pct,created_at&order=created_at.desc&limit=3000",
+    "select=user_id,subject,lesson_id,section_id,kind,pct,correct,total,created_at&order=created_at.desc&limit=3000",
   );
 
   return json({ rows: rows.data ?? [], attempts: attempts.data ?? [] });

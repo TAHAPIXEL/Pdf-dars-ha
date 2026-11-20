@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05080f">
+<title>مبحث — ریاضی</title>
+<meta name="description" content="مبحث‌های ریاضی پایه نهم">
+<link rel="stylesheet" href="../../assets/css/tw.css">
+<link rel="stylesheet" href="../../assets/css/quest.css">
+</head>
+<body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#3b82f6;--accent-deep:#2563eb;--accent-soft:rgba(59,130,246,0.14);--accent-glow:rgba(59,130,246,0.35)">
+<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 h-16 flex items-center gap-2">
+
+    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0 min-w-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink shrink-0">📐</span>
+      <span class="truncate max-w-[7.5rem] sm:max-w-none">مسیر درس</span>
+    </a>
+
+    <!-- ناوبری دسکتاپ -->
+    <nav class="hidden md:flex items-center gap-4 lg:gap-5 text-sm font-bold text-fog ms-3">
+      <a href="../../index.html" class="navlink">خانه</a>
+      <a href="index.html" class="navlink">فصل‌ها</a>
+      <a href="all.html" class="navlink">همهٔ درس‌نامه‌ها</a>
+      <a href="../../progress.html" class="navlink">کارنامه</a>
+      <a href="../../leaderboard.html" class="navlink">قهرمانان</a>
+    </nav>
+
+    <div class="flex-1 min-w-0"></div>
+
+    <div class="ub-wrap flex items-center gap-1 sm:gap-2 text-xs font-bold shrink-0" data-userbar></div>
+
+    <!-- دکمهٔ منو: فقط موبایل -->
+    <button type="button" id="navToggle" aria-label="منو" aria-expanded="false" aria-controls="navDrawer"
+            class="md:hidden w-10 h-10 shrink-0 rounded-xl grid place-items-center border border-white/15 text-snow active:scale-95 transition">
+      <svg id="navIconOpen" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"/>
+      </svg>
+      <svg id="navIconClose" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- کشوی موبایل -->
+  <div id="navDrawer" class="md:hidden hidden border-t border-white/10 bg-abyss/95 backdrop-blur-xl">
+    <nav class="px-3 py-3 grid gap-1 text-sm font-bold">
+      <a href="../../index.html" class="nav-row">🏠 <span>صفحهٔ اصلی</span></a>
+      <a href="index.html" class="nav-row">🗂 <span>فصل‌های مسیر درس</span></a>
+      <a href="all.html" class="nav-row">📖 <span>همهٔ درس‌نامه‌ها</span></a>
+      <a href="quiz.html?all=1" class="nav-row">🎯 <span>آزمون جامع</span></a>
+      <div class="my-1.5 h-px bg-white/10"></div>
+      <a href="../../progress.html" class="nav-row">📊 <span>کارنامهٔ من</span></a>
+      <a href="../../leaderboard.html" class="nav-row">🏆 <span>تابلوی قهرمانان</span></a>
+      <a href="../../resources.html" class="nav-row">📕 <span>کتاب‌های درسی</span></a>
+    </nav>
+  </div>
+</header>
+<main class="pt-16">
+
+<main>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 py-5 sm:py-8">
+
+    <div class="flex items-center gap-2 mb-4 flex-wrap text-[11px]">
+      <a href="index.html" class="font-bold text-fog hover:text-snow transition-colors">← مسیر کتاب</a>
+      <span class="text-fog/40">/</span>
+      <span class="font-bold" id="chName" style="color:#3b82f6">—</span>
+    </div>
+
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <span class="glass rounded-full px-3 py-1.5 text-[11px] font-black" style="color:#3b82f6" id="secIdx">مبحث</span>
+      <a class="rounded-lg px-3 py-1.5 text-[11px] font-bold border border-white/15 text-fog hover:text-snow transition-colors"
+         href="../../پایه-نهم/05-ریاضی-نهم.pdf" target="_blank" rel="noopener">PDF کتاب</a>
+    </div>
+
+    <h1 class="text-xl sm:text-2xl font-black leading-snug mb-1.5" id="secTitle">…</h1>
+    <p class="text-[11px] text-fog mb-5" id="secMeta"></p>
+
+    <article class="glass rounded-3xl p-5 sm:p-7 lesson-body" id="secBody"></article>
+
+    <div class="mt-5 flex flex-wrap items-center gap-2">
+      <button class="btn3d rounded-xl px-5 py-3 text-sm font-black text-ink cursor-pointer"
+              style="background:linear-gradient(90deg,#3b82f6,#22d3ee)" id="markRead" type="button">
+        این مبحث را خواندم ✓
+      </button>
+      <div class="flex-1"></div>
+      <a class="rounded-xl px-4 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors"
+         href="#" id="prevSec">← قبلی</a>
+      <a class="rounded-xl px-4 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors"
+         href="#" id="nextSec">بعدی →</a>
+    </div>
+
+    <!-- کوییز مبحث -->
+    <section class="mt-8">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base sm:text-lg font-black">کوییز این مبحث</h2>
+        <span class="text-[10px] text-fog" id="sqInfo"></span>
+      </div>
+      <div id="sqHost"></div>
+    </section>
+
+    <!-- پایان درس -->
+    <div class="mt-8 glass rounded-3xl p-5 sm:p-6" id="lessonEnd">
+      <div class="text-sm font-black mb-1.5" id="leTitle">پایان درس</div>
+      <p class="text-[11px] text-fog leading-6 mb-4" id="leText"></p>
+      <div class="flex flex-wrap gap-2" id="leActions"></div>
+    </div>
+  </div>
+</main>
+</main>
+<footer class="border-t border-line/50 py-8 px-4 text-center text-fog text-xs mt-16">
+  <p>ریاضی · ریاضی پایه نهم</p>
+  <a href="../../index.html" class="text-violet font-bold mt-2 inline-block">صفحهٔ اصلی</a>
+</footer>
+
+<script src="../../assets/js/config.js"></script>
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/js/cloud.js"></script>
+<script src="../../assets/data/_structure.js"></script>
+<script src="../../assets/data/math.js"></script>
+<script>
+(function () {
+  if (!Dars.requireLogin()) return;
+  const { fa, Store, sections } = Dars;
+  const C = window.CONTENT["math"];
+  const ACC = "#3b82f6";
+  const SUBJ = "math";
+  const $ = (id) => document.getElementById(id);
+
+  const qs = new URLSearchParams(location.search);
+  const lid = qs.get("l") || (C.lessons[0] || {}).id;
+  const sid = qs.get("s") || "";
+
+  const idx = C.lessons.findIndex((x) => x.id === lid);
+  const L = C.lessons[idx];
+  if (!L) { $("secBody").textContent = "درس یافت نشد."; return; }
+
+  const secs = sections(L);
+  let si = secs.findIndex((x) => x.id === sid);
+  if (si < 0) si = 0;
+  const S = secs[si];
+
+  // فصل این درس
+  const chs = (window.DARS_STRUCTURE || {})[SUBJ] || [];
+  const ch = chs.find((c) => c.lessons.includes(idx + 1));
+  $("chName").textContent = ch ? ch.name : "درس";
+
+  $("secIdx").textContent = "مبحث " + fa(si + 1) + " از " + fa(secs.length);
+  $("secTitle").textContent = S.fullTitle || S.title;
+  $("secMeta").textContent = "درس " + fa(L.n) + " · صفحهٔ " + L.page + " · " + fa(secs.length) + " مبحث";
+
+  // بدنه + نکته‌های همین مبحث
+  let body = S.html || "";
+  if (S.points && S.points.length) {
+    body += '<div class="mt-5 rounded-2xl p-4" style="background:' + ACC + '14;border:1px solid ' + ACC + '3d">' +
+      '<div class="text-xs font-black mb-2" style="color:' + ACC + '">⭐ نکته‌های کلیدی</div>' +
+      S.points.map((p, i) => '<div class="flex gap-2 text-[13px] leading-7 mb-1.5">' +
+        '<span class="shrink-0 font-black" style="color:' + ACC + '">' + fa(i + 1) + '.</span>' +
+        '<span>' + p + '</span></div>').join("") +
+      '</div>';
+  }
+  $("secBody").innerHTML = body;
+
+  // ناوبری قبلی/بعدی در سطح مبحث
+  function go(delta) {
+    let n = si + delta;
+    if (n < 0) {
+      if (idx > 0) {
+        const pl = C.lessons[idx - 1];
+        const ps = sections(pl);
+        location.href = "section.html?l=" + encodeURIComponent(pl.id) + "&s=" + encodeURIComponent(ps[ps.length - 1].id);
+      }
+      return;
+    }
+    if (n >= secs.length) {
+      if (idx + 1 < C.lessons.length) {
+        const nl = C.lessons[idx + 1];
+        const ns = sections(nl);
+        location.href = "section.html?l=" + encodeURIComponent(nl.id) + "&s=" + encodeURIComponent(ns[0].id);
+      }
+      return;
+    }
+    location.href = "section.html?l=" + encodeURIComponent(L.id) + "&s=" + encodeURIComponent(secs[n].id);
+  }
+  $("prevSec").addEventListener("click", (e) => { e.preventDefault(); go(-1); });
+  $("nextSec").addEventListener("click", (e) => { e.preventDefault(); go(1); });
+
+  // دکمهٔ «خواندم»
+  const mr = $("markRead");
+  function paintRead() {
+    if (Store.isSectionDone(SUBJ, L.id, S.id)) {
+      mr.textContent = "خوانده شد ✓";
+      mr.disabled = true;
+      mr.style.background = "rgba(255,255,255,.08)";
+      mr.style.color = "#93a2c0";
+      mr.style.boxShadow = "none";
+    }
+  }
+  mr.addEventListener("click", () => {
+    const first = Store.markSection(SUBJ, L.id, S.id);
+    Dars.paintStats();
+    paintRead();
+    if (first) Dars.celebrate(14);
+  });
+  paintRead();
+
+  /* ---------------- کوییز مبحث ---------------- */
+  const allQ = ((C.quizzes || {})[L.id] || []);
+  const sqHost = $("sqHost");
+  const prev = Store.getSectionQuiz(SUBJ, L.id, S.id);
+  $("sqInfo").textContent = prev ? "بهترین: " + fa(prev.best) + "٪" : "";
+
+  if (!allQ.length) {
+    sqHost.innerHTML = '<div class="glass rounded-2xl p-6 text-center text-xs text-fog">' +
+      'برای این درس پرسشی ثبت نشده است.</div>';
+  } else {
+    // ۳ پرسش برای هر مبحث — نوبتی از مجموعهٔ درس، تا هر مبحث سهم خودش را بگیرد
+    const per = Math.min(3, allQ.length);
+    const start = (si * per) % allQ.length;
+    const pick = [];
+    for (let i = 0; i < per; i++) pick.push(allQ[(start + i) % allQ.length]);
+
+    Dars.runQuiz({
+      host: sqHost,
+      questions: pick,
+      backHref: "index.html",
+      nextHref: "index.html",
+      compact: true,
+      save: false,
+      onDone: (pct, correct, total) => {
+        Store.saveSectionQuiz(SUBJ, L.id, S.id, pct, correct, total);
+        Dars.paintStats();
+        paintRead();
+        $("sqInfo").textContent = "بهترین: " + fa(pct) + "٪";
+        paintEnd();
+      }
+    });
+  }
+
+  /* ---------------- پایان درس ---------------- */
+  function paintEnd() {
+    const doneAll = secs.every((x) => Store.isSectionDone(SUBJ, L.id, x.id));
+    const qz = Store.getQuiz(SUBJ, L.id);
+    const isLast = si === secs.length - 1;
+
+    $("leTitle").textContent = isLast ? "پایان درس — " + L.title : "ادامهٔ درس";
+    $("leText").textContent = isLast
+      ? (doneAll
+          ? "همهٔ مبحث‌های این درس را خواندی. حالا آزمون پایان درس را بده و نمره‌ات را ببین."
+          : "هنوز چند مبحث خوانده نشده است؛ می‌توانی آزمون را همین حالا بدهی یا بعداً برگردی.")
+      : "مبحث بعدی این درس در انتظار توست.";
+
+    const acts = $("leActions");
+    acts.innerHTML = "";
+    const hasQ = allQ.length > 0;
+
+    if (hasQ) {
+      const a = document.createElement("a");
+      a.href = "quiz.html?id=" + encodeURIComponent(L.id);
+      a.className = "btn3d rounded-xl px-5 py-2.5 text-xs font-black text-ink";
+      a.style.background = qz
+        ? "linear-gradient(90deg,#34d399,#22d3ee)"
+        : "linear-gradient(90deg," + ACC + ",#22d3ee)";
+      a.textContent = qz ? "🏆 آزمون درس — بهترین " + fa(qz.best) + "٪" : "🎯 آزمون پایان درس";
+      acts.append(a);
+    }
+    if (!isLast) {
+      const b = document.createElement("a");
+      b.href = "section.html?l=" + encodeURIComponent(L.id) + "&s=" + encodeURIComponent(secs[si + 1].id);
+      b.className = "rounded-xl px-5 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors";
+      b.textContent = "مبحث بعدی →";
+      acts.append(b);
+    } else {
+      const b = document.createElement("a");
+      b.href = "index.html";
+      b.className = "rounded-xl px-5 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors";
+      b.textContent = "بازگشت به فهرست فصل‌ها";
+      acts.append(b);
+    }
+  }
+  paintEnd();
+})();
+</script>
+</body>
+</html>

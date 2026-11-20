@@ -176,3 +176,105 @@ body { -webkit-text-size-adjust: 100%; }
 .no-js .rv { opacity: 1; transform: none; }
 .rv { animation: rv-fallback .01s linear 2s forwards; }
 @keyframes rv-fallback { to { opacity: 1; transform: none; } }
+
+/* ---------- ناوبری ریسپانسیو ---------- */
+.nav-row {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .7rem .85rem; border-radius: .8rem;
+  color: #93a2c0; text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.nav-row:hover, .nav-row:active { background: rgba(255,255,255,.06); color: #eef2fb; }
+.nav-row[data-on="true"] {
+  background: rgba(167,139,250,.13);
+  color: #c4b5fd;
+  box-shadow: inset 0 0 0 1px rgba(167,139,250,.25);
+}
+
+/* نوار تاشوی فصل/درس در نقشهٔ مسیر */
+.chev {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.22s ease;
+}
+/* بدنهٔ درس در «همهٔ درس‌نامه‌ها» */
+.fullbody img { max-width: 100%; height: auto; }
+
+/* ----------------------------- نوار کاربر ----------------------------- */
+.ub-wrap { display: flex; align-items: center; gap: 8px; }
+
+/* ------------------------- جدول پنل دبیر ------------------------- */
+.tbl-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 16px;
+  border: 1px solid #22304e;
+  background: rgba(255, 255, 255, 0.02);
+}
+.teacher-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-family: "Abar Mid", Vazirmatn, Tahoma, sans-serif;
+  font-size: 0.84rem;
+}
+.teacher-table th,
+.teacher-table td {
+  padding: 10px 8px;
+  text-align: right;
+  border-bottom: 1px solid #22304e;
+  white-space: nowrap;
+}
+.teacher-table th {
+  color: #93a2c0;
+  font-weight: 700;
+  font-size: 0.78rem;
+  position: sticky;
+  top: 0;
+  background: #0d1526;
+  z-index: 1;
+}
+.teacher-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
+.teacher-table td:first-child,
+.teacher-table th:first-child { padding-inline-start: 14px; }
+
+/* روی موبایل جدول جمع‌وجورتر و اسکرول‌پذیر */
+@media (max-width: 640px) {
+  .teacher-table { min-width: 640px; font-size: 0.78rem; }
+  .teacher-table th, .teacher-table td { padding: 8px 6px; }
+}
+
+/* -------------------- ورود پله‌ای کارت‌ها -------------------- */
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.stagger > * { animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.09s; }
+.stagger > *:nth-child(4) { animation-delay: 0.12s; }
+.stagger > *:nth-child(5) { animation-delay: 0.15s; }
+.stagger > *:nth-child(6) { animation-delay: 0.18s; }
+.stagger > *:nth-child(7) { animation-delay: 0.21s; }
+.stagger > *:nth-child(8) { animation-delay: 0.24s; }
+
+/* احترام به تنظیم «کاهش حرکت» */
+@media (prefers-reduced-motion: reduce) {
+  .stagger > *, .animate-pop, .animate-shake { animation: none !important; }
+  .chev { transition: none; }
+}
+
+/* تیتر مبحث‌های ادغام‌شده در یک صفحه */
+.lesson-body h4 {
+  font-family: "Abar Mid", "Abar Low", Tahoma, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #c4b5fd;
+  margin: 1.9em 0 0.5em;
+  padding-inline-start: 0.6em;
+  border-inline-start: 2px solid rgba(167, 139, 250, 0.45);
+  line-height: 1.7;
+}
+.lesson-body h4:first-child { margin-top: 0; }
+
+/* اعداد و فرمول لاتین در متن فارسی */
+.lesson-body .tbl-wrap { max-width: 100%; }
+.lesson-body table { max-width: 100%; }

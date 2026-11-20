@@ -3,14 +3,26 @@
 هدف: نمایش پیشرفت درس‌خواندن و نمرهٔ آزمون‌های دانش‌آموز داخل پنل همدل،
 به‌طوری که دبیر وضعیت تحصیلی هر دانش‌آموز را ببیند. ورود با **همان شماره و رمز همدل**.
 
+ساختار درس‌یار: **کتاب → فصل → درس → مبحث → کوییز مبحث → آزمون درس/فصل**.
+کارت همدل همین سه سطح را نشان می‌دهد و برای هر آزمون **نمره از ۲۰، درصد و
+تعداد درست از کل** را می‌آورد.
+
+---
+
 ## پیش‌نیاز (انجام‌شده)
 
 | مورد | وضعیت |
 |---|---|
-| تابع لبهٔ `darsyar-auth` روی پروژهٔ Supabase همدل | ✅ نسخهٔ ۲ فعال |
+| تابع لبهٔ `darsyar-auth` روی پروژهٔ Supabase همدل | ✅ نسخهٔ ۸ فعال |
 | جدول‌های `darsyar_progress` / `darsyar_attempts` / `darsyar_days` | ✅ ساخته شد |
-| ویوهای `darsyar_student_summary` / `darsyar_my_summary` / `darsyar_student_subjects` | ✅ ساخته شد |
+| ستون `section_id` + `kind` روی `darsyar_progress` و `darsyar_attempts` | ✅ افزوده شد |
+| کلید اصلی `darsyar_progress` → `(user_id, subject, lesson_id, section_id)` | ✅ تغییر کرد |
+| ویوهای `darsyar_student_summary` / `darsyar_my_summary` / `darsyar_student_subjects` / `darsyar_section_summary` | ✅ ساخته شد |
 | اعتبارسنجی روی `hamdel_records(collection='users')` | ✅ ۵۰۵ کاربر موجود |
+
+> در جدول، آزمونِ سطح درس با `section_id = '-'` ذخیره می‌شود (NULL در کلید اصلی مجاز نیست).
+
+---
 
 ## قدم ۱ — کپی کامپوننت
 
@@ -30,6 +42,8 @@ import LearningProgress from "./LearningProgress";
 و در فهرست ناوبری:
 
 ```tsx
+import { GraduationCap } from "lucide-react";
+
 const nav = [
   // … موارد موجود …
   { v: "learning", label: "درس‌یار", icon: <GraduationCap className="size-5" />, show: true },
@@ -56,18 +70,46 @@ export type View = "chats" | … | "profile" | "learning";
 در `src/components/Profile.tsx` بعد از کارت کلاس:
 
 ```tsx
-<a href="https://darsyar.vercel.app/index.html" target="_blank" rel="noopener"
+<a href="https://darsyar-five.vercel.app/index.html" target="_blank" rel="noopener"
    className="…">
    🎓 ورود به درس‌یار نهم
 </a>
 ```
 
+---
+
 ## نقش‌ها
 
 | نقش | چه می‌بیند |
 |---|---|
-| `student` | کارت «پیشرفت من» — درس خوانده، آزمون داده، میانگین، نوار هر کتاب |
-| `teacher` / `principal` / معاونان | جدول همهٔ دانش‌آموزان + لینک به `/teacher.html` |
+| `student` | کارت «پیشرفت من» — مبحث خوانده، کوییز مبحث، آزمون درس/فصل، میانگین از ۲۰، نوار هر کتاب، آخرین آزمون‌ها |
+| `teacher` / `principal` / معاونان | جدول همهٔ دانش‌آموزان با ستون نمرهٔ از ۲۰ + تفکیک کوییز مبحث و آزمون درس + عملکرد هر کتاب + لینک به `/teacher.html` |
+
+### قالب داده‌ای که کارت می‌خواند
+
+```
+POST /me          → { user, progress[], attempts[], days[], summary, subjects[] }
+POST /teacher     → { rows[] (darsyar_student_summary), attempts[] }
+```
+
+`attempts[]`:
+
+```json
+{
+  "subject": "math",
+  "lesson_id": "l03",
+  "section_id": "l03-s2",   // '-' یعنی آزمون سطح درس
+  "kind": "section",        // section | lesson
+  "pct": 78,
+  "correct": 7,
+  "total": 9,
+  "created_at": "2026-11-20T…"
+}
+```
+
+نمایش نمره: `nomre20(pct) = pct / 100 * 20` با یک رقم اعشار و ارقام فارسی.
+
+---
 
 ## نکته‌های امنیتی
 
@@ -75,9 +117,11 @@ export type View = "chats" | … | "profile" | "learning";
 - دبیر فقط با نقش کادری پاسخ می‌گیرد (`STAFF` در تابع لبه)، بقیه ۴۰۳ می‌گیرند.
 - CORS باز است ولی هر درخواست باید نشست معتبر داشته باشد.
 
+---
+
 ## آدرس‌ها
 
-- سایت درس‌یار: `https://darsyar.vercel.app/`
+- سایت درس‌یار: **`https://darsyar-five.vercel.app/`**
 - صفحهٔ ورود: `/login.html`
 - کارنامهٔ دانش‌آموز: `/progress.html`
 - پنل دبیر: `/teacher.html`
