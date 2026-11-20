@@ -263,8 +263,15 @@ async function save(req: Request) {
 
   // استریک: روزهای فعال
   const today = new Date().toISOString().slice(0, 10);
+  const gained = list.reduce((s, r) => s + Number(r.xp ?? 0), 0);
+  const { data: todayRow } = await db
+    .from("darsyar_days")
+    .select("xp")
+    .eq("user_id", v.id)
+    .eq("day", today)
+    .maybeSingle();
   await db.from("darsyar_days").upsert(
-    { user_id: v.id, day: today, xp: list.reduce((s, r) => s + Number(r.xp ?? 0), 0) },
+    { user_id: v.id, day: today, xp: Number(todayRow?.xp ?? 0) + gained },
     { onConflict: "user_id,day" },
   );
 

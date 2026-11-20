@@ -98,12 +98,15 @@
     /** علامت‌گذاری درس به‌عنوان خوانده‌شده */
     markLesson(subject, id) {
       const d = this._read();
-      d.lessons[subject + ":" + id] = Date.now();
+      const k = subject + ":" + id;
+      const first = !d.lessons[k];
+      d.lessons[k] = d.lessons[k] || Date.now();
       d.quick = d.quick || {};
-      this._addXP(d, 10);
+      if (first) this._addXP(d, 10);
       this._touchStreak(d);
       this._write(d);
-      this._cloud({ subject, lessonId: id, read: true, xp: 10, mode: d.mode });
+      // فقط بار اول XP می‌رود؛ تکرار کلیک، امتیاز دوباره نمی‌دهد
+      this._cloud({ subject, lessonId: id, read: true, xp: first ? 10 : 0, mode: d.mode });
     },
     /** ثبت نتیجه آزمون */
     saveQuiz(subject, id, pct, xp, extra) {
@@ -142,14 +145,16 @@
     markQuickRead(subject, id) {
       const d = this._read();
       d.quick = d.quick || {};
-      d.quick[subject + ":" + id] = Date.now();
-      if (!d.lessons[subject + ":" + id]) {
-        d.lessons[subject + ":" + id] = Date.now();
-        this._addXP(d, 6);
+      const k = subject + ":" + id;
+      const first = !d.quick[k] && !d.lessons[k];
+      d.quick[k] = d.quick[k] || Date.now();
+      if (!d.lessons[k]) {
+        d.lessons[k] = Date.now();
+        if (first) this._addXP(d, 6);
       }
       this._touchStreak(d);
       this._write(d);
-      this._cloud({ subject, lessonId: id, read: true, xp: 6, mode: "quick" });
+      this._cloud({ subject, lessonId: id, read: true, xp: first ? 6 : 0, mode: "quick" });
     },
     isQuickRead(subject, id) { return !!(this._read().quick || {})[subject + ":" + id]; },
 
