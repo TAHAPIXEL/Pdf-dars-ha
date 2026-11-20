@@ -266,6 +266,7 @@
       );
     }
     setTimeout(() => host.remove(), 3200);
+    try { sfx.correct(); } catch (e) { /* بی‌صدا */ }
   }
 
   /* ----------------------------------------------------------
@@ -294,43 +295,144 @@
   function buildPath(host, cfg) {
     if (!host) return;
     host.innerHTML = "";
-    const frag = document.createDocumentFragment();
+    host.classList.add("path-spine");
 
-    cfg.steps.forEach((s, i) => {
+    // جابه‌جایی افقی گره‌ها؛ همان ریتم مارپیچی طرح مرجع
+    const OFFSETS = [0, 54, 0, -54];
+    const steps = cfg.steps || [];
+    let nextIdx = -1;
+
+    steps.forEach((s, i) => {
       const done = s.type === "quiz"
         ? !!Store.getQuiz(cfg.subject, s.id)
         : Store.isLessonDone(cfg.subject, s.id);
+      if (!done && nextIdx === -1) nextIdx = i;
+    });
+    if (nextIdx === -1 && steps.length) nextIdx = steps.length - 1;
 
-      const badge = el("div", { class: "badge" });
-      if (done) {
-        badge.classList.add("tick");
-        badge.textContent = "✓";
-      } else {
-        badge.textContent = fa(i + 1);
-      }
+    const frag = document.createDocumentFragment();
+
+    steps.forEach((s, i) => {
+      const done = s.type === "quiz"
+        ? !!Store.getQuiz(cfg.subject, s.id)
+        : Store.isLessonDone(cfg.subject, s.id);
+      const isNext = i === nextIdx && !done;
+
+      const btn = el("span", {
+        class: "node-btn" + (done ? " done" : isNext ? " next" : " locked"),
+        "aria-hidden": "true",
+      });
+      btn.textContent = done ? "✓" : isNext ? "▶" : fa(i + 1);
 
       const metaBits = [];
-      (s.meta || []).forEach((m) => {
-        metaBits.push(el("span", { html: m }));
-      });
+      (s.meta || []).forEach((m) => metaBits.push(el("span", { html: m })));
+
+      const inner = el("div", {},
+        el("div", { class: "node-label", text: s.title }),
+        s.kicker ? el("div", { class: "node-cap", text: s.kicker }) : null,
+        metaBits.length ? el("div", { class: "node-cap" }, metaBits) : null
+      );
 
       const node = el(
         "a",
-        { class: "node" + (done ? " done" : ""), href: s.href || "#" },
-        badge,
-        el("div", { class: "body" },
-          s.kicker ? el("div", { class: "kicker", text: s.kicker }) : null,
-          el("div", { class: "title", text: s.title }),
-          metaBits.length ? el("div", { class: "meta" }, metaBits) : null
-        ),
-        el("div", { class: "go", html: "‹" })
+        {
+          class: "node-wrap",
+          href: s.href || "#",
+          style: "transform: translateX(" + OFFSETS[i % 4] + "px)",
+          "data-step": i,
+        },
+        btn,
+        inner
       );
       frag.append(node);
     });
 
     host.append(frag);
-    host.classList.add("stagger");
   }
+
+
+  /* ----------------------------------------------------------
+     افکت‌های سبک: کانفتی و صدا (بدون فایل بیرونی)
+     ---------------------------------------------------------- */
+
+  /** کانفتی سبک روی canvas — روی گوشی ضعیف هم روان است */
+  function confetti(n) {
+    try {
+      if (!document.body) return;
+      const cv = document.createElement("canvas");
+      cv.width = innerWidth; cv.height = innerHeight;
+      cv.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:9999";
+      document.body.appendChild(cv);
+      const ctx = cv.getContext("2d");
+      if (!ctx) { cv.remove(); return; }
+      const colors = ["#34d399", "#22d3ee", "#a78bfa", "#facc15", "#fb7185"];
+      const total = Math.min(70, Math.round((innerWidth * innerHeight) / 24000));
+      const parts = Array.from({ length: n || total }, () => ({
+        x: innerWidth / 2 + (Math.random() - .5) * 180,
+        y: innerHeight * .42,
+        vx: (Math.random() - .5) * 9,
+        vy: -Math.random() * 11 - 3,
+        r: Math.random() * 5 + 3,
+        c: colors[(Math.random() * colors.length) | 0],
+        a: 1,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - .5) * .3,
+      }));
+      let frames = 0;
+      (function loop() {
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        parts.forEach((p) => {
+          p.x += p.vx; p.y += p.vy; p.vy += .32; p.rot += p.vr; p.a -= .008;
+          if (p.a <= 0) return;
+          ctx.save();
+          ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.globalAlpha = Math.max(0, p.a);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.7);
+          ctx.restore();
+        });
+        frames++;
+        if (frames < 130) requestAnimationFrame(loop);
+        else cv.remove();
+      })();
+    } catch (e) { /* بی‌اهمیت */ }
+  }
+
+  /** صدا با WebAudio؛ بدون فایل. اگر مرورگر نگذارد، بی‌صدا رد می‌شود. */
+  const sfx = {
+    _ctx: null,
+    _on() { try { return localStorage.getItem("darsyar9:sound") !== "0"; } catch (e) { return true; } },
+    set(on) { try { localStorage.setItem("darsyar9:sound", on ? "1" : "0"); } catch (e) {} },
+    on() { return this._on(); },
+    _ac() {
+      if (!this._ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        this._ctx = new AC();
+      }
+      return this._ctx;
+    },
+    _beep(freq, dur, type, gain) {
+      if (!this._on()) return;
+      try {
+        const ac = this._ac();
+        if (!ac) return;
+        if (ac.state === "suspended") ac.resume();
+        const o = ac.createOscillator();
+        const g = ac.createGain();
+        o.type = type || "sine";
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0, ac.currentTime);
+        g.gain.linearRampToValueAtTime(gain || .06, ac.currentTime + .01);
+        g.gain.exponentialRampToValueAtTime(.0001, ac.currentTime + dur);
+        o.connect(g); g.connect(ac.destination);
+        o.start(); o.stop(ac.currentTime + dur + .02);
+      } catch (e) { /* بی‌صدا */ }
+    },
+    correct() { this._beep(660, .12, "sine", .07); setTimeout(() => this._beep(990, .16, "sine", .06), 90); },
+    wrong()   { this._beep(220, .18, "triangle", .05); },
+    pop()     { this._beep(520, .07, "square", .035); },
+  };
 
   /* ----------------------------------------------------------
      موتور آزمون
@@ -671,7 +773,7 @@
      ---------------------------------------------------------- */
   global.Dars = {
     fa, faWords, shuffle, rnd, el,
-    Store, celebrate, buildPath, runQuiz,
+    Store, celebrate, buildPath, runQuiz, confetti, sfx,
     paintStats, boot, requireLogin, paintUserBar, rootHref
   };
 })(window);
