@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1117">
+<title>همهٔ درس‌نامه‌ها — علوم تجربی</title>
+<meta name="description" content="مطالعهٔ پیوستهٔ همهٔ درس‌های علوم تجربی پایه نهم">
+<link rel="stylesheet" href="../../assets/css/app.css">
+</head>
+<body style="--accent:#22c55e;--accent-deep:#16a34a;--accent-soft:rgba(34,197,94,0.14);--accent-glow:rgba(34,197,94,0.35)">
+<header class="topbar">
+  <div class="wrap">
+    <a class="back-link" href="../../index.html" data-back="../../index.html">
+      <span class="arrow">›</span>
+      <span>مسیر درس</span>
+    </a>
+    <div class="spacer"></div>
+    <div class="stat-chip accent">
+      <span class="ico">⚡</span>
+      <span data-xp>۰</span>
+      <span class="lbl">XP</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap" style="padding-bottom:22px">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">🔬 مطالعهٔ پیوسته</span>
+        <h1>همهٔ درس‌نامه‌های علوم تجربی</h1>
+        <p class="lede">هر فصل پشت سر هم، از اول تا آخر. برای مرور سریع پیش از آزمون.</p>
+        <div class="hero-stats">
+          <div class="s"><b>15</b><span>درس</span></div>
+          <div class="s"><b id="readPct">۰٪</b><span>خوانده‌شده</span></div>
+        </div>
+      </div>
+      <div class="hero-emblem">🔬</div>
+    </div>
+  </section>
+
+  <section class="wrap section" style="padding-top:0">
+    <div class="sheet">
+      <div id="allBody"></div>
+    </div>
+  </section>
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <span>علوم تجربی · علوم تجربی پایه نهم</span>
+    <a href="../../index.html">صفحهٔ اصلی</a>
+  </div>
+</footer>
+
+<script src="../../assets/js/app.js"></script>
+<script src="../../assets/data/science.js"></script>
+<script>
+(function () {
+  const { fa, Store } = Dars;
+  const C = window.CONTENT["science"];
+  const KEY = "science";
+  const host = document.getElementById("allBody");
+  const parts = [];
+
+  C.lessons.forEach((L, i) => {
+    const done = Store.isLessonDone(KEY, L.id);
+    parts.push(
+      '<section id="' + L.id + '" style="padding-block:22px;border-bottom:1px solid var(--border)">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">' +
+          '<span style="font-family:var(--f-ui);font-size:.72rem;font-weight:700;color:var(--accent)">درس ' + fa(L.n) + '</span>' +
+          '<span style="font-size:.72rem;color:var(--text-dim)">صفحهٔ ' + L.page + '</span>' +
+          (done ? '<span style="margin-inline-start:auto;font-size:.72rem;color:#34d399;font-weight:700">✓ خوانده‌شده</span>' : '') +
+        '</div>' +
+        '<h2 style="margin-bottom:14px">' + L.title + '</h2>' +
+        L.body +
+        '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">' +
+          '<a class="btn btn-ghost" href="lesson.html?id=' + L.id + '">صفحهٔ این درس</a>' +
+          (C.quizzes[L.id] && C.quizzes[L.id].length ? '<a class="btn btn-primary" href="quiz.html?id=' + L.id + '">آزمون</a>' : '') +
+        '</div>' +
+      '</section>'
+    );
+  });
+
+  host.innerHTML = parts.join("");
+
+  const ids = C.lessons.map(l => l.id);
+  const read = ids.filter(id => Store.isLessonDone(KEY, id)).length;
+  const pct = Math.round(read / ids.length * 100);
+  document.getElementById("readPct").textContent = fa(pct) + "٪";
+})();
+</script>
+</body>
+</html>

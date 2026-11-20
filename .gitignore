@@ -1,0 +1,17 @@
+# وابستگی‌ها و ابزارهای موقت
+node_modules/
+package-lock.json
+package.json
+
+# فایل‌های تست موقت
+test_*.js
+
+# سیستم
+.DS_Store
+Thumbs.db
+*.log
+
+# پایتون
+__pycache__/
+*.pyc
+.venv/
