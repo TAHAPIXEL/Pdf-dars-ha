@@ -29,6 +29,23 @@ MAX_CHARS = 2600          # سقف نویسهٔ متن هر درس‌نامه
 SCIENCE_CH_START = {1: 1, 2: 13, 3: 25, 4: 39, 5: 51, 6: 63, 7: 73, 8: 83,
                     9: 95, 10: 107, 11: 121, 12: 131, 13: 141, 14: 151, 15: 163}
 
+ORD_FA = ["اول", "دوم", "سوم", "چهارم", "پنجم", "ششم", "هفتم", "هشتم",
+          "نهم", "دهم", "یازدهم", "دوازدهم", "سیزدهم", "چهاردهم", "پانزدهم"]
+
+
+def find_by_ordinal(pages, n: int, start: int = 0) -> int | None:
+    """صفحه‌ای که با «درس <حرفی>» یا «فصل <حرفی>» آغاز می‌شود (کتاب‌های پیام/فارسی…)."""
+    if not (1 <= n <= len(ORD_FA)):
+        return None
+    word = ORD_FA[n - 1]
+    pat = re.compile(r"^\s*(?:درس|فصل)\s*" + word + r"\s*$|^\s*(?:درس|فصل)\s*" + word + r"\s*[:ـ\-]")
+    for i in range(start, len(pages)):
+        lines = [ln.strip() for ln in pages[i].split("\n") if ln.strip()]
+        if lines and pat.match(lines[0]):
+            return i
+    return None
+
+
 # اندیس صفحهٔ آغاز هر درس در کتاب‌های انگلیسی (از خود PDF)
 EN_START = {"english": {1: 9, 2: 23, 3: 48, 4: 63, 5: 85, 6: 97},
             "english-workbook": {1: 1, 2: 17, 3: 30, 4: 44, 5: 58, 6: 72}}
@@ -473,6 +490,8 @@ def build_subject(key: str) -> dict:
         elif key in EN_START:
             start = EN_START[key].get(idx + 1)
         if start is None:
+            start = find_by_ordinal(pages, idx + 1, start=cursor)
+        if start is None:
             guessed = max(0, it.get("page", 1) + off - 1)
             ws = _words(it["title"])
             # اگر همان صفحهٔ فهرست، عنوان را دارد، همان را بردار
@@ -500,8 +519,10 @@ def build_subject(key: str) -> dict:
             elif key in EN_START:
                 nxt = EN_START[key].get(idx + 2)
             else:
-                nxt = find_lesson_page(pages, nitem["title"],
-                                       nitem.get("page", 1), off, start=start + 1)
+                nxt = find_by_ordinal(pages, idx + 2, start=start + 1)
+                if nxt is None:
+                    nxt = find_lesson_page(pages, nitem["title"],
+                                           nitem.get("page", 1), off, start=start + 1)
         end = (nxt - 1) if (nxt and nxt > start) else min(start + 5, len(pages) - 1)
         if end < start:
             end = start
