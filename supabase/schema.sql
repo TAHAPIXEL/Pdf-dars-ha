@@ -96,3 +96,18 @@ select s.user_id,
   left join a on a.user_id = s.user_id;
 
 grant select on public.darsyar_student_summary to anon, authenticated;
+
+-- ============================================================================
+--  امنیت: دادهٔ درس‌یار فقط از راه تابع لبه خوانده می‌شود
+--  (کلید anon هیچ دسترسی مستقیمی به جدول‌ها یا ویوها ندارد)
+-- ============================================================================
+revoke all on public.darsyar_progress          from anon, authenticated;
+revoke all on public.darsyar_attempts          from anon, authenticated;
+revoke all on public.darsyar_days              from anon, authenticated;
+revoke all on public.darsyar_student_summary   from anon, authenticated;
+revoke all on public.darsyar_student_subjects  from anon, authenticated;
+revoke all on public.darsyar_my_summary        from anon, authenticated;
+
+alter table public.darsyar_progress enable row level security;
+alter table public.darsyar_attempts enable row level security;
+alter table public.darsyar_days     enable row level security;
