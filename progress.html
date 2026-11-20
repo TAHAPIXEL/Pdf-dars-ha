@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e1117">
+<meta name="theme-color" content="#05080f">
 <title>کارنامهٔ من — درس‌یار نهم</title>
 <link rel="stylesheet" href="assets/css/fonts.css">
 <link rel="stylesheet" href="assets/css/app.css">
@@ -28,6 +28,26 @@
     </p>
 
     <div class="hero-stats" id="kpis" style="margin-bottom:24px"></div>
+
+    <div class="glass" id="levelcard" style="border-radius:var(--r-lg);padding:20px 22px;margin-bottom:22px;display:none">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div id="lvbadge" style="width:58px;height:58px;border-radius:18px;display:grid;place-items:center;
+             font-family:var(--f-head);font-size:1.25rem;background:rgba(250,204,21,.12);
+             border:1px solid rgba(250,204,21,.32);color:#fde68a;transform:rotate(-6deg)">۱</div>
+        <div style="flex:1 1 200px;min-width:0">
+          <div style="font-family:var(--f-head);font-size:1.02rem;margin-bottom:2px">
+            سطح <span id="lvnum">۱</span> — <span id="lvtier" class="text-grad" style="font-weight:900">تازه‌کار</span>
+          </div>
+          <div style="font-family:var(--f-ui);font-size:.78rem;color:var(--text-dim)">
+            <span id="lvxp">۰</span> امتیاز تا سطح بعد
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;height:9px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden">
+        <i id="lvbar" style="display:block;height:100%;width:0;border-radius:999px;
+           background:linear-gradient(90deg,var(--mint),var(--sky));transition:width .7s cubic-bezier(.2,.8,.2,1)"></i>
+      </div>
+    </div>
 
     <div class="sec-head"><h2 style="font-size:1.1rem">درس‌ها به تفکیک کتاب</h2><div class="rule"></div></div>
     <div id="subjects" class="progress-list"></div>
@@ -79,6 +99,24 @@
       kpi(Object.keys(st.lessons).length, "درس خوانده"),
       kpi(Object.keys(st.quizzes).length, "آزمون داده")
     );
+
+    // سطح و نشان — هر ۲۵۰ امتیاز یک سطح
+    (function paintLevel() {
+      const TIERS = ["تازه‌کار", "جست‌وجوگر", "ماجراجو", "کوشا", "چیره‌دست", "استاد", "افسانه"];
+      const xp = st.xp || 0;
+      const PER = 250;
+      const lvl = Math.floor(xp / PER) + 1;
+      const into = xp % PER;
+      const card = document.getElementById("levelcard");
+      if (!card) return;
+      card.style.display = "";
+      document.getElementById("lvbadge").textContent = fa(lvl);
+      document.getElementById("lvnum").textContent = fa(lvl);
+      document.getElementById("lvtier").textContent = TIERS[Math.min(lvl - 1, TIERS.length - 1)];
+      document.getElementById("lvxp").textContent = fa(PER - into);
+      const bar = document.getElementById("lvbar");
+      requestAnimationFrame(() => { bar.style.width = Math.round((into / PER) * 100) + "%"; });
+    })();
 
     const wrap = document.getElementById("subjects");
     wrap.innerHTML = "";

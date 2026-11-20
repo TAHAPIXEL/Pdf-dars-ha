@@ -699,6 +699,11 @@
     const initial = (u.firstName || u.lastName || "د").trim().slice(0, 1);
     const quick = Store.mode() === "quick";
 
+    // چیپ XP و لِوِل، مثل طرح مرجع
+    const st = Store.stats();
+    const xp = st.xp || 0;
+    const lvl = Math.floor(xp / 250) + 1;
+
     host.append(
       el("a", {
         class: "ub-user",
@@ -708,6 +713,17 @@
         el("span", { class: "ub-av", text: initial }),
         el("span", { class: "ub-nm", text: (u.firstName || "دانش‌آموز") })
       ),
+      el("a", {
+        class: "lvl-chip",
+        href: rootHref() + "progress.html",
+        title: "امتیاز و سطح تو",
+      },
+        el("span", { text: "⚡" }),
+        el("span", { text: fa(xp) }),
+        el("span", { text: "· سطح " + fa(lvl) })
+      ),
+      st.streak > 0 ? el("span", { class: "lvl-chip", title: "روزهای پشت‌سرهم", style: "background:rgba(251,146,60,.12);border-color:rgba(251,146,60,.3);color:#fdba74" },
+        el("span", { text: "🔥" }), el("span", { text: fa(st.streak) })) : null,
       el("button", {
         class: "ub-mode" + (quick ? " on" : ""),
         type: "button",
