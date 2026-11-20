@@ -1311,7 +1311,11 @@ tbody tr:hover td { background: rgba(255,255,255,.022); }
   transform: translateX(50%);
   pointer-events: none;
 }
-@media (max-width: 640px) { .path-spine::before { inset-inline-start: 34px; transform: none; } }
+@media (max-width: 640px) {
+  .path-spine::before { inset-inline-start: 46px; transform: none; }
+  .node-wrap { transform: none !important; }
+  .node-btn { width: 60px; height: 60px; border-width: 3px; font-size: .85rem; }
+}
 
 .node-wrap {
   position: relative;
