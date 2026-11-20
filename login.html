@@ -30,8 +30,7 @@
     </form>
 
     <p class="login-note">
-      حساب همدل ندارید؟ از مدرسه بخواهید برای شما حساب بسازد.<br>
-      پیشرفت و نمره‌های آزمون شما روی پروندهٔ همدل ذخیره می‌شود و دبیرتان می‌تواند آن را ببیند.
+      حساب همدل ندارید؟ <a href="https://hamdelshahed.vercel.app" target="_blank" rel="noopener">یکی بسازید</a>
     </p>
   </div>
 </div>
@@ -47,9 +46,15 @@
   const params = new URLSearchParams(location.search);
   const next = params.get("next") || "index.html";
 
-  function fail(msg) {
+  function fail(msg, hint) {
     err.hidden = false;
     err.textContent = msg;
+    if (hint) {
+      const h = document.createElement("div");
+      h.className = "login-hint";
+      h.textContent = hint;
+      err.appendChild(h);
+    }
   }
 
   // اگر پیش‌تر وارد شده، مستقیم برود
@@ -72,7 +77,14 @@
       const safe = /^https?:/i.test(next) || next.startsWith("//") ? "index.html" : next;
       location.replace(safe);
     } catch (ex) {
-      fail(ex.message || "ورود ناموفق بود.");
+      const net = ex && (ex.network || ex.status === 0 || /Failed to fetch|NetworkError/i.test(ex.message || ""));
+      if (net) {
+        fail("ارتباط با سرور برقرار نشد.", "اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.");
+      } else if (ex.status === 429) {
+        fail("تلاش‌های زیاد. یک دقیقه صبر کنید.");
+      } else {
+        fail(ex.message || "ورود ناموفق بود.");
+      }
       go.disabled = false;
       go.textContent = "ورود به درس‌یار";
     }

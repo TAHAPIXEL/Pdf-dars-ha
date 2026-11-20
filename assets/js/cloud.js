@@ -12,6 +12,7 @@
 
   const CFG = global.DARS_CLOUD || {};
   const API = (CFG.api || "").replace(/\/$/, "");
+  // مسیرهای نسبی (مثل /api/auth) همیشه فعال‌اند؛ آدرس خالی = حالت آفلاین
   const ON = !!API;
 
   const KEY_TOKEN = "darsyar9:token";
@@ -45,15 +46,30 @@
       const headers = { "Content-Type": "application/json" };
       if (this._token) headers.Authorization = "Bearer " + this._token;
       if (CFG.anonKey) { headers.apikey = CFG.anonKey; }
-      const res = await fetch(API + "/" + path, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body || {}),
-      });
+      let res;
+      try {
+        res = await fetch(API + "/" + path, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body || {}),
+          cache: "no-store",
+        });
+      } catch (netErr) {
+        const e = new Error("ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کنید.");
+        e.status = 0;
+        e.network = true;
+        throw e;
+      }
       let data = null;
       try { data = await res.json(); } catch (e) { /* بدنهٔ خالی */ }
       if (!res.ok) {
-        const err = new Error((data && data.error) || "خطا در ارتباط با سرور");
+        let msg = data && data.error;
+        if (!msg) {
+          if (res.status === 404) msg = "سرور ورود در دسترس نیست. کمی بعد تلاش کنید.";
+          else if (res.status === 502 || res.status === 504) msg = "سرور پاسخ نداد. کمی بعد تلاش کنید.";
+          else msg = "خطا در ارتباط با سرور (کد " + res.status + ")";
+        }
+        const err = new Error(msg);
         err.status = res.status;
         throw err;
       }

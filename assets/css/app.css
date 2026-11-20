@@ -1195,6 +1195,7 @@ tbody tr:hover td { background: rgba(255,255,255,.022); }
 .login-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
 .login-err { margin-top: 12px; padding: 10px 13px; border-radius: 11px; font-family: var(--f-ui);
   font-size: .84rem; color: #fca5a5; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); }
+.login-hint { margin-top: 6px; font-size: .78rem; opacity: .85; }
 .login-note { margin-top: 18px; font-family: var(--f-ui); font-size: .78rem; color: var(--text-dim);
   line-height: 1.9; text-align: center; }
 .login-note a { color: var(--accent); }
