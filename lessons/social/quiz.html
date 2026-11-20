@@ -6,41 +6,37 @@
 <meta name="theme-color" content="#05080f">
 <title>آزمون — مطالعات اجتماعی</title>
 <meta name="description" content="آزمون مطالعات اجتماعی پایه نهم">
-<link rel="stylesheet" href="../../assets/css/app.css">
+<link rel="stylesheet" href="../../assets/css/tw.css">
+<link rel="stylesheet" href="../../assets/css/quest.css">
 </head>
-<body style="--accent:#0ea5e9;--accent-deep:#0284c7;--accent-soft:rgba(14,165,233,0.14);--accent-glow:rgba(14,165,233,0.35)">
-<header class="topbar">
-  <div class="wrap">
-    <a class="back-link" href="../../index.html" data-back="../../index.html">
-      <span class="arrow">›</span>
+<body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#0ea5e9;--accent-deep:#0284c7;--accent-soft:rgba(14,165,233,0.14);--accent-glow:rgba(14,165,233,0.35)">
+<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-2 sm:gap-3">
+    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink">🌍</span>
       <span>مسیر درس</span>
     </a>
-    <div class="spacer"></div>
-    <div class="stat-chip accent">
-      <span class="ico">⚡</span>
-      <span data-xp>۰</span>
-      <span class="lbl">XP</span>
-    </div>
-    <div class="ub-wrap" data-userbar></div>
+    <div class="flex-1"></div>
+    <div class="ub-wrap flex items-center gap-1.5 sm:gap-2 text-xs font-bold" data-userbar></div>
   </div>
 </header>
+<main class="pt-16">
 
 <main>
-  <section class="wrap section" style="padding-top:26px">
-    <div class="quiz">
-      <div class="sec-head" style="margin-bottom:18px">
-        <h2 id="qtitle" style="font-size:1.2rem">آزمون</h2>
-        <div class="rule"></div>
-      </div>
-      <div id="qz"></div>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex items-center gap-3 mb-6 flex-wrap">
+      <a href="index.html" class="text-xs font-bold text-fog hover:text-snow transition-colors">← مسیر درس</a>
+      <div class="flex-1"></div>
+      <span class="glass rounded-full px-3 py-1.5 text-[11px] font-bold text-fog">آزمون اختیاری</span>
     </div>
-  </section>
-</main>
-<footer class="site-foot">
-  <div class="wrap">
-    <span>مطالعات اجتماعی · مطالعات اجتماعی پایه نهم</span>
-    <a href="../../index.html">صفحهٔ اصلی</a>
+    <h2 id="qtitle" class="text-xl sm:text-2xl font-black mb-5">آزمون</h2>
+    <div id="qz"></div>
   </div>
+</main>
+</main>
+<footer class="border-t border-line/50 py-8 px-4 text-center text-fog text-xs mt-16">
+  <p>مطالعات اجتماعی · مطالعات اجتماعی پایه نهم</p>
+  <a href="../../index.html" class="text-violet font-bold mt-2 inline-block">صفحهٔ اصلی</a>
 </footer>
 
 <script src="../../assets/js/config.js"></script>

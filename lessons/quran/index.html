@@ -6,143 +6,97 @@
 <meta name="theme-color" content="#05080f">
 <title>قرآن — درسیار نهم</title>
 <meta name="description" content="آموزش قرآن پایه نهم — درس‌نامه، آزمون و پیشرفت">
-<link rel="stylesheet" href="../../assets/css/app.css">
+<link rel="stylesheet" href="../../assets/css/tw.css">
+<link rel="stylesheet" href="../../assets/css/quest.css">
 </head>
-<body style="--accent:#14b8a6;--accent-deep:#0d9488;--accent-soft:rgba(20,184,166,0.14);--accent-glow:rgba(20,184,166,0.35)">
-<header class="topbar">
-  <div class="wrap">
-    <a class="back-link" href="../../index.html" data-back="../../index.html">
-      <span class="arrow">›</span>
+<body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#14b8a6;--accent-deep:#0d9488;--accent-soft:rgba(20,184,166,0.14);--accent-glow:rgba(20,184,166,0.35)">
+<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-2 sm:gap-3">
+    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink">📖</span>
       <span>صفحهٔ اصلی</span>
     </a>
-    <div class="spacer"></div>
-    <div class="stat-chip accent">
-      <span class="ico">⚡</span>
-      <span data-xp>۰</span>
-      <span class="lbl">XP</span>
-    </div>
-    <div class="ub-wrap" data-userbar></div>
+    <div class="flex-1"></div>
+    <div class="ub-wrap flex items-center gap-1.5 sm:gap-2 text-xs font-bold" data-userbar></div>
   </div>
 </header>
+<main class="pt-16">
 
-<main>
-  <section class="hero wrap">
-    <div class="hero-grid">
-      <div>
-        <span class="eyebrow">📖 پایه نهم</span>
-        <h1>قرآن</h1>
-        <p class="lede">مستقیماً از کتاب درسی آموزش قرآن پایه نهم — ۱۱ درس، از «این جهان راه است و ما راهی و مرکب، خوی ماست، بود روشنگر راه سعادت، چو خورشید فروزان است قرآن، در صراط مستقیم ای دل کسی گمراه نیست» تا «به آسمان و کوه‌ها چرا نظر نمی‌کنی؟!».</p>
-        <div class="hero-stats">
-          <div class="s"><b>11</b><span>درس</span></div>
-          <div class="s"><b>11</b><span>آزمون</span></div>
-          <div class="s"><b>26</b><span>پرسش</span></div>
-          <div class="s"><b>۰</b><span>صفحهٔ کتاب</span></div>
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
+
+    <!-- سرصفحهٔ کتاب -->
+    <div class="glass rounded-3xl p-5 sm:p-8 mb-8 relative overflow-hidden rv rv-in">
+      <div class="absolute rounded-full pointer-events-none"
+           style="top:-80px;right:-80px;width:288px;height:288px;filter:blur(100px);background:rgba(20,184,166,0.14)"></div>
+      <div class="relative flex flex-wrap items-center gap-5">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl grid place-items-center text-3xl sm:text-4xl shrink-0 -rotate-3"
+             style="background:rgba(20,184,166,0.14);border:1px solid rgba(20,184,166,0.35)">📖</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] font-black mb-1" style="color:#14b8a6">پایه نهم</div>
+          <h1 class="text-2xl sm:text-3xl font-black mb-2">قرآن</h1>
+          <p class="text-fog text-xs sm:text-sm leading-7 max-w-xl">مستقیماً از کتاب درسی آموزش قرآن پایه نهم — ۱۱ درس، از «این جهان راه است و ما راهی و مرکب، خوی ماست، بود روشنگر راه سعادت، چو خورشید فروزان است قرآن، در صراط مستقیم ای دل کسی گمراه نیست» تا «به آسمان و کوه‌ها چرا نظر نمی‌کنی؟!».</p>
         </div>
       </div>
-      <div class="hero-emblem">📖</div>
-    </div>
 
-    <div class="progress-band">
-      <div class="pb-head">
-        <span class="t">پیشرفت تو در این درس</span>
-        <span class="v" id="pbv">۰٪</span>
+      <div class="relative mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:#14b8a6">11</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">درس</div>
+        </div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:#14b8a6">11</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">آزمون</div>
+        </div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:#14b8a6">26</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">پرسش</div>
+        </div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:#14b8a6">۰</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">صفحهٔ کتاب</div>
+        </div>
       </div>
-      <div class="bar"><i id="pbf"></i></div>
-    </div>
-  </section>
 
-  <section class="wrap section">
-    <div class="sec-head">
-      <h2>مسیر یادگیری</h2>
-      <div class="rule"></div>
-      <span class="hint">اول بخوان، بعد آزمون بده</span>
+      <div class="relative mt-5">
+        <div class="flex items-center justify-between text-xs font-bold mb-2">
+          <span class="text-fog">پیشرفت تو</span>
+          <span class="font-black" id="pbv" style="color:#14b8a6">۰٪</span>
+        </div>
+        <div class="h-2.5 rounded-full bg-white/10 overflow-hidden">
+          <i class="block h-full rounded-full transition-all duration-700" id="pbf"
+             style="width:0;background:linear-gradient(90deg,#14b8a6,#22d3ee)"></i>
+        </div>
+      </div>
     </div>
-    <div class="path" id="path"></div>
-  </section>
 
-  <section class="wrap section">
-    <div class="sec-head">
-      <h2>دسترسی سریع</h2>
-      <div class="rule"></div>
+    <!-- مسیر یادگیری -->
+    <div class="mb-6 text-center">
+      <h2 class="text-xl sm:text-2xl font-black mb-2">مسیر یادگیری</h2>
+      <p class="text-fog text-xs sm:text-sm">اول بخوان، بعد آزمون بده — آزمون اختیاری است</p>
     </div>
-    <div class="cards">
-      <a class="card" href="all.html">
-        <div class="ic">📖</div>
-        <h3>همهٔ درس‌نامه‌ها</h3>
-        <p class="desc">یک صفحه برای خواندن همهٔ درس‌های این کتاب، پشت سر هم.</p>
-        <div class="foot"><span>مطالعهٔ پیوسته</span><span class="pill">بخوان</span></div>
+
+    <div id="path"></div>
+
+    <!-- دسترسی سریع -->
+    <div class="mt-14 grid sm:grid-cols-3 gap-3 sm:gap-4">
+      <a href="all.html" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
+        <div class="text-3xl mb-3">📖</div>
+        <h3 class="font-black mb-1.5">همهٔ درس‌نامه‌ها</h3>
+        <p class="text-fog text-xs leading-6">یک صفحه برای خواندن همهٔ درس‌های این کتاب، پشت سر هم.</p>
+        <div class="mt-3 text-xs font-bold" style="color:#14b8a6">بخوان ←</div>
       </a>
-      <a class="card" href="quiz.html?all=1">
-        <div class="ic">🎯</div>
-        <h3>آزمون جامع</h3>
-        <p class="desc">پرسش‌های همهٔ فصل‌ها در یک آزمون تصادفی.</p>
-        <div class="foot"><span>همهٔ فصل‌ها</span><span class="pill">آزمون</span></div>
+      <a href="quiz.html?all=1" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
+        <div class="text-3xl mb-3">🎯</div>
+        <h3 class="font-black mb-1.5">آزمون جامع</h3>
+        <p class="text-fog text-xs leading-6">پرسش‌های همهٔ فصل‌ها در یک آزمون تصادفی.</p>
+        <div class="mt-3 text-xs font-bold" style="color:#14b8a6">شروع ←</div>
       </a>
-      <a class="card" href="../../index.html">
-        <div class="ic">🏠</div>
-        <h3>بازگشت به صفحهٔ اصلی</h3>
-        <p class="desc">انتخاب درس دیگر از میان ده کتاب پایه نهم.</p>
-        <div class="foot"><span>صفحهٔ اصلی</span><span class="pill">همه</span></div>
-      </a>
-      <a class="card" href="../../پایه-نهم/01-قرآن-نهم.pdf">
-        <div class="ic">📕</div>
-        <h3>کتاب درسی PDF</h3>
-        <p class="desc">نسخهٔ کامل کتاب درسی برای مرور و چاپ.</p>
-        <div class="foot"><span>فایل PDF</span><span class="pill">دانلود</span></div>
+      <a href="../../index.html" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
+        <div class="text-3xl mb-3">🏠</div>
+        <h3 class="font-black mb-1.5">درس دیگر</h3>
+        <p class="text-fog text-xs leading-6">بازگشت به صفحهٔ اصلی و انتخاب یکی از ده کتاب.</p>
+        <div class="mt-3 text-xs font-bold" style="color:#14b8a6">صفحهٔ اصلی ←</div>
       </a>
     </div>
-  </section>
-</main>
-<footer class="site-foot">
-  <div class="wrap">
-    <span>قرآن · آموزش قرآن پایه نهم</span>
-    <a href="../../index.html">صفحهٔ اصلی</a>
   </div>
-</footer>
-
-<script src="../../assets/js/config.js"></script>
-<script src="../../assets/js/app.js"></script>
-<script src="../../assets/js/cloud.js"></script>
-<script src="../../assets/data/quran.js"></script>
-<script>
-(function () {
-  if (!Dars.requireLogin()) return;
-  const { fa, buildPath, Store } = Dars;
-  const C = window.CONTENT["quran"];
-
-  const lessonIds = C.lessons.map(l => l.id);
-  const quizIds = Object.keys(C.quizzes || {});
-
-  // ساخت گام‌ها: هر درس → خواندن + آزمون
-  const steps = [];
-  C.lessons.forEach((l) => {
-    steps.push({
-      id: l.id, type: "lesson",
-      kicker: "درس " + fa(l.n),
-      title: l.title,
-      meta: ["صفحهٔ " + l.page, (C.quizzes[l.id] || []).length ? fa((C.quizzes[l.id] || []).length) + " پرسش" : ""],
-      href: "lesson.html?id=" + l.id
-    });
-    if (C.quizzes[l.id] && C.quizzes[l.id].length) {
-      steps.push({
-        id: l.id, type: "quiz",
-        kicker: "آزمون",
-        title: "آزمون " + l.title,
-        meta: [fa(C.quizzes[l.id].length) + " پرسش", "بدون محدودیت"],
-        href: "quiz.html?id=" + l.id
-      });
-    }
-  });
-
-  buildPath(document.getElementById("path"), { subject: "quran", steps: steps });
-
-  // نوار پیشرفت
-  const pct = Store.subjectProgress("quran", lessonIds, quizIds);
-  document.getElementById("pbv").textContent = fa(pct) + "٪";
-  requestAnimationFrame(() => {
-    document.getElementById("pbf").style.width = pct + "%";
-  });
-})();
-</script>
-</body>
-</html>
+</main>

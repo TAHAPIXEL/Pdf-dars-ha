@@ -21,3 +21,5 @@ __pycache__/
 
 # آرشیوهای آپلودی موقت
 *.zip
+# tailwind build artifacts
+node_modules/

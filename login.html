@@ -5,32 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#05080f">
 <title>ورود — درس‌یار نهم</title>
-<link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/tw.css">
+<link rel="stylesheet" href="assets/css/quest.css">
 </head>
-<body data-page="login">
-<div class="login-wrap">
-  <div class="login-card rise">
-    <h1>🎓 درس‌یار نهم</h1>
-    <p class="sub">با همان <b>شماره تلفن</b> و <b>رمز عبور</b> حساب «همدل» وارد شوید. ثبت‌نام جداگانه‌ای لازم نیست.</p>
+<body class="bg-ink text-snow antialiased bg-fabric" data-page="login">
 
-    <form id="loginForm" autocomplete="on">
-      <div class="field">
-        <label for="phone">شماره تلفن</label>
-        <input id="phone" name="phone" type="tel" inputmode="numeric" dir="ltr"
-               placeholder="09xxxxxxxxx" autocomplete="username" required>
-      </div>
-      <div class="field">
-        <label for="password">رمز عبور</label>
-        <input id="password" name="password" type="password" dir="ltr"
-               placeholder="••••" autocomplete="current-password" required>
-      </div>
-      <button class="btn btn-primary" type="submit" id="go">ورود به درس‌یار</button>
-      <div class="login-err" id="err" hidden></div>
-    </form>
+<div class="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden">
+  <div class="absolute inset-0 bg-grid" style="z-index:-1"></div>
 
-    <p class="login-note">
-      حساب همدل ندارید؟ <a href="https://hamdelshahed.vercel.app" target="_blank" rel="noopener">یکی بسازید</a>
+  <div class="w-full max-w-md relative">
+    <div class="text-center mb-8">
+      <a href="index.html" class="inline-flex items-center gap-2 font-black text-2xl mb-3">
+        <span class="w-12 h-12 rounded-2xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-xl -rotate-6">📚</span>
+        درس‌یار
+      </a>
+      <p class="text-fog text-sm">پایه نهم — ده کتاب، یک مسیر</p>
+    </div>
+
+    <div class="glass-strong rounded-3xl p-6 sm:p-8 shadow-2xl">
+      <h1 class="text-2xl font-black mb-2">خوش برگشتی 👋</h1>
+      <p class="text-fog text-sm leading-7 mb-6">
+        با همان <b class="text-snow">شماره تلفن</b> و <b class="text-snow">رمز عبور</b> حساب «همدل» وارد شو.
+        ثبت‌نام جداگانه لازم نیست.
+      </p>
+
+      <form id="loginForm" autocomplete="on" class="space-y-4">
+        <div>
+          <label for="phone" class="block text-xs font-bold text-fog mb-2">شماره تلفن</label>
+          <input id="phone" name="phone" type="tel" inputmode="numeric" dir="ltr" required
+                 placeholder="09xxxxxxxxx" autocomplete="username"
+                 class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-3 text-snow placeholder:text-fog/50 outline-none focus:border-violet focus:ring-2 focus:ring-violet/30 transition">
+        </div>
+        <div>
+          <label for="password" class="block text-xs font-bold text-fog mb-2">رمز عبور</label>
+          <input id="password" name="password" type="password" dir="ltr" required
+                 placeholder="••••" autocomplete="current-password"
+                 class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-3 text-snow placeholder:text-fog/50 outline-none focus:border-violet focus:ring-2 focus:ring-violet/30 transition">
+        </div>
+
+        <button class="btn3d w-full rounded-xl px-6 py-3.5 font-black text-ink cursor-pointer"
+                style="background:linear-gradient(90deg,#a78bfa,#22d3ee)" type="submit" id="go">
+          ورود به درس‌یار
+        </button>
+
+        <div class="hidden rounded-xl px-4 py-3 text-sm leading-6 border border-rosee/40 bg-rosee/10 text-rosee" id="err"></div>
+      </form>
+
+      <p class="text-center text-xs text-fog mt-6">
+        حساب همدل نداری؟
+        <a href="https://hamdelshahed.vercel.app" target="_blank" rel="noopener"
+           class="font-black text-violet hover:text-skyy transition-colors">یکی بسازید</a>
+      </p>
+    </div>
+
+    <p class="text-center text-[11px] text-fog/60 mt-6 leading-6">
+      محتوای همهٔ درس‌ها از کتاب‌های درسی پایه نهم ۱۴۰۵–۱۴۰۶ استخراج شده است.
     </p>
   </div>
 </div>
@@ -47,11 +76,11 @@
   const next = params.get("next") || "index.html";
 
   function fail(msg, hint) {
-    err.hidden = false;
+    err.classList.remove("hidden");
     err.textContent = msg;
     if (hint) {
       const h = document.createElement("div");
-      h.className = "login-hint";
+      h.className = "mt-1 opacity-80 text-xs";
       h.textContent = hint;
       err.appendChild(h);
     }

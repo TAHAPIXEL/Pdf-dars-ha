@@ -1,0 +1,172 @@
+/* ============================================================
+   درس‌یار نهم — همان استایل «ریاضی‌کوئست»
+   عیناً از نمونهٔ ارسالی، با فونت آبر به‌جای وزیرمتن
+   ============================================================ */
+
+@import url("fonts.css");
+
+html { scroll-behavior: smooth; }
+body {
+  background: #05080f;
+  color: #eef2fb;
+  font-family: "Abar Low", "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0;
+}
+::selection { background: #a78bfa; color: #0a1020; }
+
+/* ---------- پس‌زمینه ---------- */
+.bg-fabric {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 70% -10%, rgba(139,92,246,0.14), transparent),
+    radial-gradient(ellipse 60% 40% at 10% 110%, rgba(34,211,238,0.1), transparent);
+}
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black 40%, transparent 100%);
+          mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black 40%, transparent 100%);
+}
+
+/* ---------- شیشه ---------- */
+.glass {
+  background: linear-gradient(160deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
+  border: 1px solid rgba(148,163,184,0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.glass-strong {
+  background: linear-gradient(160deg, rgba(20,30,55,0.92), rgba(10,16,32,0.94));
+  border: 1px solid rgba(148,163,184,0.18);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ---------- دکمهٔ سه‌بعدی ---------- */
+.btn3d {
+  position: relative;
+  transform: translateY(0);
+  box-shadow: 0 6px 0 rgba(2,6,18,0.85), 0 14px 34px -12px rgba(0,0,0,0.8);
+  transition: transform .12s ease, box-shadow .12s ease, filter .2s;
+}
+.btn3d:hover { filter: brightness(1.08); }
+.btn3d:active { transform: translateY(5px); box-shadow: 0 1px 0 rgba(2,6,18,0.85), 0 6px 18px -10px rgba(0,0,0,0.8); }
+.btn3d:disabled { opacity: .55; pointer-events: none; }
+
+/* ---------- متن گرادیانی ---------- */
+.text-grad {
+  background: linear-gradient(90deg,#a78bfa,#22d3ee,#34d399,#fbbf24,#a78bfa);
+  background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: grad-pan 9s linear infinite;
+}
+@keyframes grad-pan { to { background-position: 300% 0; } }
+
+/* ---------- لینک ناوبری ---------- */
+.navlink { position: relative; }
+.navlink::after {
+  content: ""; position: absolute; right: 0; left: 0; bottom: -6px; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg,#a78bfa,#22d3ee);
+  transform: scaleX(0); transform-origin: right; transition: transform .3s ease;
+}
+.navlink:hover::after, .navlink[data-active="true"]::after { transform: scaleX(1); }
+
+/* ---------- انیمیشن‌ها ---------- */
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.animate-floaty { animation: floaty 6s ease-in-out infinite; }
+
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(167,139,250,.55);} 70% { box-shadow: 0 0 0 18px rgba(167,139,250,0);} 100% { box-shadow: 0 0 0 0 rgba(167,139,250,0);} }
+.animate-pulse-ring { animation: pulse-ring 2.2s ease-out infinite; }
+
+@keyframes shake-x { 10%,90% { transform: translateX(-2px);} 20%,80% { transform: translateX(3px);} 30%,50%,70% { transform: translateX(-5px);} 40%,60% { transform: translateX(5px);} }
+.animate-shake { animation: shake-x .5s ease; }
+
+@keyframes pop-in { 0% { transform: scale(.6); opacity: 0;} 70% { transform: scale(1.06);} 100% { transform: scale(1); opacity: 1;} }
+.animate-pop { animation: pop-in .4s cubic-bezier(.34,1.56,.64,1) both; }
+
+@keyframes dash-flow { to { stroke-dashoffset: -28; } }
+.path-dash { stroke-dasharray: 6 8; animation: dash-flow 1.6s linear infinite; }
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 22s linear infinite; }
+
+/* ---------- اسکرول‌بار ---------- */
+::-webkit-scrollbar { width: 10px; height: 8px; }
+::-webkit-scrollbar-track { background: #070b16; }
+::-webkit-scrollbar-thumb { background: #26334f; border-radius: 8px; border: 2px solid #070b16; }
+::-webkit-scrollbar-thumb:hover { background: #38496e; }
+
+/* ---------- کمکی ---------- */
+.math-inline {
+  direction: ltr; unicode-bidi: embed; display: inline-block;
+  font-weight: 600; letter-spacing: .01em; white-space: nowrap;
+}
+.dots { background-image: radial-gradient(rgba(148,163,184,.13) 1px, transparent 1.5px); background-size: 18px 18px; }
+.tilt { transform-style: preserve-3d; will-change: transform; transition: transform .2s ease-out; }
+input, button { font-family: inherit; }
+
+/* ورود تدریجی */
+.rv { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s ease; }
+.rv-in { opacity: 1; transform: none; }
+.fade-swap { animation: pop-in .3s ease both; }
+
+/* ---------- ریسپانسیو: قواعد پایه ---------- */
+* { box-sizing: border-box; }
+img, svg, canvas { max-width: 100%; }
+body { -webkit-text-size-adjust: 100%; }
+
+/* روی گوشی، متن‌های خیلی بزرگ و پدینگ‌ها جمع‌وجور شوند */
+@media (max-width: 640px) {
+  .mobile-tight { padding-inline: 14px; }
+}
+
+/* کاهش انیمیشن */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   بدنهٔ درس — تایپوگرافی خوانا مثل نمونه
+   ============================================================ */
+.lesson-body { font-size: .95rem; line-height: 2.15; color: #cfd8ea; }
+.lesson-body h2 {
+  font-family: "Abar High", "Abar Low", Tahoma, sans-serif;
+  font-size: 1.1rem; font-weight: 900; color: #eef2fb;
+  margin: 1.6em 0 .7em; padding-inline-start: .7em;
+  border-inline-start: 3px solid #a78bfa; line-height: 1.7;
+}
+.lesson-body h2:first-child { margin-top: 0; }
+.lesson-body h3 {
+  font-family: "Abar Mid", "Abar Low", Tahoma, sans-serif;
+  font-size: 1rem; font-weight: 900; color: #dbe4f7; margin: 1.35em 0 .55em;
+}
+.lesson-body p { margin: 0 0 1em; }
+.lesson-body ul, .lesson-body ol { margin: 0 0 1em; padding-inline-start: 1.35em; }
+.lesson-body li { margin-bottom: .45em; }
+.lesson-body strong, .lesson-body b { color: #fff; font-weight: 900; }
+.lesson-body em { color: #c4b5fd; font-style: normal; font-weight: 700; }
+.lesson-body .ltr, .lesson-body [dir="ltr"] { direction: ltr; unicode-bidi: embed; display: inline-block; }
+.lesson-body .box {
+  background: rgba(167,139,250,.09);
+  border: 1px solid rgba(167,139,250,.25);
+  border-radius: 16px; padding: 14px 16px; margin: 1.1em 0;
+}
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1.1em 0; font-size: .88rem; }
+.lesson-body th, .lesson-body td {
+  border: 1px solid rgba(148,163,184,.22); padding: 9px 11px; text-align: right;
+}
+.lesson-body th { background: rgba(255,255,255,.06); font-weight: 900; }
+.lesson-body .formula {
+  direction: ltr; text-align: center; font-weight: 700;
+  background: rgba(34,211,238,.09); border: 1px solid rgba(34,211,238,.25);
+  border-radius: 14px; padding: 12px; margin: 1em 0; letter-spacing: .02em;
+}

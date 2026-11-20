@@ -28,9 +28,10 @@ BASE_HEAD = """<!DOCTYPE html>
 <meta name="theme-color" content="#05080f">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<link rel="stylesheet" href="../../assets/css/app.css">
+<link rel="stylesheet" href="../../assets/css/tw.css">
+<link rel="stylesheet" href="../../assets/css/quest.css">
 </head>
-<body style="--accent:{accent};--accent-deep:{accentDeep};--accent-soft:{accentSoft};--accent-glow:{accentGlow}">
+<body class="bg-ink text-snow antialiased bg-fabric" style="--accent:{accent};--accent-deep:{accentDeep};--accent-soft:{accentSoft};--accent-glow:{accentGlow}">
 """
 
 def soft(hexc, a):
@@ -38,161 +39,118 @@ def soft(hexc, a):
     r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
     return f"rgba({r},{g},{b},{a})"
 
-TOPBAR = """<header class="topbar">
-  <div class="wrap">
-    <a class="back-link" href="{homeHref}" data-back="{homeHref}">
-      <span class="arrow">›</span>
+TOPBAR = """<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-2 sm:gap-3">
+    <a href="{homeHref}" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink">{icon}</span>
       <span>{backLabel}</span>
     </a>
-    <div class="spacer"></div>
-    <div class="stat-chip accent">
-      <span class="ico">⚡</span>
-      <span data-xp>۰</span>
-      <span class="lbl">XP</span>
-    </div>
-    <div class="ub-wrap" data-userbar></div>
+    <div class="flex-1"></div>
+    <div class="ub-wrap flex items-center gap-1.5 sm:gap-2 text-xs font-bold" data-userbar></div>
   </div>
 </header>
+<main class="pt-16">
 """
 
-FOOT = """<footer class="site-foot">
-  <div class="wrap">
-    <span>{footText}</span>
-    <a href="{homeHref}">{footLink}</a>
-  </div>
+FOOT = """</main>
+<footer class="border-t border-line/50 py-8 px-4 text-center text-fog text-xs mt-16">
+  <p>{footText}</p>
+  <a href="{homeHref}" class="text-violet font-bold mt-2 inline-block">{footLink}</a>
 </footer>
 """
 
 # ---------------- صفحه مسیر ----------------
 PATH_TPL = BASE_HEAD + TOPBAR + """
-<main>
-  <section class="hero wrap">
-    <div class="hero-grid">
-      <div>
-        <span class="eyebrow">{icon} پایه نهم</span>
-        <h1>{name}</h1>
-        <p class="lede">{lede}</p>
-        <div class="hero-stats">
-          <div class="s"><b>{nLessons}</b><span>درس</span></div>
-          <div class="s"><b>{nQuiz}</b><span>آزمون</span></div>
-          <div class="s"><b>{nQ}</b><span>پرسش</span></div>
-          <div class="s"><b>{nPages}</b><span>صفحهٔ کتاب</span></div>
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
+
+    <!-- سرصفحهٔ کتاب -->
+    <div class="glass rounded-3xl p-5 sm:p-8 mb-8 relative overflow-hidden rv rv-in">
+      <div class="absolute rounded-full pointer-events-none"
+           style="top:-80px;right:-80px;width:288px;height:288px;filter:blur(100px);background:{accentSoft}"></div>
+      <div class="relative flex flex-wrap items-center gap-5">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl grid place-items-center text-3xl sm:text-4xl shrink-0 -rotate-3"
+             style="background:{accentSoft};border:1px solid {accentGlow}">{icon}</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] font-black mb-1" style="color:{accent}">پایه نهم</div>
+          <h1 class="text-2xl sm:text-3xl font-black mb-2">{name}</h1>
+          <p class="text-fog text-xs sm:text-sm leading-7 max-w-xl">{lede}</p>
         </div>
       </div>
-      <div class="hero-emblem">{icon}</div>
-    </div>
 
-    <div class="progress-band">
-      <div class="pb-head">
-        <span class="t">پیشرفت تو در این درس</span>
-        <span class="v" id="pbv">۰٪</span>
+      <div class="relative mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:{accent}">{nLessons}</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">درس</div>
+        </div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:{accent}">{nQuiz}</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">آزمون</div>
+        </div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:{accent}">{nQ}</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">پرسش</div>
+        </div>
+        <div class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 text-center">
+          <div class="text-lg sm:text-xl font-black" style="color:{accent}">{nPages}</div>
+          <div class="text-[10px] sm:text-xs text-fog mt-0.5">صفحهٔ کتاب</div>
+        </div>
       </div>
-      <div class="bar"><i id="pbf"></i></div>
-    </div>
-  </section>
 
-  <section class="wrap section">
-    <div class="sec-head">
-      <h2>مسیر یادگیری</h2>
-      <div class="rule"></div>
-      <span class="hint">اول بخوان، بعد آزمون بده</span>
+      <div class="relative mt-5">
+        <div class="flex items-center justify-between text-xs font-bold mb-2">
+          <span class="text-fog">پیشرفت تو</span>
+          <span class="font-black" id="pbv" style="color:{accent}">۰٪</span>
+        </div>
+        <div class="h-2.5 rounded-full bg-white/10 overflow-hidden">
+          <i class="block h-full rounded-full transition-all duration-700" id="pbf"
+             style="width:0;background:linear-gradient(90deg,{accent},#22d3ee)"></i>
+        </div>
+      </div>
     </div>
-    <div class="path" id="path"></div>
-  </section>
 
-  <section class="wrap section">
-    <div class="sec-head">
-      <h2>دسترسی سریع</h2>
-      <div class="rule"></div>
+    <!-- مسیر یادگیری -->
+    <div class="mb-6 text-center">
+      <h2 class="text-xl sm:text-2xl font-black mb-2">مسیر یادگیری</h2>
+      <p class="text-fog text-xs sm:text-sm">اول بخوان، بعد آزمون بده — آزمون اختیاری است</p>
     </div>
-    <div class="cards">
-      <a class="card" href="all.html">
-        <div class="ic">📖</div>
-        <h3>همهٔ درس‌نامه‌ها</h3>
-        <p class="desc">یک صفحه برای خواندن همهٔ درس‌های این کتاب، پشت سر هم.</p>
-        <div class="foot"><span>مطالعهٔ پیوسته</span><span class="pill">بخوان</span></div>
+
+    <div id="path"></div>
+
+    <!-- دسترسی سریع -->
+    <div class="mt-14 grid sm:grid-cols-3 gap-3 sm:gap-4">
+      <a href="all.html" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
+        <div class="text-3xl mb-3">📖</div>
+        <h3 class="font-black mb-1.5">همهٔ درس‌نامه‌ها</h3>
+        <p class="text-fog text-xs leading-6">یک صفحه برای خواندن همهٔ درس‌های این کتاب، پشت سر هم.</p>
+        <div class="mt-3 text-xs font-bold" style="color:{accent}">بخوان ←</div>
       </a>
-      <a class="card" href="quiz.html?all=1">
-        <div class="ic">🎯</div>
-        <h3>آزمون جامع</h3>
-        <p class="desc">پرسش‌های همهٔ فصل‌ها در یک آزمون تصادفی.</p>
-        <div class="foot"><span>همهٔ فصل‌ها</span><span class="pill">آزمون</span></div>
+      <a href="quiz.html?all=1" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
+        <div class="text-3xl mb-3">🎯</div>
+        <h3 class="font-black mb-1.5">آزمون جامع</h3>
+        <p class="text-fog text-xs leading-6">پرسش‌های همهٔ فصل‌ها در یک آزمون تصادفی.</p>
+        <div class="mt-3 text-xs font-bold" style="color:{accent}">شروع ←</div>
       </a>
-      <a class="card" href="{homeHref}">
-        <div class="ic">🏠</div>
-        <h3>بازگشت به صفحهٔ اصلی</h3>
-        <p class="desc">انتخاب درس دیگر از میان ده کتاب پایه نهم.</p>
-        <div class="foot"><span>صفحهٔ اصلی</span><span class="pill">همه</span></div>
-      </a>
-      <a class="card" href="{pdfHref}">
-        <div class="ic">📕</div>
-        <h3>کتاب درسی PDF</h3>
-        <p class="desc">نسخهٔ کامل کتاب درسی برای مرور و چاپ.</p>
-        <div class="foot"><span>فایل PDF</span><span class="pill">دانلود</span></div>
+      <a href="{homeHref}" class="tilt glass rounded-3xl p-5 group hover:border-white/25 transition-colors">
+        <div class="text-3xl mb-3">🏠</div>
+        <h3 class="font-black mb-1.5">درس دیگر</h3>
+        <p class="text-fog text-xs leading-6">بازگشت به صفحهٔ اصلی و انتخاب یکی از ده کتاب.</p>
+        <div class="mt-3 text-xs font-bold" style="color:{accent}">صفحهٔ اصلی ←</div>
       </a>
     </div>
-  </section>
+  </div>
 </main>
-""" + FOOT + """
-<script src="../../assets/js/config.js"></script>
-<script src="../../assets/js/app.js"></script>
-<script src="../../assets/js/cloud.js"></script>
-<script src="../../assets/data/{key}.js"></script>
-<script>
-(function () {{
-  if (!Dars.requireLogin()) return;
-  const {{ fa, buildPath, Store }} = Dars;
-  const C = window.CONTENT["{key}"];
-
-  const lessonIds = C.lessons.map(l => l.id);
-  const quizIds = Object.keys(C.quizzes || {{}});
-
-  // ساخت گام‌ها: هر درس → خواندن + آزمون
-  const steps = [];
-  C.lessons.forEach((l) => {{
-    steps.push({{
-      id: l.id, type: "lesson",
-      kicker: "درس " + fa(l.n),
-      title: l.title,
-      meta: ["صفحهٔ " + l.page, (C.quizzes[l.id] || []).length ? fa((C.quizzes[l.id] || []).length) + " پرسش" : ""],
-      href: "lesson.html?id=" + l.id
-    }});
-    if (C.quizzes[l.id] && C.quizzes[l.id].length) {{
-      steps.push({{
-        id: l.id, type: "quiz",
-        kicker: "آزمون",
-        title: "آزمون " + l.title,
-        meta: [fa(C.quizzes[l.id].length) + " پرسش", "بدون محدودیت"],
-        href: "quiz.html?id=" + l.id
-      }});
-    }}
-  }});
-
-  buildPath(document.getElementById("path"), {{ subject: "{key}", steps: steps }});
-
-  // نوار پیشرفت
-  const pct = Store.subjectProgress("{key}", lessonIds, quizIds);
-  document.getElementById("pbv").textContent = fa(pct) + "٪";
-  requestAnimationFrame(() => {{
-    document.getElementById("pbf").style.width = pct + "%";
-  }});
-}})();
-</script>
-</body>
-</html>
 """
 
-# ---------------- صفحه همهٔ درس‌نامه‌ها ----------------
 ALL_TPL = BASE_HEAD + TOPBAR + """
 <main>
-  <section class="wrap section" style="padding-top:26px">
-    <div class="sec-head">
-      <h1 style="font-size:1.4rem">همهٔ درس‌نامه‌های {name}</h1>
-      <div class="rule"></div>
-      <span class="hint">مطالعهٔ پیوستهٔ همهٔ درس‌ها</span>
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <div class="mb-7">
+      <a href="index.html" class="text-xs font-bold text-fog hover:text-snow transition-colors">← مسیر درس</a>
+      <h1 class="text-2xl font-black mt-3 mb-2">همهٔ درس‌نامه‌های {name}</h1>
+      <p class="text-fog text-sm">مطالعهٔ پیوستهٔ همهٔ درس‌ها، پشت سر هم.</p>
     </div>
-    <div id="allwrap"></div>
-  </section>
+    <div id="allwrap" class="space-y-5"></div>
+  </div>
 </main>
 """ + FOOT + """
 <script src="../../assets/js/config.js"></script>
@@ -209,17 +167,17 @@ ALL_TPL = BASE_HEAD + TOPBAR + """
 
   C.lessons.forEach((L) => {{
     const card = document.createElement("article");
-    card.className = "sheet rise";
-    card.style.marginBottom = "22px";
-    const pts = (L.points || []).map((p) =>
-      '<div class="point"><span class="n">•</span><span class="t">' + p + "</span></div>").join("");
+    card.className = "glass rounded-3xl p-5 sm:p-7";
+    const pts = (L.points || []).map((p, pi) =>
+      '<div class="glass rounded-2xl px-3 py-2.5 mb-2 flex items-start gap-2.5">' +
+        '<span class="w-6 h-6 rounded-md grid place-items-center shrink-0 text-[10px] font-black text-ink mt-0.5" ' +
+          'style="background:linear-gradient(135deg,#a78bfa,#22d3ee)">' + fa(pi + 1) + '</span>' +
+        '<span class="text-sm leading-7 flex-1">' + p + "</span></div>").join("");
     card.innerHTML =
-      '<h2>' + L.title + '</h2>' +
-      '<div style="font-family:var(--f-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:16px">' +
-        'درس ' + fa(L.n) + ' · صفحهٔ ' + L.page +
-      '</div>' +
-      (pts ? '<div class="points"><h3>نکته‌های کلیدی</h3>' + pts + "</div>" : "") +
-      '<div class="fullbody">' + L.body + "</div>";
+      '<h2 class="text-lg sm:text-xl font-black mb-1.5">' + L.title + '</h2>' +
+      '<div class="text-xs text-fog mb-4">درس ' + fa(L.n) + ' · صفحهٔ ' + L.page + '</div>' +
+      (pts ? '<div class="mb-5"><h3 class="text-xs font-black text-fog mb-2.5">نکته‌های کلیدی</h3>' + pts + "</div>" : "") +
+      '<div class="lesson-body fullbody">' + L.body + "</div>";
     host.append(card);
   }});
 
@@ -234,48 +192,61 @@ ALL_TPL = BASE_HEAD + TOPBAR + """
 
 # ---------------- صفحه درس ----------------
 LESSON_TPL = BASE_HEAD + TOPBAR + """
-<main>
-  <article class="wrap section" style="padding-top:26px">
-    <div class="quiz" style="max-width:860px">
-      <div class="quiz-top">
-        <span class="quiz-count">درس <b id="ln">۱</b></span>
-        <div class="spacer" style="flex:1"></div>
-        <span class="hint" style="font-family:var(--f-ui);font-size:.8rem;color:var(--text-dim)" id="lp"></span>
+<div class="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- نوار وضعیت -->
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
+      <a href="index.html" class="text-xs font-bold text-fog hover:text-snow transition-colors">← مسیر درس</a>
+      <div class="flex-1"></div>
+      <span class="glass rounded-full px-3 py-1.5 text-xs font-black" style="color:{accent}">درس <b id="ln">۱</b></span>
+      <span class="text-[11px] text-fog" id="lp"></span>
+    </div>
+
+    <!-- تب‌ها -->
+    <div class="glass rounded-2xl p-1 flex gap-1 mb-5" role="tablist">
+      <button type="button" role="tab" id="tabQuick" aria-selected="true"
+              class="flex-1 rounded-xl px-4 py-2.5 text-sm font-black transition-all bg-white/10 text-snow">⚡ یادگیری سریع</button>
+      <button type="button" role="tab" id="tabFull" aria-selected="false"
+              class="flex-1 rounded-xl px-4 py-2.5 text-sm font-black transition-all text-fog hover:text-snow">📖 متن کامل</button>
+    </div>
+
+    <!-- پنل سریع -->
+    <div id="quickPane">
+      <div class="glass rounded-2xl px-4 py-3 mb-4 flex items-center gap-2 flex-wrap">
+        <span class="text-xs font-bold text-fog">فقط <b class="text-snow" id="pn">۶</b> نکتهٔ کلیدی — همه از خودِ کتاب</span>
+        <div class="flex-1"></div>
+        <a class="rounded-lg px-3 py-1.5 text-[11px] font-bold border border-white/15 text-fog hover:text-snow transition-colors"
+           href="{pdfHref}" target="_blank" rel="noopener">PDF صفحه</a>
       </div>
 
-      <div class="learn-tabs" role="tablist" aria-label="حالت یادگیری">
-        <button type="button" role="tab" id="tabQuick" aria-selected="true">⚡ یادگیری سریع</button>
-        <button type="button" role="tab" id="tabFull" aria-selected="false">📖 متن کامل</button>
-      </div>
+      <div class="space-y-2.5" id="points"></div>
 
-      <div id="quickPane">
-        <div class="quick-bar">
-          <span class="qb-t">فقط <b id="pn">۶</b> نکتهٔ کلیدی — همه از خودِ کتاب</span>
-          <div class="spacer" style="flex:1"></div>
-          <a class="btn btn-quiet" href="{pdfHref}" target="_blank" rel="noopener">PDF صفحه</a>
-        </div>
-        <div class="points rise" id="points"></div>
-        <div class="quiz-actions" style="margin-top:6px">
-          <button class="btn btn-primary" id="quickDone" type="button">نکته‌ها را یاد گرفتم ✓</button>
-          <div class="spacer"></div>
-          <a class="btn btn-ghost" id="quickNext" href="quiz.html">برو به آزمون ‹</a>
-        </div>
-      </div>
-
-      <div id="fullPane" hidden>
-        <div class="sheet rise" id="sheet"></div>
-      </div>
-
-      <div class="quiz-actions" style="margin-top:18px" id="fullActions" hidden>
-        <a class="btn btn-ghost" href="index.html">مسیر درس</a>
-        <a class="btn btn-quiet" href="{pdfHref}" target="_blank" rel="noopener">PDF کتاب</a>
-        <div class="spacer"></div>
-        <button class="btn btn-primary" id="doneBtn" type="button">خواندم ✓</button>
-        <a class="btn btn-primary" id="nextBtn" href="quiz.html" style="display:none">برو به آزمون ‹</a>
+      <div class="mt-6 flex flex-wrap items-center gap-2">
+        <button class="btn3d rounded-xl px-5 py-3 text-sm font-black text-ink cursor-pointer"
+                style="background:linear-gradient(90deg,{accent},#22d3ee)" id="quickDone" type="button">
+          نکته‌ها را یاد گرفتم ✓
+        </button>
+        <div class="flex-1"></div>
+        <a class="rounded-xl px-4 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors"
+           id="quickNext" href="quiz.html">برو به آزمون ←</a>
       </div>
     </div>
-  </article>
-</main>
+
+    <!-- پنل کامل -->
+    <div id="fullPane" hidden>
+      <article class="glass rounded-3xl p-5 sm:p-7 leading-9" id="sheet"></article>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center gap-2" id="fullActions" hidden>
+      <a class="rounded-xl px-4 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors" href="index.html">مسیر درس</a>
+      <div class="flex-1"></div>
+      <button class="btn3d rounded-xl px-5 py-3 text-sm font-black text-ink cursor-pointer"
+              style="background:linear-gradient(90deg,{accent},#22d3ee)" id="doneBtn" type="button">خواندم ✓</button>
+      <a class="btn3d rounded-xl px-5 py-3 text-sm font-black text-ink cursor-pointer hidden"
+         style="background:linear-gradient(90deg,#34d399,#22d3ee)" id="nextBtn" href="quiz.html">برو به آزمون ←</a>
+    </div>
+  </div>
+  </main>
 """ + FOOT + """
 <script src="../../assets/js/config.js"></script>
 <script src="../../assets/js/app.js"></script>
@@ -317,10 +288,9 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
   /* ---------- متن کامل ---------- */
   const sheet = document.getElementById("sheet");
   sheet.innerHTML =
-    '<h2>' + L.title + '</h2>' +
-    '<div style="font-family:var(--f-ui);font-size:.84rem;color:var(--text-dim);margin-bottom:22px">' +
-      '{name} · پایه نهم · صفحهٔ ' + L.page +
-    '</div>' + L.body;
+    '<h2 class="text-xl sm:text-2xl font-black mb-2">' + L.title + '</h2>' +
+    '<div class="text-xs text-fog mb-6">{name} · پایه نهم · صفحهٔ ' + L.page + '</div>' +
+    '<div class="lesson-body">' + L.body + '</div>';
 
   // ناوبری درس قبل/بعد
   const prev = C.lessons[idx - 1];
@@ -350,9 +320,13 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
   const fullActions = document.getElementById("fullActions");
   const tabQuick = document.getElementById("tabQuick");
   const tabFull = document.getElementById("tabFull");
+  const ACTIVE = "flex-1 rounded-xl px-4 py-2.5 text-sm font-black transition-all bg-white/10 text-snow";
+  const IDLE = "flex-1 rounded-xl px-4 py-2.5 text-sm font-black transition-all text-fog hover:text-snow";
 
   function show(mode) {{
     const q = mode !== "full";
+    tabQuick.className = q ? ACTIVE : IDLE;
+    tabFull.className = q ? IDLE : ACTIVE;
     tabQuick.setAttribute("aria-selected", q ? "true" : "false");
     tabFull.setAttribute("aria-selected", q ? "false" : "true");
     quickPane.hidden = !q;
@@ -390,13 +364,15 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
     const done = Store.isLessonDone(KEY, L.id);
     if (!done) return;
     doneBtn.textContent = "خوانده شده ✓";
-    doneBtn.classList.remove("btn-primary");
-    doneBtn.classList.add("btn-ghost");
+    doneBtn.style.background = "rgba(255,255,255,.08)";
+    doneBtn.style.color = "#93a2c0";
+    doneBtn.style.boxShadow = "none";
     nextBtn.style.display = "";
     quickDone.textContent = "یاد گرفتم ✓";
     quickDone.disabled = true;
-    quickDone.classList.remove("btn-primary");
-    quickDone.classList.add("btn-ghost");
+    quickDone.style.background = "rgba(255,255,255,.08)";
+    quickDone.style.color = "#93a2c0";
+    quickDone.style.boxShadow = "none";
   }}
   paintDone();
 
@@ -422,15 +398,15 @@ LESSON_TPL = BASE_HEAD + TOPBAR + """
 # ---------------- صفحه آزمون ----------------
 QUIZ_TPL = BASE_HEAD + TOPBAR + """
 <main>
-  <section class="wrap section" style="padding-top:26px">
-    <div class="quiz">
-      <div class="sec-head" style="margin-bottom:18px">
-        <h2 id="qtitle" style="font-size:1.2rem">آزمون</h2>
-        <div class="rule"></div>
-      </div>
-      <div id="qz"></div>
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
+    <div class="flex items-center gap-3 mb-6 flex-wrap">
+      <a href="index.html" class="text-xs font-bold text-fog hover:text-snow transition-colors">← مسیر درس</a>
+      <div class="flex-1"></div>
+      <span class="glass rounded-full px-3 py-1.5 text-[11px] font-bold text-fog">آزمون اختیاری</span>
     </div>
-  </section>
+    <h2 id="qtitle" class="text-xl sm:text-2xl font-black mb-5">آزمون</h2>
+    <div id="qz"></div>
+  </div>
 </main>
 """ + FOOT + """
 <script src="../../assets/js/config.js"></script>

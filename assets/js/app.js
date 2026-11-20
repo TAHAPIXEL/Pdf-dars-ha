@@ -295,13 +295,14 @@
   function buildPath(host, cfg) {
     if (!host) return;
     host.innerHTML = "";
-    host.classList.add("path-spine");
+    host.className = "relative py-6";
 
-    // جابه‌جایی افقی گره‌ها؛ همان ریتم مارپیچی طرح مرجع
-    const OFFSETS = [0, 54, 0, -54];
+    // ریتم مارپیچی نمونه: 0, +52, 0, -52
+    const OFFSETS = [0, 52, 0, -52];
     const steps = cfg.steps || [];
-    let nextIdx = -1;
 
+    // گرهٔ بعدی = اولین گام انجام‌نشده
+    let nextIdx = -1;
     steps.forEach((s, i) => {
       const done = s.type === "quiz"
         ? !!Store.getQuiz(cfg.subject, s.id)
@@ -310,44 +311,67 @@
     });
     if (nextIdx === -1 && steps.length) nextIdx = steps.length - 1;
 
-    const frag = document.createDocumentFragment();
+    // خط‌چین عمودی (spine)
+    const spine = document.createElement("div");
+    spine.className = "absolute inset-y-0 left-1/2 -translate-x-1/2 w-px";
+    spine.innerHTML =
+      '<svg class="w-8 h-full -translate-x-1/2" aria-hidden="true">' +
+        '<line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(148,163,184,.3)" ' +
+        'stroke-width="3" class="path-dash" stroke-dasharray="6 10"></line>' +
+      "</svg>";
+    host.append(spine);
+
+    const list = document.createElement("div");
+    list.className = "relative flex flex-col items-center gap-12 sm:gap-14 py-4";
 
     steps.forEach((s, i) => {
       const done = s.type === "quiz"
         ? !!Store.getQuiz(cfg.subject, s.id)
         : Store.isLessonDone(cfg.subject, s.id);
       const isNext = i === nextIdx && !done;
+      const offset = OFFSETS[i % 4];
 
-      const btn = el("span", {
-        class: "node-btn" + (done ? " done" : isNext ? " next" : " locked"),
-        "aria-hidden": "true",
-      });
-      btn.textContent = done ? "✓" : isNext ? "▶" : fa(i + 1);
+      const a = document.createElement("a");
+      a.href = s.href || "#";
+      a.style.transform = "translateX(" + offset + "px)";
+      a.className = "flex flex-col items-center gap-3 group";
 
-      const metaBits = [];
-      (s.meta || []).forEach((m) => metaBits.push(el("span", { html: m })));
+      // دایره
+      const btn = document.createElement("div");
+      btn.className = "w-[68px] h-[68px] sm:w-[72px] sm:h-[72px] rounded-full grid place-items-center " +
+        "border-4 transition-all duration-200 " +
+        (done
+          ? "bg-mint border-mint/40 shadow-[0_0_30px_-4px_rgba(52,211,153,.6)]"
+          : isNext
+            ? "animate-pulse-ring border-white/30"
+            : "bg-panel2 border-white/10");
+      if (isNext) btn.style.background = "var(--accent, #a78bfa)";
+      btn.innerHTML = done
+        ? '<span class="text-ink text-2xl font-black">✓</span>'
+        : isNext
+          ? '<span class="text-ink text-xl" style="fill:#05080f">▶</span>'
+          : '<span class="text-fog text-lg font-black">' + fa(i + 1) + "</span>";
 
-      const inner = el("div", {},
-        el("div", { class: "node-label", text: s.title }),
-        s.kicker ? el("div", { class: "node-cap", text: s.kicker }) : null,
-        metaBits.length ? el("div", { class: "node-cap" }, metaBits) : null
-      );
+      // برچسب
+      const label = document.createElement("div");
+      label.className = "text-center max-w-[190px] sm:max-w-[230px]";
+      const kicker = s.kicker
+        ? '<div class="text-[10px] font-black uppercase tracking-wide text-fog/70 mb-1">' + s.kicker + "</div>"
+        : "";
+      const meta = (s.meta || []).filter(Boolean).length
+        ? '<div class="mt-1.5 flex items-center justify-center gap-2 flex-wrap text-[11px] text-fog/80">' +
+            (s.meta || []).filter(Boolean).map(m => "<span>" + m + "</span>").join("") + "</div>"
+        : "";
+      label.innerHTML =
+        kicker +
+        '<div class="font-black text-sm leading-6 ' + (done ? "text-mint" : isNext ? "text-snow" : "text-fog") + '">' +
+          s.title + "</div>" + meta;
 
-      const node = el(
-        "a",
-        {
-          class: "node-wrap",
-          href: s.href || "#",
-          style: "transform: translateX(" + OFFSETS[i % 4] + "px)",
-          "data-step": i,
-        },
-        btn,
-        inner
-      );
-      frag.append(node);
+      a.append(btn, label);
+      list.append(a);
     });
 
-    host.append(frag);
+    host.append(list);
   }
 
 
@@ -451,7 +475,7 @@
     if (!host) return;
     const Q = cfg.questions || [];
     if (!Q.length) {
-      host.innerHTML = '<div class="empty"><div class="e-ic">📭</div><p>سؤالی برای این آزمون ثبت نشده است.</p></div>';
+      host.innerHTML = '<div class="glass rounded-3xl p-10 text-center"><div class="text-5xl mb-3">📭</div><p class="text-fog">سؤالی برای این آزمون ثبت نشده است.</p></div>';
       return;
     }
 
@@ -462,11 +486,13 @@
     host.innerHTML = "";
 
     const trackFill = el("i");
-    const countEl = el("div", { class: "quiz-count" });
-    const top = el("div", { class: "quiz-top" },
-      countEl,
-      el("div", { class: "quiz-track" }, trackFill)
-    );
+    trackFill.className = "block h-full rounded-full transition-all duration-300";
+    trackFill.style.background = "linear-gradient(90deg,#a78bfa,#22d3ee)";
+    trackFill.style.width = "0%";
+
+    const countEl = el("div", { class: "text-xs font-black text-fog mb-2" });
+    const track = el("div", { class: "h-2 rounded-full bg-white/10 overflow-hidden" }, trackFill);
+    const top = el("div", { class: "mb-6" }, countEl, track);
 
     const stage = el("div", { id: "qz-stage" });
     host.append(top, stage);
@@ -482,40 +508,45 @@
       const q = order[i];
       stage.innerHTML = "";
 
-      const optWrap = el("div", { class: "opts" });
+      const optWrap = el("div", { class: "space-y-2.5" });
       const letters = ["الف", "ب", "ج", "د", "هـ", "و"];
 
-      const fb = el("div");
+      const fb = el("div", { class: "mt-4" });
 
       const nextBtn = el("button", {
-        class: "btn btn-primary",
+        class: "btn3d rounded-xl px-5 py-3 text-sm font-black text-ink cursor-pointer",
         type: "button",
-        text: i === order.length - 1 ? "دیدن نتیجه" : "سؤال بعدی",
+        text: i === order.length - 1 ? "دیدن نتیجه" : "سؤال بعدی ←",
         onclick: () => {
           if (i < order.length - 1) { i++; render(); }
           else finish();
         }
       });
+      nextBtn.style.background = "linear-gradient(90deg,#a78bfa,#22d3ee)";
       nextBtn.style.display = "none";
 
       const skipBtn = el("button", {
-        class: "btn btn-quiet", type: "button", text: "رد کردن آزمون",
+        class: "rounded-xl px-4 py-2.5 text-xs font-bold border border-white/15 text-fog hover:text-snow transition-colors",
+        type: "button", text: "رد کردن آزمون",
         title: "آزمون اجباری نیست؛ می‌توانی بعداً بدهی",
         onclick: () => skip()
       });
 
-      const actions = el("div", { class: "quiz-actions" },
+      const actions = el("div", { class: "mt-6 flex items-center gap-2 flex-wrap" },
         skipBtn,
-        el("div", { class: "spacer" }),
+        el("div", { class: "flex-1" }),
         nextBtn
       );
 
       q.opts.forEach((o, oi) => {
-        const mark = el("div", { class: "mark", text: letters[oi] || fa(oi + 1) });
-        const btn = el("button", { class: "opt", type: "button" },
-          mark,
-          el("div", { class: "txt", text: o })
-        );
+        const mark = el("div", {
+          class: "w-8 h-8 rounded-lg grid place-items-center shrink-0 text-xs font-black bg-white/10 text-fog transition-colors",
+          text: letters[oi] || fa(oi + 1)
+        });
+        const btn = el("button", {
+          class: "w-full flex items-center gap-3 rounded-2xl border-2 border-white/10 bg-white/[0.03] px-4 py-3.5 text-start font-bold text-sm leading-6 transition-all hover:bg-white/[0.08] hover:-translate-y-0.5",
+          type: "button"
+        }, mark, el("div", { class: "flex-1 text-start", text: o }));
 
         btn.addEventListener("click", () => {
           if (answered) return;
@@ -525,22 +556,33 @@
           if (good) correct++;
 
           // قفل و رنگ‌آمیزی همه گزینه‌ها
-          optWrap.querySelectorAll(".opt").forEach((b, bi) => {
-            b.classList.add("locked");
-            if (bi === q.a) b.classList.add("correct");
-            else if (bi === oi) b.classList.add("wrong");
-            else b.classList.add("faded");
+          optWrap.querySelectorAll("button").forEach((b, bi) => {
+            b.classList.add("pointer-events-none");
+            const mk = b.querySelector("div");
+            if (bi === q.a) {
+              b.className = "w-full flex items-center gap-3 rounded-2xl border-2 border-mint bg-mint/15 text-mint px-4 py-3.5 text-start font-bold text-sm leading-6 animate-pop";
+              if (mk) { mk.className = "w-8 h-8 rounded-lg grid place-items-center shrink-0 text-xs font-black bg-mint text-ink"; }
+            } else if (bi === oi) {
+              b.className = "w-full flex items-center gap-3 rounded-2xl border-2 border-rosee bg-rosee/15 text-rosee px-4 py-3.5 text-start font-bold text-sm leading-6 animate-shake";
+              if (mk) { mk.className = "w-8 h-8 rounded-lg grid place-items-center shrink-0 text-xs font-black bg-rosee text-ink"; }
+            } else {
+              b.className = "w-full flex items-center gap-3 rounded-2xl border-2 border-white/5 bg-white/[0.02] text-fog/50 px-4 py-3.5 text-start font-bold text-sm leading-6 opacity-50";
+            }
           });
 
           fb.innerHTML = "";
-          const box = el("div", { class: "feedback " + (good ? "good" : "bad") },
-            el("div", { class: "fh" },
+          const box = el("div", {
+            class: "rounded-2xl border px-4 py-3.5 animate-pop " +
+              (good ? "border-mint/40 bg-mint/10 text-mint" : "border-rosee/40 bg-rosee/10 text-rosee")
+          },
+            el("div", { class: "flex items-center gap-2 font-black text-sm" },
               el("span", { text: good ? "✓" : "✕" }),
               el("span", { text: good ? "درست بود!" : "پاسخ درست: " + (q.opts[q.a]) })
             ),
-            q.why ? el("div", { class: "expl", text: q.why }) : null
+            q.why ? el("div", { class: "mt-2 text-xs leading-6 text-fog", text: q.why }) : null
           );
           fb.append(box);
+          if (good) { try { confetti(); } catch (e) {} }
 
           nextBtn.style.display = "";
           nextBtn.focus({ preventScroll: true });
@@ -549,9 +591,9 @@
         optWrap.append(btn);
       });
 
-      const card = el("div", { class: "qcard rise" },
-        q.tag ? el("span", { class: "qtag", text: q.tag }) : null,
-        el("div", { class: "qtext", text: q.q }),
+      const card = el("div", { class: "glass rounded-3xl p-5 sm:p-7 animate-pop" },
+        q.tag ? el("span", { class: "inline-block rounded-full bg-white/10 px-3 py-1 text-[10px] font-black text-fog mb-3", text: q.tag }) : null,
+        el("div", { class: "font-black text-base sm:text-lg leading-8 mb-5", text: q.q }),
         optWrap,
         fb,
         actions
@@ -567,15 +609,16 @@
       trackFill.style.width = "100%";
       const backHref = cfg.backHref || "index.html";
       const nextHref = cfg.nextHref || backHref;
-      const box = el("div", { class: "result rise" },
-        el("div", { class: "rbadge", text: "⏭" }),
-        el("h2", { text: "آزمون را رد کردی" }),
-        el("p", { class: "sub", text: "هیچ اشکالی ندارد. درس را خوانده‌ای و هر وقت خواستی می‌توانی آزمون بدهی — نمره‌ای ثبت نشد." }),
-        el("div", { class: "result-actions" },
-          el("a", { class: "btn btn-primary", href: nextHref, text: "درس بعدی ‹" }),
-          el("a", { class: "btn btn-ghost", href: backHref, text: "بازگشت به مسیر" })
+      const box = el("div", { class: "glass rounded-3xl p-8 sm:p-12 text-center animate-pop" },
+        el("div", { class: "text-6xl mb-4", text: "⏭" }),
+        el("h2", { class: "text-2xl font-black mb-3", text: "آزمون را رد کردی" }),
+        el("p", { class: "text-fog text-sm leading-8 mb-7 max-w-md mx-auto", text: "هیچ اشکالی ندارد. درس را خوانده‌ای و هر وقت خواستی می‌توانی آزمون بدهی — نمره‌ای ثبت نشد." }),
+        el("div", { class: "flex flex-wrap items-center justify-center gap-3" },
+          el("a", { class: "btn3d rounded-xl px-6 py-3 text-sm font-black text-ink", href: nextHref, text: "درس بعدی ←" }),
+          el("a", { class: "rounded-xl px-6 py-3 text-sm font-bold border border-white/15 text-fog hover:text-snow transition-colors", href: backHref, text: "بازگشت به مسیر" })
         )
       );
+      box.querySelector("a.btn3d").style.background = "linear-gradient(90deg,#34d399,#22d3ee)";
       stage.append(box);
       paintStats();
       if (typeof cfg.onSkip === "function") cfg.onSkip();
@@ -596,15 +639,15 @@
       const ring = 150, r = 64, c = 2 * Math.PI * r;
       const off = c - (pct / 100) * c;
 
-      const result = el("div", { class: "result rise" },
-        el("div", { class: "rbadge", text: pct >= 90 ? "🏆" : pct >= pass ? "🎯" : "📚" }),
-        el("h2", { text: pct >= 90 ? "بی‌نقص!" : pct >= pass ? "عالی بود!" : "ادامه بده!" }),
-        el("p", { class: "sub", text: pct >= 90
+      const result = el("div", { class: "glass rounded-3xl p-6 sm:p-10 text-center animate-pop" },
+        el("div", { class: "text-6xl mb-3", text: pct >= 90 ? "🏆" : pct >= pass ? "🎯" : "📚" }),
+        el("h2", { class: "text-2xl sm:text-3xl font-black mb-3", text: pct >= 90 ? "بی‌نقص!" : pct >= pass ? "عالی بود!" : "ادامه بده!" }),
+        el("p", { class: "text-fog text-sm leading-8 mb-6 max-w-md mx-auto", text: pct >= 90
           ? "همهٔ سؤال‌ها را درست پاسخ دادی. تسلطت کامل است."
           : pct >= pass
           ? "آزمون را با موفقیت گذراندی. یک قدم دیگر جلو رفتی."
           : "این بار کافی نبود، اما هیچ اشکالی ندارد. درس را یک بار دیگر بخوان و برگرد." }),
-        el("div", { class: "score-ring" },
+        el("div", { class: "relative w-[150px] h-[150px] mx-auto my-4" },
           (() => {
             const ns = "http://www.w3.org/2000/svg";
             const svg = document.createElementNS(ns, "svg");
@@ -623,24 +666,33 @@
             requestAnimationFrame(() => setTimeout(() => fl.setAttribute("stroke-dashoffset", off), 90));
             return svg;
           })(),
-          el("div", { class: "val" },
-            el("b", { text: fa(pct) + "٪" }),
-            el("small", { text: "پاسخ درست" })
+          el("div", { class: "absolute inset-0 grid place-items-center" },
+            el("div", {},
+              el("b", { class: "block text-3xl font-black", text: fa(pct) + "٪" }),
+              el("small", { class: "text-[10px] text-fog", text: "پاسخ درست" })
+            )
           )
         ),
-        el("div", { class: "result-grid" },
-          el("div", { class: "rg ok" }, el("b", { text: fa(correct) }), el("span", { text: "درست" })),
-          el("div", { class: "rg bad" }, el("b", { text: fa(order.length - correct) }), el("span", { text: "نادرست" })),
-          el("div", { class: "rg" }, el("b", { text: "+" + fa(earnedXP) }), el("span", { text: "XP" }))
+        el("div", { class: "grid grid-cols-3 gap-2 sm:gap-3 mb-7 max-w-sm mx-auto" },
+          el("div", { class: "rounded-2xl bg-mint/10 border border-mint/30 px-2 py-3" },
+            el("b", { class: "block text-lg font-black text-mint", text: fa(correct) }),
+            el("span", { class: "text-[10px] text-mint/80", text: "درست" })),
+          el("div", { class: "rounded-2xl bg-rosee/10 border border-rosee/30 px-2 py-3" },
+            el("b", { class: "block text-lg font-black text-rosee", text: fa(order.length - correct) }),
+            el("span", { class: "text-[10px] text-rosee/80", text: "نادرست" })),
+          el("div", { class: "rounded-2xl bg-xp/10 border border-xp/30 px-2 py-3" },
+            el("b", { class: "block text-lg font-black text-xp", text: "+" + fa(earnedXP) }),
+            el("span", { class: "text-[10px] text-xp/80", text: "XP" }))
         ),
-        el("div", { class: "result-actions" },
+        el("div", { class: "flex flex-wrap items-center justify-center gap-3" },
           el("button", {
-            class: "btn btn-primary", type: "button", text: "تلاش دوباره",
+            class: "btn3d rounded-xl px-6 py-3 text-sm font-black text-ink cursor-pointer", type: "button", text: "تلاش دوباره",
             onclick: () => { i = 0; correct = 0; render(); }
           }),
-          el("a", { class: "btn btn-ghost", href: cfg.backHref || "index.html", text: "بازگشت به مسیر" })
+          el("a", { class: "rounded-xl px-6 py-3 text-sm font-bold border border-white/15 text-fog hover:text-snow transition-colors", href: cfg.backHref || "index.html", text: "بازگشت به مسیر" })
         )
       );
+      result.querySelector("button.btn3d").style.background = "linear-gradient(90deg,#a78bfa,#22d3ee)";
       stage.append(result);
 
       paintStats();
@@ -693,54 +745,69 @@
     host.innerHTML = "";
     const u = C.user();
     if (!u) {
-      host.append(el("a", { class: "ub-login", href: loginHref(), text: "ورود" }));
+      const a = el("a", { href: loginHref(), text: "ورود" });
+      a.className = "px-4 py-2 rounded-xl font-black text-ink bg-gradient-to-l from-violet to-skyy";
+      host.append(a);
       return;
     }
+
     const initial = (u.firstName || u.lastName || "د").trim().slice(0, 1);
     const quick = Store.mode() === "quick";
-
-    // چیپ XP و لِوِل، مثل طرح مرجع
     const st = Store.stats();
     const xp = st.xp || 0;
     const lvl = Math.floor(xp / 250) + 1;
 
-    host.append(
-      el("a", {
-        class: "ub-user",
-        href: rootHref() + "progress.html",
-        title: "کارنامه و پیشرفت من",
-      },
-        el("span", { class: "ub-av", text: initial }),
-        el("span", { class: "ub-nm", text: (u.firstName || "دانش‌آموز") })
-      ),
-      el("a", {
-        class: "lvl-chip",
-        href: rootHref() + "progress.html",
-        title: "امتیاز و سطح تو",
-      },
-        el("span", { text: "⚡" }),
-        el("span", { text: fa(xp) }),
-        el("span", { text: "· سطح " + fa(lvl) })
-      ),
-      st.streak > 0 ? el("span", { class: "lvl-chip", title: "روزهای پشت‌سرهم", style: "background:rgba(251,146,60,.12);border-color:rgba(251,146,60,.3);color:#fdba74" },
-        el("span", { text: "🔥" }), el("span", { text: fa(st.streak) })) : null,
-      el("button", {
-        class: "ub-mode" + (quick ? " on" : ""),
-        type: "button",
-        title: "یادگیری سریع: فقط نکته‌های کلیدی",
-        onclick: () => {
-          const m = Store.setMode(Store.mode() === "quick" ? "normal" : "quick");
-          document.documentElement.setAttribute("data-mode", m);
-          paintUserBar();
-          global.dispatchEvent(new CustomEvent("dars:mode", { detail: m }));
-        }
-      }, el("span", { class: "ub-dot" }), el("span", { text: quick ? "سریع" : "کامل" })),
-      el("span", { class: "sync-dot", "data-sync": "", "data-state": "ok", title: "همگام با حساب همدل" }),
-      el("button", {
-        class: "ub-out", type: "button", text: "خروج",
-        onclick: async () => { await C.logout(); location.href = rootHref() + "login.html"; }
-      })
-    );
+    // آواتار + نام
+    const prof = el("a", { href: rootHref() + "progress.html", title: "کارنامهٔ من" });
+    prof.className = "flex items-center gap-2 rounded-xl px-2 py-1 hover:bg-white/5 transition-colors";
+    const av = el("span", { text: initial });
+    av.className = "w-8 h-8 rounded-lg grid place-items-center bg-white/10 text-sm font-black text-snow";
+    const nm = el("span", { text: (u.firstName || "دانش‌آموز") });
+    nm.className = "hidden md:inline text-snow";
+    prof.append(av, nm);
+
+    // چیپ XP
+    const chip = el("a", { href: rootHref() + "progress.html", title: "امتیاز و سطح" });
+    chip.className = "hidden sm:inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xp bg-xp/10 border border-xp/30";
+    chip.innerHTML = "⚡ " + fa(xp) + " · سطح " + fa(lvl);
+
+    // استریک
+    if (st.streak > 0) {
+      const fl = el("span");
+      fl.className = "hidden sm:inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-orangey bg-orangey/10 border border-orangey/30";
+      fl.innerHTML = "🔥 " + fa(st.streak);
+      host.append(prof, chip, fl);
+    } else {
+      host.append(prof, chip);
+    }
+
+    // حالت
+    const md = el("button", { type: "button", title: "یادگیری سریع: فقط نکته‌های کلیدی" });
+    md.className = "rounded-xl px-3 py-1.5 border transition-colors " +
+      (quick ? "border-mint/50 text-mint bg-mint/10" : "border-white/15 text-fog hover:text-snow");
+    md.textContent = quick ? "⚡ سریع" : "📖 کامل";
+    md.addEventListener("click", () => {
+      const m = Store.setMode(Store.mode() === "quick" ? "normal" : "quick");
+      document.documentElement.setAttribute("data-mode", m);
+      paintUserBar();
+      global.dispatchEvent(new CustomEvent("dars:mode", { detail: m }));
+    });
+
+    // وضعیت همگام‌سازی
+    const dot = el("span", { title: "همگام با حساب همدل" });
+    dot.className = "sync-dot w-2 h-2 rounded-full bg-mint";
+    dot.setAttribute("data-sync", "");
+    dot.setAttribute("data-state", "ok");
+
+    // خروج
+    const out = el("button", { type: "button", text: "خروج" });
+    out.className = "hidden md:inline rounded-xl px-3 py-1.5 border border-white/10 text-fog hover:text-rosee hover:border-rosee/40 transition-colors";
+    out.addEventListener("click", async () => {
+      await C.logout();
+      location.href = rootHref() + "login.html";
+    });
+
+    host.append(md, dot, out);
   }
 
   /** مسیر ریشهٔ سایت از عمق صفحهٔ جاری */

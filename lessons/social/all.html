@@ -6,40 +6,36 @@
 <meta name="theme-color" content="#05080f">
 <title>همهٔ درس‌نامه‌ها — مطالعات اجتماعی</title>
 <meta name="description" content="مطالعهٔ پیوستهٔ همهٔ درس‌های مطالعات اجتماعی پایه نهم">
-<link rel="stylesheet" href="../../assets/css/app.css">
+<link rel="stylesheet" href="../../assets/css/tw.css">
+<link rel="stylesheet" href="../../assets/css/quest.css">
 </head>
-<body style="--accent:#0ea5e9;--accent-deep:#0284c7;--accent-soft:rgba(14,165,233,0.14);--accent-glow:rgba(14,165,233,0.35)">
-<header class="topbar">
-  <div class="wrap">
-    <a class="back-link" href="../../index.html" data-back="../../index.html">
-      <span class="arrow">›</span>
+<body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#0ea5e9;--accent-deep:#0284c7;--accent-soft:rgba(14,165,233,0.14);--accent-glow:rgba(14,165,233,0.35)">
+<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-2 sm:gap-3">
+    <a href="../../index.html" class="flex items-center gap-2 font-black text-sm sm:text-base shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink">🌍</span>
       <span>مسیر درس</span>
     </a>
-    <div class="spacer"></div>
-    <div class="stat-chip accent">
-      <span class="ico">⚡</span>
-      <span data-xp>۰</span>
-      <span class="lbl">XP</span>
-    </div>
-    <div class="ub-wrap" data-userbar></div>
+    <div class="flex-1"></div>
+    <div class="ub-wrap flex items-center gap-1.5 sm:gap-2 text-xs font-bold" data-userbar></div>
   </div>
 </header>
+<main class="pt-16">
 
 <main>
-  <section class="wrap section" style="padding-top:26px">
-    <div class="sec-head">
-      <h1 style="font-size:1.4rem">همهٔ درس‌نامه‌های مطالعات اجتماعی</h1>
-      <div class="rule"></div>
-      <span class="hint">مطالعهٔ پیوستهٔ همهٔ درس‌ها</span>
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <div class="mb-7">
+      <a href="index.html" class="text-xs font-bold text-fog hover:text-snow transition-colors">← مسیر درس</a>
+      <h1 class="text-2xl font-black mt-3 mb-2">همهٔ درس‌نامه‌های مطالعات اجتماعی</h1>
+      <p class="text-fog text-sm">مطالعهٔ پیوستهٔ همهٔ درس‌ها، پشت سر هم.</p>
     </div>
-    <div id="allwrap"></div>
-  </section>
-</main>
-<footer class="site-foot">
-  <div class="wrap">
-    <span>مطالعات اجتماعی · مطالعات اجتماعی پایه نهم</span>
-    <a href="../../index.html">صفحهٔ اصلی</a>
+    <div id="allwrap" class="space-y-5"></div>
   </div>
+</main>
+</main>
+<footer class="border-t border-line/50 py-8 px-4 text-center text-fog text-xs mt-16">
+  <p>مطالعات اجتماعی · مطالعات اجتماعی پایه نهم</p>
+  <a href="../../index.html" class="text-violet font-bold mt-2 inline-block">صفحهٔ اصلی</a>
 </footer>
 
 <script src="../../assets/js/config.js"></script>
@@ -56,17 +52,17 @@
 
   C.lessons.forEach((L) => {
     const card = document.createElement("article");
-    card.className = "sheet rise";
-    card.style.marginBottom = "22px";
-    const pts = (L.points || []).map((p) =>
-      '<div class="point"><span class="n">•</span><span class="t">' + p + "</span></div>").join("");
+    card.className = "glass rounded-3xl p-5 sm:p-7";
+    const pts = (L.points || []).map((p, pi) =>
+      '<div class="glass rounded-2xl px-3 py-2.5 mb-2 flex items-start gap-2.5">' +
+        '<span class="w-6 h-6 rounded-md grid place-items-center shrink-0 text-[10px] font-black text-ink mt-0.5" ' +
+          'style="background:linear-gradient(135deg,#a78bfa,#22d3ee)">' + fa(pi + 1) + '</span>' +
+        '<span class="text-sm leading-7 flex-1">' + p + "</span></div>").join("");
     card.innerHTML =
-      '<h2>' + L.title + '</h2>' +
-      '<div style="font-family:var(--f-ui);font-size:.82rem;color:var(--text-dim);margin-bottom:16px">' +
-        'درس ' + fa(L.n) + ' · صفحهٔ ' + L.page +
-      '</div>' +
-      (pts ? '<div class="points"><h3>نکته‌های کلیدی</h3>' + pts + "</div>" : "") +
-      '<div class="fullbody">' + L.body + "</div>";
+      '<h2 class="text-lg sm:text-xl font-black mb-1.5">' + L.title + '</h2>' +
+      '<div class="text-xs text-fog mb-4">درس ' + fa(L.n) + ' · صفحهٔ ' + L.page + '</div>' +
+      (pts ? '<div class="mb-5"><h3 class="text-xs font-black text-fog mb-2.5">نکته‌های کلیدی</h3>' + pts + "</div>" : "") +
+      '<div class="lesson-body fullbody">' + L.body + "</div>";
     host.append(card);
   });
 

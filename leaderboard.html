@@ -5,71 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#05080f">
 <title>تابلوی قهرمانان — درس‌یار نهم</title>
-<link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/tw.css">
+<link rel="stylesheet" href="assets/css/quest.css">
 </head>
-<body style="--accent:#facc15;--accent-deep:#eab308;--accent-soft:rgba(250,204,21,.14);--accent-glow:rgba(250,204,21,.32)">
-<header class="topbar">
-  <div class="wrap">
-    <a class="back-link" href="index.html"><span class="arrow">›</span><span>صفحهٔ اصلی</span></a>
-    <div class="spacer"></div>
-    <div class="ub-wrap" data-userbar></div>
+<body class="bg-ink text-snow antialiased bg-fabric" style="--accent:#facc15;--accent-deep:#eab308;--accent-soft:rgba(250,204,21,.14);--accent-glow:rgba(250,204,21,.32)">
+<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-3">
+    <a href="index.html" class="flex items-center gap-2 font-black text-lg shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-base">📚</span>
+      <span class="hidden sm:inline">درس‌یار</span>
+    </a>
+    <nav class="flex items-center gap-4 sm:gap-6 text-sm font-bold text-fog overflow-x-auto">
+      <a href="index.html" class="navlink shrink-0">خانه</a>
+      <a href="progress.html" class="navlink shrink-0">کارنامه</a>
+      <a href="leaderboard.html" class="navlink shrink-0">قهرمانان</a>
+    </nav>
+    <div class="flex-1"></div>
+    <div class="ub-wrap flex items-center gap-2 text-xs font-bold" data-userbar></div>
   </div>
 </header>
 
-<main>
-  <section class="wrap section" style="padding-top:26px">
-    <div class="sec-head">
-      <h1 style="font-size:1.5rem">تابلوی قهرمانان</h1>
-      <div class="rule"></div>
+<main class="pt-16">
+  <div class="mx-auto max-w-3xl px-4 py-8 sm:py-10">
+    <div class="mb-7">
+      <h1 class="text-2xl sm:text-3xl font-black mb-2">تابلوی قهرمانان</h1>
+      <p class="text-fog text-sm leading-7">
+        کسانی که بیشترین امتیاز را گرفته‌اند. فقط نام کوتاه نمایش داده می‌شود —
+        هیچ شماره یا مشخصات دیگری دیده نمی‌شود.
+      </p>
     </div>
-    <p style="font-family:var(--f-ui);font-size:.86rem;color:var(--text-dim);margin:0 0 20px">
-      کسانی که بیشترین امتیاز را گرفته‌اند. فقط نام کوتاه نمایش داده می‌شود —
-      هیچ شماره یا مشخصات دیگری دیده نمی‌شود.
-    </p>
 
     <!-- سه سکوی برتر -->
     <div id="podium" style="display:none;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;align-items:end"></div>
 
-    <div class="tbl-wrap">
-      <table class="teacher-table">
-        <thead><tr><th>#</th><th>دانش‌آموز</th><th>امتیاز</th><th>درس</th><th>آزمون</th></tr></thead>
-        <tbody id="rows">
-          <tr><td colspan="5" class="lb-msg">در حال بارگذاری…</td></tr>
-        </tbody>
-      </table>
+    <div class="space-y-2" id="rows">
+      <div class="glass rounded-2xl px-4 py-8 text-center text-sm text-fog">در حال بارگذاری…</div>
     </div>
 
-    <p id="note" class="lb-note" style="display:none"></p>
-  </section>
+    <p id="note" class="text-xs text-fog mt-6 text-center leading-7" style="display:none"></p>
+  </div>
 </main>
-
-<style>
-  .lb-msg { text-align: center; color: var(--text-dim); font-family: var(--f-ui); font-size: .85rem; padding: 22px 0; }
-  .lb-note { font-family: var(--f-ui); font-size: .8rem; color: var(--text-dim); margin-top: 16px; text-align: center; }
-  .lb-row.me td { background: rgba(250, 204, 21, .07); }
-  .lb-rank {
-    width: 28px; height: 28px; border-radius: 9px; display: inline-grid; place-items: center;
-    font-family: var(--f-ui); font-size: .78rem; font-weight: 800;
-    background: rgba(255,255,255,.06); color: var(--text-soft);
-  }
-  .lb-rank.g1 { background: linear-gradient(150deg,#fde68a,#f59e0b); color: #3b2503; }
-  .lb-rank.g2 { background: linear-gradient(150deg,#e2e8f0,#94a3b8); color: #1e293b; }
-  .lb-rank.g3 { background: linear-gradient(150deg,#fdba74,#c2410c); color: #2a1103; }
-  .lb-xp { font-family: var(--f-ui); font-weight: 800; color: #fde68a; }
-  .podium-card {
-    border-radius: var(--r-lg); padding: 16px 12px; text-align: center;
-    border: 1px solid rgba(250,204,21,.22);
-    background: linear-gradient(180deg, rgba(250,204,21,.10), rgba(13,21,38,.7));
-  }
-  .podium-card .pc-rank { font-size: 1.6rem; line-height: 1; margin-bottom: 6px; }
-  .podium-card .pc-name { font-family: var(--f-head); font-size: .92rem; margin-bottom: 3px; }
-  .podium-card .pc-xp { font-family: var(--f-ui); font-size: .78rem; color: #fde68a; }
-  .podium-card.first { border-color: rgba(250,204,21,.5); box-shadow: 0 18px 44px -20px rgba(250,204,21,.5); }
-  @media (max-width: 560px) {
-    #podium { grid-template-columns: 1fr !important; }
-  }
-</style>
 
 <script src="assets/js/config.js"></script>
 <script src="assets/js/app.js"></script>
@@ -86,7 +61,7 @@
   const note = document.getElementById("note");
 
   function msg(t) {
-    body.innerHTML = '<tr><td colspan="5" class="lb-msg">' + t + "</td></tr>";
+    body.innerHTML = '<div class="glass rounded-2xl px-4 py-8 text-center text-sm text-fog">' + t + "</div>";
   }
 
   function paint(players) {
@@ -96,17 +71,24 @@
       return;
     }
 
+    const MEDAL = { 1: "🥇", 2: "🥈", 3: "🥉" };
     players.forEach((p) => {
-      const tr = document.createElement("tr");
-      if (p.me) tr.className = "lb-row me";
-      const cls = p.rank <= 3 ? " g" + p.rank : "";
-      tr.innerHTML =
-        '<td><span class="lb-rank' + cls + '">' + fa(p.rank) + "</span></td>" +
-        "<td>" + p.name + (p.me ? ' <span style="color:#fde68a;font-size:.72rem">(تو)</span>' : "") + "</td>" +
-        '<td class="lb-xp">' + fa(p.xp) + "</td>" +
-        '<td style="color:var(--text-soft)">' + fa(p.lessons) + "</td>" +
-        '<td style="color:var(--text-soft)">' + fa(p.quizzes) + "</td>";
-      body.append(tr);
+      const row = document.createElement("div");
+      row.className = "glass rounded-2xl px-4 py-3 flex items-center gap-3" +
+        (p.me ? " ring-1 ring-xp/50" : "");
+      row.innerHTML =
+        '<span class="w-8 h-8 rounded-lg grid place-items-center shrink-0 text-xs font-black ' +
+          (p.rank === 1 ? "bg-gradient-to-br from-amberr to-orangey text-ink" :
+           p.rank === 2 ? "bg-gradient-to-br from-slate-200 to-slate-400 text-ink" :
+           p.rank === 3 ? "bg-gradient-to-br from-orangey to-amber-800 text-ink" :
+           "bg-white/8 text-fog") + '">' +
+          (MEDAL[p.rank] || fa(p.rank)) + '</span>' +
+        '<span class="text-sm font-black flex-1 min-w-0 truncate">' + p.name +
+          (p.me ? ' <span class="text-[10px] text-xp">(تو)</span>' : '') + '</span>' +
+        '<span class="text-[11px] text-fog shrink-0 tabular-nums">📖 ' + fa(p.lessons) + '</span>' +
+        '<span class="text-[11px] text-fog shrink-0 tabular-nums">✏️ ' + fa(p.quizzes) + '</span>' +
+        '<span class="text-sm font-black text-xp shrink-0 tabular-nums">' + fa(p.xp) + '</span>';
+      body.append(row);
     });
 
     // سکو: اول در وسط و بلندتر
@@ -117,13 +99,17 @@
       podium.innerHTML = "";
       order.forEach((p, i) => {
         const c = document.createElement("div");
-        c.className = "podium-card" + (i === 1 ? " first" : "");
+        c.className = "rounded-3xl p-4 text-center border " +
+          (i === 1
+            ? "border-xp/50 bg-gradient-to-b from-xp/15 to-transparent sm:py-7"
+            : "border-white/10 bg-white/[0.03]");
         c.innerHTML =
-          '<div class="pc-rank">' + medals[i] + "</div>" +
-          '<div class="pc-name">' + p.name + "</div>" +
-          '<div class="pc-xp">' + fa(p.xp) + " امتیاز</div>";
+          '<div class="text-3xl mb-2">' + medals[i] + "</div>" +
+          '<div class="text-sm font-black mb-1 truncate">' + p.name + "</div>" +
+          '<div class="text-xs text-xp font-bold">' + fa(p.xp) + " امتیاز</div>";
         podium.append(c);
       });
+      podium.className = "grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 items-end";
       podium.style.display = "grid";
     }
 

@@ -1,71 +1,80 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#05080f">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#05080f" />
 <title>کارنامهٔ من — درس‌یار نهم</title>
-<link rel="stylesheet" href="assets/css/fonts.css">
-<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/tw.css" />
+<link rel="stylesheet" href="assets/css/quest.css" />
 </head>
-<body style="--accent:#6366f1;--accent-deep:#4f46e5;--accent-soft:rgba(99,102,241,.14);--accent-glow:rgba(99,102,241,.35)">
-<header class="topbar">
-  <div class="wrap">
-    <a class="back-link" href="index.html"><span class="arrow">›</span><span>صفحهٔ اصلی</span></a>
-    <div class="spacer"></div>
-    <div class="ub-wrap" data-userbar></div>
+<body class="bg-ink text-snow antialiased bg-fabric">
+
+<header class="fixed top-0 inset-x-0 z-50 glass-strong">
+  <div class="mx-auto max-w-7xl px-4 h-16 flex items-center gap-3">
+    <a href="index.html" class="flex items-center gap-2 font-black text-lg shrink-0">
+      <span class="w-9 h-9 rounded-xl grid place-items-center bg-gradient-to-br from-violet to-skyy text-ink text-base">📚</span>
+      <span class="hidden sm:inline">درس‌یار</span>
+    </a>
+    <nav class="flex items-center gap-4 sm:gap-6 text-sm font-bold text-fog overflow-x-auto">
+      <a href="index.html" class="navlink shrink-0">خانه</a>
+      <a href="progress.html" class="navlink shrink-0" data-active="true">کارنامه</a>
+      <a href="leaderboard.html" class="navlink shrink-0">قهرمانان</a>
+    </nav>
+    <div class="flex-1"></div>
+    <div class="ub-wrap flex items-center gap-2 text-xs font-bold" data-userbar></div>
   </div>
 </header>
 
-<main>
-  <section class="wrap section" style="padding-top:26px">
-    <div class="sec-head">
-      <h1 style="font-size:1.5rem">کارنامهٔ من</h1>
-      <div class="rule"></div>
+<main class="pt-16">
+  <div class="mx-auto max-w-5xl px-4 py-8 sm:py-10">
+
+    <div class="mb-8">
+      <h1 class="text-2xl sm:text-3xl font-black mb-2">کارنامهٔ من</h1>
+      <p class="text-fog text-sm">پیشرفت درس‌خواندن و نتیجهٔ آزمون‌ها — همیشه همگام با حساب همدل.</p>
     </div>
-    <p style="font-family:var(--f-ui);font-size:.86rem;color:var(--text-dim);margin:0 0 20px">
-      پیشرفت درس‌خواندن و نتیجهٔ آزمون‌های تو در درس‌یار — همیشه همگام با حساب همدل.
-    </p>
 
-    <div class="hero-stats" id="kpis" style="margin-bottom:24px"></div>
-
-    <div class="glass" id="levelcard" style="border-radius:var(--r-lg);padding:20px 22px;margin-bottom:22px;display:none">
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-        <div id="lvbadge" style="width:58px;height:58px;border-radius:18px;display:grid;place-items:center;
-             font-family:var(--f-head);font-size:1.25rem;background:rgba(250,204,21,.12);
-             border:1px solid rgba(250,204,21,.32);color:#fde68a;transform:rotate(-6deg)">۱</div>
-        <div style="flex:1 1 200px;min-width:0">
-          <div style="font-family:var(--f-head);font-size:1.02rem;margin-bottom:2px">
-            سطح <span id="lvnum">۱</span> — <span id="lvtier" class="text-grad" style="font-weight:900">تازه‌کار</span>
+    <!-- کارت سطح -->
+    <div class="glass rounded-3xl p-5 sm:p-6 mb-6 relative overflow-hidden" id="levelcard">
+      <div class="absolute rounded-full pointer-events-none"
+           style="top:-70px;left:-70px;width:200px;height:200px;filter:blur(80px);background:rgba(167,139,250,.22)"></div>
+      <div class="relative flex items-center gap-4 flex-wrap">
+        <div id="lvbadge" class="w-16 h-16 rounded-2xl grid place-items-center text-2xl font-black shrink-0 -rotate-6"
+             style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.32);color:#fde68a">۱</div>
+        <div class="min-w-0 flex-1">
+          <div class="font-black text-base sm:text-lg mb-1">
+            سطح <span id="lvnum">۱</span> —
+            <span id="lvtier" class="text-grad">تازه‌کار</span>
           </div>
-          <div style="font-family:var(--f-ui);font-size:.78rem;color:var(--text-dim)">
-            <span id="lvxp">۰</span> امتیاز تا سطح بعد
-          </div>
+          <div class="text-xs text-fog"><span id="lvxp">۲۵۰</span> امتیاز تا سطح بعد</div>
         </div>
       </div>
-      <div style="margin-top:14px;height:9px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden">
-        <i id="lvbar" style="display:block;height:100%;width:0;border-radius:999px;
-           background:linear-gradient(90deg,var(--mint),var(--sky));transition:width .7s cubic-bezier(.2,.8,.2,1)"></i>
+      <div class="relative mt-4 h-2.5 rounded-full bg-white/10 overflow-hidden">
+        <i id="lvbar" class="block h-full rounded-full transition-all duration-700"
+           style="width:0;background:linear-gradient(90deg,#a78bfa,#22d3ee)"></i>
       </div>
     </div>
 
-    <div class="sec-head"><h2 style="font-size:1.1rem">درس‌ها به تفکیک کتاب</h2><div class="rule"></div></div>
-    <div id="subjects" class="progress-list"></div>
+    <!-- آمار -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8" id="kpis"></div>
 
-    <div class="sec-head" style="margin-top:26px"><h2 style="font-size:1.1rem">آزمون‌های اخیر</h2><div class="rule"></div></div>
-    <div class="tbl-wrap">
-      <table class="teacher-table">
-        <thead><tr><th>کتاب</th><th>درس</th><th>نمره</th><th>حالت</th><th>زمان</th></tr></thead>
-        <tbody id="recent"><tr><td colspan="5" style="text-align:center;color:var(--text-dim)">در حال بارگذاری…</td></tr></tbody>
-      </table>
-    </div>
+    <!-- پیشرفت هر کتاب -->
+    <h2 class="text-lg font-black mb-4">پیشرفت به تفکیک کتاب</h2>
+    <div class="space-y-2.5 mb-10" id="subjects"></div>
 
-    <p style="font-family:var(--f-ui);font-size:.78rem;color:var(--text-dim);margin-top:20px">
+    <!-- آزمون‌های اخیر -->
+    <h2 class="text-lg font-black mb-4">آزمون‌های اخیر</h2>
+    <div id="recent" class="space-y-2"></div>
+
+    <p class="text-xs text-fog mt-8 text-center leading-7">
       آزمون‌ها اختیاری‌اند؛ هر زمان بخواهی می‌توانی فقط نکته‌ها را بخوانی.
-      <a href="index.html" style="color:var(--accent)">بازگشت به درس‌ها</a>
     </p>
-  </section>
+  </div>
 </main>
+
+<footer class="border-t border-line/50 py-8 px-4 text-center text-fog text-xs">
+  <p>درس‌یار نهم — محتوای همهٔ درس‌ها از کتاب‌های درسی پایه نهم (۱۴۰۵–۱۴۰۶)</p>
+</footer>
 
 <script src="assets/js/config.js"></script>
 <script src="assets/js/app.js"></script>
@@ -76,121 +85,146 @@
   if (!D.requireLogin()) return;
   D.paintUserBar();
 
-  const NAME = {quran:"قرآن",payam:"پیام‌های آسمان",farsi:"فارسی",negar:"نگارش",math:"ریاضی",
-                science:"علوم تجربی",social:"مطالعات اجتماعی",arabic:"عربی",english:"انگلیسی",
-                "english-workbook":"کتاب کار"};
-  const TOTAL = {quran:11,payam:12,farsi:17,negar:8,math:28,science:15,social:18,arabic:10,english:6,"english-workbook":6};
-  const fa = (v) => String(v == null ? "۰" : v).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d]);
+  const BOOKS = [
+    { key:"quran", name:"آموزش قرآن", c:"#34d399", total:11 },
+    { key:"payam", name:"پیام‌های آسمان", c:"#22d3ee", total:12 },
+    { key:"farsi", name:"فارسی", c:"#a78bfa", total:17 },
+    { key:"negar", name:"نگارش", c:"#f472b6", total:8 },
+    { key:"math", name:"ریاضی", c:"#818cf8", total:28 },
+    { key:"science", name:"علوم تجربی", c:"#2dd4bf", total:15 },
+    { key:"social", name:"مطالعات اجتماعی", c:"#fb923c", total:18 },
+    { key:"arabic", name:"عربی", c:"#fbbf24", total:10 },
+    { key:"english", name:"زبان انگلیسی", c:"#fb7185", total:6 },
+    { key:"english-workbook", name:"کتاب کار انگلیسی", c:"#93a2c0", total:6 },
+  ];
+  const fa = D.fa;
 
-  function kpi(v, l) {
+  function kpi(v, l, c) {
     const d = document.createElement("div");
-    d.className = "stat-card";
-    d.innerHTML = '<div class="v">' + fa(v) + '</div><div class="l">' + l + '</div>';
+    d.className = "glass rounded-2xl p-4 text-center";
+    d.innerHTML =
+      '<div class="text-2xl font-black" style="color:' + c + '">' + fa(v) + '</div>' +
+      '<div class="text-[10px] sm:text-xs text-fog mt-1">' + l + '</div>';
     return d;
   }
 
   function render(data) {
     const st = D.Store.stats();
-    const kpis = document.getElementById("kpis");
-    kpis.innerHTML = "";
-    kpis.append(
-      kpi(st.xp, "امتیاز XP"),
-      kpi(st.streak, "روز پشت‌سرهم"),
-      kpi(Object.keys(st.lessons).length, "درس خوانده"),
-      kpi(Object.keys(st.quizzes).length, "آزمون داده")
+
+    document.getElementById("kpis").append(
+      kpi(st.xp || 0, "امتیاز XP", "#facc15"),
+      kpi(st.streak || 0, "روز پشت‌سرهم", "#fb923c"),
+      kpi(Object.keys(st.lessons || {}).length, "درس خوانده", "#34d399"),
+      kpi(Object.keys(st.quizzes || {}).length, "آزمون داده", "#22d3ee")
     );
 
-    // سطح و نشان — هر ۲۵۰ امتیاز یک سطح
-    (function paintLevel() {
-      const TIERS = ["تازه‌کار", "جست‌وجوگر", "ماجراجو", "کوشا", "چیره‌دست", "استاد", "افسانه"];
-      const xp = st.xp || 0;
-      const PER = 250;
-      const lvl = Math.floor(xp / PER) + 1;
-      const into = xp % PER;
-      const card = document.getElementById("levelcard");
-      if (!card) return;
-      card.style.display = "";
-      document.getElementById("lvbadge").textContent = fa(lvl);
-      document.getElementById("lvnum").textContent = fa(lvl);
-      document.getElementById("lvtier").textContent = TIERS[Math.min(lvl - 1, TIERS.length - 1)];
-      document.getElementById("lvxp").textContent = fa(PER - into);
-      const bar = document.getElementById("lvbar");
-      requestAnimationFrame(() => { bar.style.width = Math.round((into / PER) * 100) + "%"; });
-    })();
+    // سطح
+    const TIERS = ["تازه‌کار", "جست‌وجوگر", "ماجراجو", "کوشا", "چیره‌دست", "استاد", "افسانه"];
+    const xp = st.xp || 0, PER = 250;
+    const lvl = Math.floor(xp / PER) + 1;
+    const into = xp % PER;
+    document.getElementById("lvbadge").textContent = fa(lvl);
+    document.getElementById("lvnum").textContent = fa(lvl);
+    document.getElementById("lvtier").textContent = TIERS[Math.min(lvl - 1, TIERS.length - 1)];
+    document.getElementById("lvxp").textContent = fa(PER - into);
+    requestAnimationFrame(() => {
+      document.getElementById("lvbar").style.width = Math.round(into / PER * 100) + "%";
+    });
 
-    const wrap = document.getElementById("subjects");
-    wrap.innerHTML = "";
+    // هر کتاب
     const bySub = {};
-    (data && data.subjects || []).forEach((r) => { bySub[r.subject] = r; });
+    ((data && data.subjects) || []).forEach(r => { bySub[r.subject] = r; });
 
-    // اگر سرور در دسترس نبود، از وضعیت محلی همین دستگاه استفاده کن
     const localCount = {}, localQuiz = {};
-    Object.keys(st.lessons).forEach((k) => {
+    Object.keys(st.lessons || {}).forEach(k => {
       const s = k.split(":")[0];
       localCount[s] = (localCount[s] || 0) + 1;
     });
-    Object.keys(st.quizzes).forEach((k) => {
+    Object.keys(st.quizzes || {}).forEach(k => {
       const s = k.split(":")[0];
-      (localQuiz[s] = localQuiz[s] || []).push(st.quizzes[k].best || 0);
+      (localQuiz[s] = localQuiz[s] || []).push((st.quizzes[k] || {}).best || 0);
     });
 
-    Object.keys(NAME).forEach((key) => {
-      let r = bySub[key];
+    const wrap = document.getElementById("subjects");
+    wrap.innerHTML = "";
+
+    BOOKS.forEach(b => {
+      let r = bySub[b.key];
       if (!r) {
-        const qs = localQuiz[key] || [];
+        const qs = localQuiz[b.key] || [];
         r = {
-          lessons_read: localCount[key] || 0,
+          lessons_read: localCount[b.key] || 0,
           quizzes_taken: qs.length,
-          avg_pct: qs.length ? Math.round(qs.reduce((a, b) => a + b, 0) / qs.length) : null
+          avg_pct: qs.length ? Math.round(qs.reduce((a, x) => a + x, 0) / qs.length) : null
         };
       }
-      const pct = Math.min(100, Math.round((r.lessons_read / TOTAL[key]) * 100));
-      const row = document.createElement("div");
-      row.className = "progress-row";
+      const pct = Math.min(100, Math.round((r.lessons_read / b.total) * 100));
+
+      const row = document.createElement("a");
+      row.href = "lessons/" + b.key + "/index.html";
+      row.className = "glass rounded-2xl px-4 py-3.5 flex items-center gap-3 hover:border-white/25 transition-colors";
       row.innerHTML =
-        '<span class="pr-name">' + NAME[key] + '</span>' +
-        '<div class="pr-bar"><i style="width:' + pct + '%"></i></div>' +
-        '<span class="pr-num">' + fa(r.lessons_read) + "/" + fa(TOTAL[key]) + '</span>' +
-        '<span class="pr-pct">' + (r.avg_pct == null ? "—" : fa(r.avg_pct) + "٪") + '</span>';
+        '<span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:' + b.c + '"></span>' +
+        '<span class="text-sm font-black w-24 sm:w-36 shrink-0 truncate">' + b.name + '</span>' +
+        '<span class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">' +
+          '<i class="block h-full rounded-full transition-all duration-700" style="width:' + pct + '%;background:' + b.c + '"></i>' +
+        '</span>' +
+        '<span class="text-[11px] font-bold text-fog shrink-0 tabular-nums">' +
+          fa(r.lessons_read) + '/' + fa(b.total) +
+        '</span>' +
+        '<span class="text-[11px] font-black shrink-0 w-12 text-left tabular-nums" style="color:' + b.c + '">' +
+          (r.avg_pct == null ? "—" : fa(r.avg_pct) + "٪") +
+        '</span>';
       wrap.append(row);
     });
 
-    const recent = document.getElementById("recent");
-    recent.innerHTML = "";
-    // اول تلاش‌های سرور؛ اگر نبود، از تاریخچهٔ محلی همین دستگاه
+    // آزمون‌های اخیر
     let rows = (data && data.attempts) || [];
     if (!rows.length) {
-      rows = Object.keys(st.quizzes)
-        .map((k) => {
-          const q = st.quizzes[k];
-          const [subject, lessonId] = k.split(":");
-          return { subject, lesson_id: lessonId, pct: q.best, mode: "normal", created_at: q.at };
-        })
-        .sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+      rows = Object.keys(st.quizzes || {}).map(k => {
+        const q = st.quizzes[k] || {};
+        const [subject, lessonId] = k.split(":");
+        return { subject, lesson_id: lessonId, pct: q.best, mode: "normal", created_at: q.at };
+      }).sort((a, b2) => (b2.created_at || 0) - (a.created_at || 0));
     }
+
+    const recent = document.getElementById("recent");
     if (!rows.length) {
-      recent.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim)">هنوز آزمونی نداده‌ای.</td></tr>';
-    } else {
-      rows.slice(0, 15).forEach((a) => {
-        const tr = document.createElement("tr");
-        const cls = a.pct >= 70 ? "ok" : a.pct >= 40 ? "mid" : "low";
-        const when = a.created_at ? new Date(a.created_at) : null;
-        tr.innerHTML =
-          "<td>" + (NAME[a.subject] || a.subject) + "</td>" +
-          "<td>" + fa(a.lesson_id) + "</td>" +
-          '<td><span class="pill ' + cls + '">' + fa(a.pct) + "٪</span></td>" +
-          "<td>" + (a.mode === "quick" ? "سریع" : "کامل") + "</td>" +
-          "<td>" + (when ? when.toLocaleDateString("fa-IR") : "—") + "</td>";
-        recent.append(tr);
-      });
+      recent.innerHTML = '<div class="glass rounded-2xl px-4 py-8 text-center text-sm text-fog">هنوز آزمونی نداده‌ای.</div>';
+      return;
     }
+
+    const NAME = {}; BOOKS.forEach(b => NAME[b.key] = b.name);
+    rows.slice(0, 15).forEach(a => {
+      const col = a.pct >= 70 ? "#34d399" : a.pct >= 40 ? "#fbbf24" : "#fb7185";
+      const when = a.created_at ? new Date(a.created_at) : null;
+      const dateStr = when && !isNaN(when)
+        ? fa(when.toLocaleDateString("fa-IR")) : "—";
+
+      const row = document.createElement("div");
+      row.className = "glass rounded-2xl px-4 py-3 flex items-center gap-3 flex-wrap";
+      row.innerHTML =
+        '<span class="text-sm font-bold flex-1 min-w-0 truncate">' + (NAME[a.subject] || a.subject) + '</span>' +
+        '<span class="text-[11px] text-fog">' + fa(a.lesson_id) + '</span>' +
+        '<span class="text-[11px] text-fog">' + (a.mode === "quick" ? "⚡ سریع" : "📖 کامل") + '</span>' +
+        '<span class="text-xs font-black px-2.5 py-1 rounded-lg shrink-0" style="color:' + col +
+          ';background:' + col + '1a;border:1px solid ' + col + '44">' + fa(a.pct) + '٪</span>' +
+        '<span class="text-[10px] text-fog/70 shrink-0">' + dateStr + '</span>';
+      recent.append(row);
+    });
   }
 
-  render(null);
-  const C = window.DarsCloud;
-  if (C && C.ready && C.loggedIn()) {
-    C.restore().then((d) => { if (d) render(d); }).catch(() => {});
-  }
+  // اول از سرور، بعد محلی
+  (async function load() {
+    const C = window.DarsCloud;
+    if (C && C.ready && C.loggedIn && C.loggedIn()) {
+      try {
+        const r = await C._call("me", {});
+        if (r) return render(r);
+      } catch (e) { /* محلی */ }
+    }
+    render(null);
+  })();
 })();
 </script>
 </body>
