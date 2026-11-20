@@ -2,7 +2,7 @@
 //  darsyar-auth — تابع لبهٔ «درس‌یار» روی پروژهٔ Supabase همدل
 //  بدون هیچ ایمپورت خارجی: فقط fetch به PostgREST و Web Crypto.
 //  (نسخهٔ JavaScript خالص — همان کدی که روی Supabase اجرا می‌شود)
-//  مسیرها (آخرین بخش URL):  /login  /me  /save  /teacher
+//  مسیرها (آخرین بخش URL):  /login  /me  /save  /leaderboard  /teacher
 // ============================================================================
 
 const CORS = {
@@ -339,6 +339,45 @@ const STAFF = new Set([
   "developer",
 ]);
 
+
+// ---------------------------------------------------------------------------
+//  /leaderboard — تابلوی قهرمانان (فقط نام کوتاه، بدون هیچ داده شخصی)
+//  ورودی: { subject? }   خروجی: { players: [{ name, xp, streak, lessons }] }
+// ---------------------------------------------------------------------------
+async function leaderboard(req) {
+  let v = null;
+  try { v = await viewer(req); } catch (e) { v = null; }
+  if (!v) return json({ error: "نشست منقضی شده است؛ دوباره وارد شوید." }, 401);
+
+  // جمع امتیاز هر دانش‌آموز از خلاصهٔ آماده در دیتابیس
+  const rows = await selectRows(
+    "darsyar_student_summary",
+    "select=user_id,first_name,last_name,xp,lessons_read,quizzes_taken&xp=gt.0&order=xp.desc&limit=50",
+  );
+  if (rows.error) return json({ error: rows.error }, 500);
+
+  const me = String(v.id ?? "");
+  const players = (rows.data ?? []).map((r, i) => ({
+    rank: i + 1,
+    name: shortName([r.first_name, r.last_name].filter(Boolean).join(" ")),
+    xp: Number(r.xp) || 0,
+    lessons: Number(r.lessons_read) || 0,
+    quizzes: Number(r.quizzes_taken) || 0,
+    me: String(r.user_id) === me,
+  }));
+
+  return json({ players });
+}
+
+/** نام را برای نمایش عمومی کوتاه می‌کند: «علی محمدی» → «علی م.» */
+function shortName(n) {
+  const s = String(n || "").trim();
+  if (!s) return "دانش‌آموز";
+  const parts = s.split(/\s+/);
+  if (parts.length === 1) return parts[0];
+  return parts[0] + " " + parts[parts.length - 1].slice(0, 1) + ".";
+}
+
 async function teacher(req) {
   const v = await viewer(req);
   if (!v) return json({ error: "نشست منقضی شده است." }, 401);
@@ -366,6 +405,7 @@ Deno.serve(async (req) => {
     if (path === "login") return await login(req);
     if (path === "me") return await me(req);
     if (path === "save") return await save(req);
+    if (path === "leaderboard") return await leaderboard(req);
     if (path === "teacher") return await teacher(req);
     return json({ error: "مسیر ناشناخته", path }, 404);
   } catch (err) {
